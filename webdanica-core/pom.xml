@@ -30,6 +30,14 @@
           <artifactId>log4j</artifactId>
           <groupId>log4j</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>org.apache.tomcat</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>org.apache.tomcat.embed</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -49,6 +57,16 @@
       <groupId>org.netarchivesuite</groupId>
       <artifactId>archive-core</artifactId>
       <version>${netarchivesuite.version}</version>
+     <exclusions>
+       <exclusion>
+         <artifactId>*</artifactId>
+         <groupId>org.apache.tomcat</groupId>
+       </exclusion>
+       <exclusion>
+         <artifactId>*</artifactId>
+         <groupId>org.apache.tomcat.embed</groupId>
+       </exclusion>
+     </exclusions>
     </dependency>
    <dependency>
     <groupId>com.googlecode.json-simple</groupId>
