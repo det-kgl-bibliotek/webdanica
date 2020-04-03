@@ -245,7 +245,10 @@
             <goals>
               <goal>extract-buildnumber</goal>
             </goals>
-            <phase>prepare-package</phase>
+            <phase>none</phase>
+            <configuration>
+
+            </configuration>
           </execution>
         </executions>
       </plugin> 
