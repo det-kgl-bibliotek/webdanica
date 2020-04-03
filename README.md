@@ -24,23 +24,24 @@ The database backend is HBase (currently 1.1) through Apache Phoenix. Building t
 ```
 Being 'provided' means, that is not downloaded and among the libs included in the produced war-file.
 You should locate the phoenix-client-jar used with your cluster, and use this instead of the previously used phoenix-4.7.0-HBase-1.1-client.jar.
-We are currently used Horton Works, and their phoenix-client-jar is located here: /usr/hdp/current/phoenix-client/phoenix-client.jar
+We are currently used HortonWorks, and their phoenix-client-jar is located here: `/usr/hdp/current/phoenix-client/phoenix-client.jar`
 
 Describing the installation of hbase is considered out of scope for this manual.
 
-Creating the webdanica-tables in hbase are done using the psql.py script and the create-scripts found here: [scripts/hbase-phoenix](scripts/hbase-phoenix)<br/>
-Please use the scripts from the sourcecode attached to the release on https://github.com/netarchivesuite/webdanica/releases, as the scripts on github could be newer.
+Creating the webdanica-tables in hbase are done using the psql.py script and the create-scripts found here: [scripts/hbase-phoenix](scripts/hbase-phoenix).
+
+Please use the scripts from the sourcecode attached to the release on <https://github.com/netarchivesuite/webdanica/releases>, as the scripts on github could be newer.
 
 There are the following create scripts for each of the required hbase tables 
- * create_blacklists.sql
- * create_criteria_results.sql
- * create_domains.sql
- * create_harvests.sql
- * create_ingestlog.sql
- * create_seeds.sql
+ * `create_blacklists.sql`
+ * `create_criteria_results.sql`
+ * `create_domains.sql`
+ * `create_harvests.sql`
+ * `create_ingestlog.sql`
+ * `create_seeds.sql`
 
-Sample command to create the blacklists table with connectionstring=kb-test-hadoop-01.kb.dk:2181:/hbase
-e.g. psql.py kb-test-hadoop-01.kb.dk:2181:/hbase create_blacklists.sql
+Sample command to create the blacklists table with connectionstring=`kb-test-hadoop-01.kb.dk:2181:/hbase`
+e.g. `psql.py kb-test-hadoop-01.kb.dk:2181:/hbase create_blacklists.sql`
 
 [Building the war-file](warfile_building.md) - The WEB-INF/lib folder in the war-file is used as standard lib folder for the webdanica-tools and the scripts of the automatic and manual workflows.
 

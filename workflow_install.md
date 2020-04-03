@@ -2,12 +2,11 @@
 
 ## What is the automatic-workflow 
 
-The automatic workflow takes care of the analysis of the harvested files on the basis of harvestlogs written by the webapp to a common
-directory. This directory is defined by the webdanica setting settings.harvesting.harvestlogDir (e.g. /home/harvestLogs).
-One script executes the entire automatic-workflow, i.e. the 'webdanica-analysis-cron.sh'. There is also a 'webdanica-analysis-manual.sh script, that
-takes one harvestlog, and does the analysis on that harvestlog alone.
+The automatic workflow takes care of the analysis of the harvested files on the basis of harvestlogs written by the webapp to a common directory. This directory is defined by the webdanica setting `settings.harvesting.harvestlogDir` (e.g. `/home/harvestLogs`).
 
-Both these scripts both include a common file 'setenv.sh' which must be configured correctly before enabling the harvesting workflow and the cronjobs: 
+One script executes the entire automatic-workflow, i.e. the `webdanica-analysis-cron.sh`. There is also a `webdanica-analysis-manual.sh` script, that takes one harvestlog, and does the analysis on that harvestlog alone.
+
+Both these scripts both include a common file `setenv.sh` which must be configured correctly before enabling the harvesting workflow and the cronjobs: 
 ``` 
 WORKFLOW_USER_HOME=/home/test
 WEBDANICA_VERSION=2.1
@@ -34,8 +33,9 @@ The important settings to verify are the following
 
 ## Downloading and installing hadoop-1.2.1 and pig-0.16.0
 
-Apache hadoop (version 1.2.1) and Apache pig (version 0.16.0) are required by the automatic-workflow.</br>.
-They must be downloaded and unpacked into the WORKFLOW_USER_HOME like this:
+Apache hadoop (version 1.2.1) and Apache pig (version 0.16.0) are required by the automatic-workflow.
+
+They must be downloaded and unpacked into the `WORKFLOW_USER_HOME` like this:
 ```
 cd $WORKFLOW_USER_HOME
 wget http://archive.apache.org/dist/hadoop/core/hadoop-1.2.1/hadoop-1.2.1.tar.gz
@@ -44,7 +44,8 @@ tar xfz hadoop-1.2.1.tar.gz
 tar xfz pig-0.16.0.tar.gz
 ```
 
-Note that we want to use the hadoop embedded with pig, not any external hadoop installation. So, if hadoop is in the path (`which hadoop` gives a positive result), you need to 
+Note that we want to use the hadoop embedded with pig, not any external hadoop installation. 
+So, if hadoop is in the path (`which hadoop` gives a positive result), you need to 
 adapt the `pig-0.16.0/bin/pig` script like shown in this diff:
 ```
  #    done
@@ -85,16 +86,16 @@ Thus tricking it into not finding the hadoop installed on the machine or in the 
 
 ## The installation of the automatic-workflow 
 
-First the sourcecode for the release from https://github.com/netarchivesuite/webdanica/releases
+First the sourcecode for the release from <https://github.com/netarchivesuite/webdanica/releases>
 unzip the source code. This will produce a `webdanica-$RELEASE` folder (e.g. webdanica-1.2.0), and we want the webdanica-$RELEASE/workflow-template folder.  
 
 If you want instead to download the current source from github, use the `extractFromGithub.sh` command in the tools folder.
-```
+```bash
 bash extractFromGithub.sh 1.X
 ```
 This will download a zipfile of the 1.X branch from github and unpack it in the folder 1.X-DD-MM-YYYY/webdanica-1.X Where DD-MM-YY represents the current date.
 
-Now copy the workflow-template folder to $WORKFLOW_USER_HOME/automatic-workflow (e.g. /home/test), and change the owner of the files to the user running the automatic workflow. We have this template, because you can also use the same template-folder to install a manual workflow, manual-workflow. We recommend two separate workflows, even though it is not required.
+Now copy the `workflow-template` folder to `$WORKFLOW_USER_HOME/automatic-workflow` (e.g. `/home/test`), and change the owner of the files to the user running the automatic workflow. We have this template, because you can also use the same template-folder to install a manual workflow, `manual-workflow`. We recommend two separate workflows, even though it is not required.
 
 Download the webdanica-webapp-war-$RELEASE.war from the release page, and unzip it e.g.
 ```

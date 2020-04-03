@@ -3,20 +3,20 @@
 Installation of the webapp requires installation of tomcat, and we have been running with Apache Tomcat 8.0.33, so any 8.0.33+ will probably do as well.
 The webapp also requires java 8, so we 
 
-The webapp requires 'WEBDANICA_HOME' to be declared as a environment variable in $TOMCAT_HOME/bin/setenv.sh file.
-The webapp also requires java 8, so you should also set JAVA_HOME to a java 8 installed on your machine as seen in the setenv.sh shown below:
+The webapp requires 'WEBDANICA_HOME' to be declared as a environment variable in `$TOMCAT_HOME/bin/setenv.sh` file.
+The webapp also requires java 8, so you should also set `JAVA_HOME` to a java 8 installed on your machine as seen in the setenv.sh shown below:
 ```
-JAVA_HOME=/usr/java/jdk1.8.0_92_x64
+JAVA_HOME=/usr/lib/jvm/java-1.8.0
 WEBDANICA_HOME=/usr/java/webdanica-config
 export WEBDANICA_HOME JAVA_HOME
 ```
-Furthermore the webapp requires the WEBDANICA_HOME to point to an existing directory and the following two files to be present in the WEBDANICA_HOME directory:
- * webdanica_settings.xml
- * settings_NAS_Webdanica.xml
+Furthermore the webapp requires the `WEBDANICA_HOME` to point to an existing directory and the following two files to be present in the `WEBDANICA_HOME` directory:
+ * `webdanica_settings.xml`
+ * `settings_NAS_Webdanica.xml`
 
-Note: The names of these two files are hardwired into the web.xml of the webdanica webapp!
+Note: The names of these two files are hardwired into the `web.xml` of the webdanica webapp!
 
-The webdanica_settings.xml is the primary configuration file for webdanica, whereas the settings_NAS_Webdanica.xml allows webdanica webapp to interface with the 
+The `webdanica_settings.xml` is the primary configuration file for webdanica, whereas the `settings_NAS_Webdanica.xml` allows webdanica webapp to interface with the 
 local webdanica netarchivesuite system.
 
 The settings_NAS_Webdanica.xml will normally be a copy of the settings_GUIApplication.xml.
@@ -36,7 +36,7 @@ Before do the actual deployment of the Webappp, we need to add a symbolic link i
 cd $TOMCAT_HOME/shared
 ln -s /usr/hdp/current/phoenix-client/phoenix-client.jar .
 ```
-And then adding/editing the variable shared.loader in tomcat/conf/catalina.properties so we get 
+And then adding/editing the variable shared.loader in `tomcat/conf/catalina.properties` so we get 
 ```
 shared.loader="${catalina.base}/shared","${catalina.base}/shared/*.jar","${catalina.home}/shared","${catalina.home}/shared/*.jar"
 ```
@@ -53,7 +53,7 @@ If tomcat is not started, tomcat will deploy and start the application when it i
 # Configuration of the webapp 
 
 ## configuration of the environment
-There is an env setting in webdanica_setting.xml.
+There is an env setting in `webdanica_setting.xml`.
 
 The environment is used in the header of the mails being sent
 Header: 
@@ -66,18 +66,19 @@ Body:
 [Webdanica-TEST] stopping
 Webdanica Webapp (version 0.4.0-SNAPSHOT) stopped on server kb-test-webdanica-001.kb.dk at 'Wed Dec 07 14:13:11 CET 2016'
 ```
-If env='UNKNOWN' or env='UNITTEST' (test is case-insensitive)
+If `env='UNKNOWN'` or `env='UNITTEST'` (test is case-insensitive)
 no mails are sent 
 
 ## mail-setup
-```
+```xml
 <mail>
 <host>localhost</host>
 <admin>account@domain</admin>
 <port>25</port>
 </mail>
 ```
-The above configuration instructs the system to send system-messages to mail account 'account@domain' using port 25 on the localhost
+The above configuration instructs the system to send system-messages to mail account 'account@domain' using port 25 on the localhost.
+
 Except for mails sent when the systemt starts and is shutdown, it is only a severe error that causes a mail to be sent.
 
 ## Workflow crontab configuration
@@ -88,7 +89,7 @@ Using the below configuration,
  * the statecaching workflow is run every 15 minutes.
 If the current run is not yet finished, the next run will just be skipped.
 
-```
+```xml
 <webapp>
     <crontab>
     <filtering>*/10 * * * *</filtering>
@@ -138,7 +139,7 @@ The filtering-workflow rejects any url which either
 Otherwise it will mark the url ready for harvesting
 
 A sample setup could look like this in the settingsfile
-```
+```xml
 <seeds>
   <rejectDkUrls>false</rejectDkUrls>
   <ignoredSuffixes>
@@ -186,23 +187,23 @@ A sample setup could look like this in the settingsfile
 ```
 ## Harvesting-workflow configuration
 The below configuration defines how to construct the single seed harvests prepared and run by the harvesting worklow.
-All these settings are necessary to enable the harvesting-workflow. Furthermore, the schedule defined by harvesting.schedule, and the template defined by harvesting.template must exist in the local
-netarchivesuite system, otherwise the harvestworkflow will be disabled
+All these settings are necessary to enable the harvesting-workflow. Furthermore, the schedule defined by harvesting.schedule, and the template defined by harvesting.template must exist in the local netarchivesuite system, otherwise the harvestworkflow will be disabled
 
 When the harvestWorkflow is enabled, it will harvest maxSingleSeedHarvests (5 in the sample configuration below) in a row, one after the other, and then write a harvestlog of the successful harvests to the harvestLogDir (/home/harvestlogs/ in the sample configuration below).
 
 The harvestLogs are made writeable by all, so the automatic-workflow can remove the harvestlogs during its processing.
 
-```
-<maxSingleSeedHarvests>5</maxSingleSeedHarvests>
-<schedule>Once</schedule>
-<template>webdanica_order</template>
-<prefix>webdanica-trial-</prefix>
-<maxbytes>10000</maxbytes>
-<maxobjects>10000</maxobjects>
-<harvestlogDir>/home/harvestlogs/</harvestlogDir>
-<harvestlogPrefix>harvestLog-</harvestlogPrefix>
-<harvestlogReadySuffix>.txt</harvestlogReadySuffix>
+```xml
+<harvesting>
+    <maxSingleSeedHarvests>5</maxSingleSeedHarvests>
+    <schedule>Once</schedule>
+    <template>webdanica_order</template>
+    <prefix>webdanica-trial-</prefix>
+    <maxbytes>10000</maxbytes>
+    <maxobjects>10000</maxobjects>
+    <harvestlogDir>/home/harvestlogs/</harvestlogDir>
+    <harvestlogPrefix>harvestLog-</harvestlogPrefix>
+    <harvestlogReadySuffix>.txt</harvestlogReadySuffix>
 <harvestMaxTimeInMillis>900000</harvestMaxTimeInMillis>
 </harvesting>
 ```
