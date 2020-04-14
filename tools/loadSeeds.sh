@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # replace path in TOOLS_HOME with the correct full path
 TOOLS_HOME=/REPLACE/WITH/CORRECT/FULL/PATH
 ME=`basename $0`

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ME=`basename $0`
 # arg 1: seed or file
 # needs webdanica-core, common-core-5.2.2, harvester-core-5.2.2, JDBC driver for NAS harvestdatabase

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 BRANCHNAME=$1
 if [[ -z $BRANCHNAME ]]; then
   echo "Forgot to name the wanted branch name"

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # replace path in TOOLS_HOME with the correct path
 TOOLS_HOME=/home/svc/devel/webdanica/tools
 ME=`basename $0`
