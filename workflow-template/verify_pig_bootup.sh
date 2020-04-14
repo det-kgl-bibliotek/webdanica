@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 WORKFLOW_HOME=$1
-ME=$(readlink -f $BASH_SOURCE[0])
+PROG=$(readlink -f $BASH_SOURCE[0])
 
 if [ -z $WORKFLOW_HOME ]; then
-   echo "Missing WORKFLOW_HOME argument to script $ME"
+   echo "Missing WORKFLOW_HOME argument to script $PROG"
    exit 1;
 fi
 if [ ! -d $WORKFLOW_HOME ]; then
-   echo "ERROR: The WORKFLOW_HOME '$WORKFLOW_HOME' is not properly set. Exiting script $ME"
+   echo "ERROR: The WORKFLOW_HOME '$WORKFLOW_HOME' is not properly set. Exiting script $PROG"
    exit 1
 fi
 

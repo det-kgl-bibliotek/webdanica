@@ -3,32 +3,32 @@ SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
 
 SETENV=$SCRIPT_DIR/setenv.sh
 
-ME=$(readlink -f $BASH_SOURCE[0])
+PROG=$(readlink -f $BASH_SOURCE[0])
 if [ -r "$SETENV" ]; then
-  . "$SETENV"
+  source "$SETENV"
 else 
-  echo Error: Path to setenv.sh is not correctly set in script $ME
+  echo Error: Path to setenv.sh is not correctly set in script $PROG
   exit 1
 fi
 ## Verify JAVA_HOME
 
 if [ ! -d "$JAVA_HOME" ]; then
- echo "ERROR: The JAVA_HOME '$JAVA_HOME' does not exist. Exiting program $ME"
+ echo "ERROR: The JAVA_HOME '$JAVA_HOME' does not exist. Exiting program $PROG"
    exit 1
 fi
 
 if [ ! -f $PHOENIX_CLIENT_JAR ]; then
-   echo "ERROR: The jarfile '$PHOENIX_CLIENT_JAR' does not exist. Exiting program $ME"
+   echo "ERROR: The jarfile '$PHOENIX_CLIENT_JAR' does not exist. Exiting program $PROG"
    exit 1
 fi
 
 ## Verify existence of conf/.pigbootup verify script
 if [ ! -f $PIGBOOTUP_VERIFIER_SCRIPT ]; then
-   echo "ERROR: The script '$PIGBOOTUP_VERIFIER_SCRIPT' does not exist. Exiting program $ME"
+   echo "ERROR: The script '$PIGBOOTUP_VERIFIER_SCRIPT' does not exist. Exiting program $PROG"
    exit 1
 fi
 ## Verify validity of conf/.pigbootup 
-RES=`bash $PIGBOOTUP_VERIFIER_SCRIPT $WORKFLOW_HOME`
+RES=$(bash $PIGBOOTUP_VERIFIER_SCRIPT $WORKFLOW_HOME)
 if [ "$RES" != "" ]; then
      echo "Pig bootup file '$PIGBOOTUP_FILE' is invalid: '$RES'"    
      exit 1
