@@ -31,7 +31,7 @@ fi
 
 
 SCRIPTPATH=$WORKFLOW_HOME/pigscripts/criteriaRun-combinedCombo-seq.pig
-SEQDIRS=`ls $SEQ_BASEDIR`
+SEQDIRS=$(ls $SEQ_BASEDIR)
 for J in $SEQDIRS
 do
 FILE=$SEQ_BASEDIR/$J/$J

@@ -4,7 +4,7 @@ OUTPUTDIR=$2
 HADOOP_HOME=$3
 WORKFLOW_HOME=$4
 
-PROG=`basename "$0"`
+PROG=$(basename "$0")
 PARENT_COMMAND="$(ps -o args= $PPID)"
 #-Dlog4j.configuration=/home/test/
 

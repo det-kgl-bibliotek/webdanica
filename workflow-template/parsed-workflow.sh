@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 HARVESTLOG=$1
 DATADIR=$2
 SEQDIR=$3
@@ -57,7 +58,7 @@ if [ ! -d "$SEQDIR" ]; then
 
 echo Calling "bash findwarcs.sh $HARVESTLOG $DATADIR $WORKFLOW_HOME $WEBDANICA_VERSION $NAS_VERSION" 
 
-WARCS=`bash findwarcs.sh $HARVESTLOG $DATADIR $WORKFLOW_HOME $WEBDANICA_VERSION $NAS_VERSION`
+WARCS=$(bash findwarcs.sh $HARVESTLOG $DATADIR $WORKFLOW_HOME $WEBDANICA_VERSION $NAS_VERSION)
 RESCODE=$?
 if [ $RESCODE -ne 0 ]; then
    echo "ERROR: The script 'findwarcs.sh' failed with statuscode $RESCODE. Exiting program $PROG"
@@ -69,7 +70,7 @@ successes=0
 for J in $WARCS 
 do
 echo "Processing $J"
-BASENAME=`basename $J`
+BASENAME=$(basename $J)
 DESTINATION=$SEQDIR/$BASENAME
 mkdir -p $DESTINATION
 echo "do parsed-extract on file $BASENAME with destination $DESTINATION"

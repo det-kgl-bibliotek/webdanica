@@ -92,7 +92,7 @@ fi
 #1) lav parsed-text af det høstede
 
 #Generer et unikt SEQ_DIR i SEQ_BASEDIR (/home/test/SEQ)
-TIMESTAMP=`/bin/date '+%d-%m-%Y-%s'`
+TIMESTAMP=$(/bin/date '+%d-%m-%Y-%s')
 SEQ_DIR=$SEQ_BASEDIR/$TIMESTAMP
 mkdir -p $SEQ_DIR
 echo

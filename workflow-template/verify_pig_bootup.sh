@@ -20,7 +20,7 @@ if [ ! -f $PIGBOOTUP_FILE ]; then
 fi
 
 
-LIBS=`grep REGISTER $PIGBOOTUP_FILE | grep -v "\-\-" | cut -d ' ' -f2`
+LIBS=$(grep REGISTER $PIGBOOTUP_FILE | grep -v "\-\-" | cut -d ' ' -f2)
 for L in $LIBS
 do
 if [ ! -f $WORKFLOW_HOME/$L ]; then
@@ -30,7 +30,7 @@ fi
 
 done 
 
-METHODS=`grep DEFINE $PIGBOOTUP_FILE  | grep -v "\-\-" | awk '$1=$1' | cut -d ' ' -f3 | tr -d '();'`
+METHODS=$(grep DEFINE $PIGBOOTUP_FILE  | grep -v "\-\-" | awk '$1=$1' | cut -d ' ' -f3 | tr -d '();')
 
 let FAILURE=0
 for M in $METHODS
@@ -39,7 +39,7 @@ do
 let FOUND=0
 for L in $LIBS 
 do  
-  RES=`grep $M $WORKFLOW_HOME/$L`
+  RES=$(grep $M $WORKFLOW_HOME/$L)
   if [ "$RES" != "" ];
   then 
      let FOUND=1
