@@ -1,7 +1,7 @@
 package dk.kb.webdanica.webapp.resources;
 
 import java.util.Date;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import com.antiaction.common.templateengine.TemplatePlaceHolder;
 
@@ -18,7 +18,7 @@ public class ResourceUtils {
 	if (somePlace != null) {
         somePlace.setText(value);
      } else {
-     	logger.warning("No placeholder '" + placeholdername + "' found in template '" + template + "'" );
+     	logger.warn("No placeholder '" + placeholdername + "' found in template '" + template + "'" );
      }
 	}
 	

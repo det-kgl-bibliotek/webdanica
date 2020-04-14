@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -25,10 +25,11 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.slf4j.LoggerFactory;
 
 public class BlackListResource implements ResourceAbstract {
 
-    private static final Logger logger = Logger.getLogger(BlackListResource.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(BlackListResource.class);
     
     private static final String BLACKLIST_SHOW_TEMPLATE = "blacklist_master.html";
 
@@ -72,15 +73,15 @@ public class BlackListResource implements ResourceAbstract {
             try {
                 b = dao.readBlackList(UUID.fromString(UUIDString));
             } catch (Exception e) {
-            	logger.warning("Exception thrown during read of blacklist with UUID '" +  UUIDString + "': " + e);
+            	logger.warn("Exception thrown during read of blacklist with UUID '" +  UUIDString + "': " + e);
             }
             if (b == null) { // no blacklist found with UID=UUIDString
-            	logger.warning("No blacklist found with uid=" + UUIDString);
+            	logger.warn("No blacklist found with uid=" + UUIDString);
             	b = new BlackList(dummyUUID, "dummyUUD", "No blacklist found with UUID=" + UUIDString, dummyList, System.currentTimeMillis() , false);
             }
         } else {
         	// create default dummy blacklist
-        	logger.warning("No UUID for blacklist given as argument in the path: " + pathInfo);
+        	logger.warn("No UUID for blacklist given as argument in the path: " + pathInfo);
         	b = new BlackList(dummyUUID, "dummyUUD", "No blacklist designated", dummyList, System.currentTimeMillis() , false);
         }
 
@@ -173,13 +174,13 @@ public class BlackListResource implements ResourceAbstract {
         			+ Servlet.environment.getBlacklistsPath() 
         			+ "\" class=\"btn btn-primary\"><i class=\"icon-white icon-list\"></i> Tilbage til oversigten</a>");
         } else {
-        	logger.warning("No back´placeholder found in template '" + BLACKLIST_SHOW_TEMPLATE + "'" );
+        	logger.warn("No back´placeholder found in template '" + BLACKLIST_SHOW_TEMPLATE + "'" );
         }
 
         if (headingPlace != null) {
             headingPlace.setText(heading);
         } else {
-        	logger.warning("No heading´ placeholder found in template '" + BLACKLIST_SHOW_TEMPLATE + "'" );
+        	logger.warn("No heading´ placeholder found in template '" + BLACKLIST_SHOW_TEMPLATE + "'" );
         }
 
         
@@ -206,7 +207,7 @@ public class BlackListResource implements ResourceAbstract {
             out.flush();
             out.close();
         } catch (IOException e) {
-        	logger.warning("IOException thrown, but ignored: " + e);        
+        	logger.warn("IOException thrown, but ignored: " + e);
         }
     }
         

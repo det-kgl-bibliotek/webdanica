@@ -1,13 +1,11 @@
 package dk.kb.webdanica.webapp.workflow;
 
+import dk.kb.webdanica.webapp.Environment;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-
-import dk.kb.webdanica.webapp.Environment;
 
 public abstract class WorkThreadAbstract implements Runnable {
 
@@ -47,7 +45,7 @@ public abstract class WorkThreadAbstract implements Runnable {
     		bExit = false;
             new Thread(this, threadName).start();
             if (logger != null) {
-            	logger.log(Level.INFO, this.getClass() + " Thread starting...");
+            	logger.info( this.getClass() + " Thread starting...");
             }
     	}
     }
@@ -56,7 +54,7 @@ public abstract class WorkThreadAbstract implements Runnable {
     	if (bRunning && !bExit) {
         	bExit = true;
         	if (logger != null) {
-            	logger.log(Level.INFO, this.getClass() + " Thread stopping...");
+            	logger.info( this.getClass() + " Thread stopping...");
         	}
     	}
     }
@@ -65,7 +63,7 @@ public abstract class WorkThreadAbstract implements Runnable {
     public void run() {
     	thread = Thread.currentThread();
         try {
-            logger.log(Level.INFO, this.getClass() + " Thread started.");
+            logger.info( this.getClass() + " Thread started.");
             bRun = true;
             process_init();
             bRun = false;
@@ -74,7 +72,7 @@ public abstract class WorkThreadAbstract implements Runnable {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    logger.log(Level.SEVERE, e.toString(), e);
+                    logger.error( e.toString(), e);
                 }
                 if (System.currentTimeMillis() > nextRun && !bExit) {
                     bRun = true;
@@ -92,7 +90,7 @@ public abstract class WorkThreadAbstract implements Runnable {
         } catch (Throwable t) {
             try {
             	exitCausedBy = t;
-                logger.log(Level.SEVERE, t.toString(), t);
+                logger.error( t.toString(), t);
                 // try to send mail to admin about the problem
                 environment.getConfig().getEmailer().sendAdminEmail("Workflow '" 
                         + this.threadName + "' crashed", 
@@ -101,12 +99,12 @@ public abstract class WorkThreadAbstract implements Runnable {
 
             } catch (Throwable t2) {
                 // test if this catches some errors
-                logger.log(Level.SEVERE, t2.toString(), t2);
+                logger.error( t2.toString(), t2);
                 t2.printStackTrace();
             }
         }
         bRunning = false;
-        logger.log(Level.INFO, this.getClass() + " Thread stopped.");
+        logger.info( this.getClass() + " Thread stopped.");
     }
 
     protected abstract void process_init();

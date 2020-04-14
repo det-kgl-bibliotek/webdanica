@@ -2,12 +2,13 @@ package dk.kb.webdanica.webapp.workflow;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.datamodel.dao.DAOFactory;
 import dk.kb.webdanica.core.datamodel.Cache;
 import dk.kb.webdanica.webapp.Environment;
+import org.slf4j.LoggerFactory;
 
 /**
  * A worker-thread for updating the state cache.
@@ -16,7 +17,7 @@ import dk.kb.webdanica.webapp.Environment;
 public class StateCacheUpdateWorkThread extends WorkThreadAbstract {
 	
 	static {
-        logger = Logger.getLogger(StateCacheUpdateWorkThread.class.getName());
+        logger = LoggerFactory.getLogger(StateCacheUpdateWorkThread.class);
     }
 
 	private DAOFactory daofactory;
@@ -44,7 +45,7 @@ public class StateCacheUpdateWorkThread extends WorkThreadAbstract {
 			return;
 		}
 		if (updateInProgress.get()) {
-			 logger.log(Level.INFO,
+			 logger.info(
 	                    "State cache update process already in progress at '" + new Date()
 	                            + "'. Skipping");
 			return;
@@ -53,7 +54,7 @@ public class StateCacheUpdateWorkThread extends WorkThreadAbstract {
         	try {
         		Cache.updateCache(daofactory);
         	} catch (Throwable e) {
-        		logger.log(Level.WARNING, "Failure during updating of cache", e);
+        		logger.warn( "Failure during updating of cache", e);
         	} finally {
         		updateInProgress.set(Boolean.FALSE);
         	}

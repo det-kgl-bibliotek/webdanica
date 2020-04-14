@@ -15,8 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +53,7 @@ import dk.netarkivet.harvester.datamodel.Schedule;
 import dk.netarkivet.harvester.datamodel.ScheduleDAO;
 import dk.netarkivet.harvester.datamodel.TemplateDAO;
 import dk.netarkivet.viewerproxy.webinterface.Reporting;
+import org.slf4j.LoggerFactory;
 
 /**
  * Create event-harvest only containing one seed. 
@@ -66,7 +68,7 @@ import dk.netarkivet.viewerproxy.webinterface.Reporting;
  */
 public class SingleSeedHarvest {
 	
-	private static final Logger logger = Logger.getLogger(SingleSeedHarvest.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SingleSeedHarvest.class);
 	
 	String seed; 
 	String harvestName; 
@@ -133,7 +135,7 @@ public class SingleSeedHarvest {
 		} catch (ArgumentNotValid e) {
 		    constructionOK=false;
 		    String error = "Unable to add seed '" + seed + "' to eventharvest: " + ExceptionUtils.getFullStackTrace(e);
-		    logger.warning("Failed to construct harvest for seed '" + seed + "': " +  error);
+		    logger.warn("Failed to construct harvest for seed '" + seed + "': " +  error);
 		    errMsg.append(error);
 		    
 		}
@@ -239,7 +241,7 @@ public class SingleSeedHarvest {
 		finishedStates.add(JobStatus.FAILED);
 		
 		String logMsg = "Now waiting for job for eventharvest '" + harvestName + "' to be scheduled ..";
-		SystemUtils.log(logMsg,Level.INFO, writeToSystemOut);
+		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
 		NasJob jsi = NetarchiveSuiteTools.getNewHarvestStatus(hid);
 		while (jsi == null){
 			try {
@@ -248,23 +250,23 @@ public class SingleSeedHarvest {
 				if (jsi == null) {
 				    logMsg = "Still waiting for job for eventharvest '" + harvestName 
                         + "' to be scheduled at date: " + new Date();
-				    SystemUtils.log(logMsg,Level.FINE, writeToSystemOut);
+					SystemUtils.log(logMsg, Level.DEBUG, writeToSystemOut, null);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 		logMsg = "Job for eventharvest '" + harvestName + "' has now been scheduled as job " +  jsi.getJobId() + " at date: " + new Date();
-		SystemUtils.log(logMsg,Level.INFO, writeToSystemOut);
-        
+		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
+		
 		// Harvest is now in progress ph.getHarvestStatus() != null
 		jsi = NetarchiveSuiteTools.getNewHarvestStatus(hid);
 		Long jobId = jsi.getJobId();
 		JobStatus status = jsi.getStatus();
 		logMsg = "State of Job '" + jobId + "' is now " + status + ". Waiting for job (harvest '" 
 		+ harvestName + "') to finish at date: " + new Date();
-		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut);
-	
+		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
+		
 		long starttime = System.currentTimeMillis();
 		while (!finishedStates.contains(status)) {
 		    if (writeToSystemOut) 
@@ -280,7 +282,7 @@ public class SingleSeedHarvest {
 		long endtime = System.currentTimeMillis();
 		long usedtimeSecs = (endtime-starttime)/1000;
 		logMsg = "After " + TimeUtils.readableTimeInterval(usedtimeSecs*1000L) +" the job " + jobId + "(harvest '" + harvestName + "') now has finished state " + status + " at date: " + new Date();
-		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut);
+		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
 		
 		this.finishedState = status;
 		this.statusInfo = jsi;
@@ -299,10 +301,10 @@ public class SingleSeedHarvest {
 		if (lines != null && !lines.isEmpty()){
 			logMsg = "The following files were harvested for job w/id=" + jobId + ": " + StringUtils.join(lines, ",");
 			filesHarvested = true;
-			SystemUtils.log(logMsg, Level.INFO, writeToSystemOut);
+			SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
 		} else {
 			logMsg = "No files was harvested for job w/id=" + jobId;
-			SystemUtils.log(logMsg, Level.WARNING, writeToSystemOut);
+			SystemUtils.log(logMsg, Level.WARN, writeToSystemOut, null);
 		}
 		this.files = lines;
 		
@@ -315,11 +317,11 @@ public class SingleSeedHarvest {
 		            hdao.update(hd);
 		        } else {  
 		            logMsg = "Unable to disable harvestdefinition w/id=" + this.hid + ". Netarchivesuite does not recognize harvestdefinition with this id";
-		            SystemUtils.log(logMsg, Level.WARNING, writeToSystemOut);
-		        }
+					SystemUtils.log(logMsg, Level.WARN, writeToSystemOut, null);
+				}
 		} catch (Throwable e) {
 		    logMsg = "Unable to disable harvestdefinition w/id=" + this.hid;
-		    SystemUtils.log(logMsg, Level.WARNING, writeToSystemOut, e);
+		    SystemUtils.log(logMsg, Level.WARN, writeToSystemOut, e);
 		}
 		
 		//get the reports associated with the harvest as well, extracted from the metadatawarc.file.
@@ -329,12 +331,12 @@ public class SingleSeedHarvest {
 		} catch (Throwable e) {
 		    String error = "Unable to retrieve the reports for job w/id=" + theJob.getJobID() + ": " + e;
 		    this.errMsg.append(error);
-		    SystemUtils.log(error, Level.WARNING, writeToSystemOut, e);
+		    SystemUtils.log(error, Level.WARN, writeToSystemOut, e);
 		}
 		if (this.reports != null) {
 			logMsg = "Retrieved '" + this.reports.getReports().keySet().size() + "' reports for job w/id=" + jobId;
-			SystemUtils.log(logMsg, Level.INFO, writeToSystemOut);
-		} 
+			SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
+		}
 		
 		// get the urls harvested by the job
 		this.fetchedUrls = null;
@@ -343,7 +345,7 @@ public class SingleSeedHarvest {
 		} catch (Throwable e) {
 		    String error = "Unable to retrieve the fetched urls for job w/id=" + theJob.getJobID();
 		    this.errMsg.append(error);
-		    SystemUtils.log(error, Level.WARNING, writeToSystemOut, e);
+		    SystemUtils.log(error, Level.WARN, writeToSystemOut, e);
 		}
 		this.successful = status.equals(JobStatus.DONE);
 		String failureReason = "";
@@ -419,7 +421,7 @@ public class SingleSeedHarvest {
 	    		reportMap.put(key, data);
 	    	} catch (Throwable e) {
 	    		String logMsg = "When trying to get all reports for job w/id=" + jobID + " we failed to extract the report '" + key + "': " + e;
-	    		SystemUtils.log(logMsg, Level.WARNING, writeToSystemOut, e);
+	    		SystemUtils.log(logMsg, Level.WARN, writeToSystemOut, e);
 	    	}
 	    }
 	    return new NasReports(reportMap);
@@ -445,8 +447,8 @@ public class SingleSeedHarvest {
                     }
                 } catch (NumberFormatException e) {
                     String logMsg = "We caught a NumberFormatException. As we don't know what caused it, we return true";
-                    SystemUtils.log(logMsg, Level.WARNING, writeToSystemOut);
-                    return true;
+					SystemUtils.log(logMsg, Level.WARN, writeToSystemOut, null);
+					return true;
                 }
             }
         }
@@ -465,16 +467,16 @@ public class SingleSeedHarvest {
 		List<String> urls = new ArrayList<String>();
 		if (warcfiles.isEmpty()) {
 			String logMsg = "No heritrixWarcs seems to have been harvested for job w/id=" + jobId + ". Something must have gone wrong. Returning an empty list";
-			SystemUtils.log(logMsg, Level.WARNING, writeToSystemOut);
+			SystemUtils.log(logMsg, Level.WARN, writeToSystemOut, null);
 		} else {
 			String logMsg = "Fetching the harvested urls from the " + warcfiles.size() + " HeritrixWarcs harvested for job w/id=" + jobId + ": " + StringUtils.join(warcfiles, ",");
-			SystemUtils.log(logMsg, Level.INFO, writeToSystemOut);
+			SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
 		}
 		for (String warcfilename: warcfiles){
 			urls.addAll(getUrlsFromFile(warcfilename));
 		}
 		String logMsg = "Retrieved " + urls.size() + " urls";
-		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut);
+		SystemUtils.log(logMsg, Level.INFO, writeToSystemOut, null);
 		return urls;
 	}
 	
@@ -520,10 +522,10 @@ public class SingleSeedHarvest {
 	    SingleSeedHarvest ssh = new SingleSeedHarvest(seed, eventHarvestName, scheduleName, templateName, maxBytes, maxObjects);
 	    boolean success = ssh.finishHarvest(writeToStdout);
 	    if (success) {
-	        SystemUtils.log("The Harvest of seed '" + seed + "' was successful", Level.INFO, writeToStdout);
-	    } else {
-	        SystemUtils.log("The Harvest of seed '" + seed + "' failed", Level.WARNING, writeToStdout);
-	    }
+			SystemUtils.log("The Harvest of seed '" + seed + "' was successful", Level.INFO, writeToStdout, null);
+		} else {
+			SystemUtils.log("The Harvest of seed '" + seed + "' failed", Level.WARN, writeToStdout, null);
+		}
 	    return ssh;
 	    
     }

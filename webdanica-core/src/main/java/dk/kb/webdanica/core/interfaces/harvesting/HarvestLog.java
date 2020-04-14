@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
+import ch.qos.logback.classic.Level;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -233,11 +233,11 @@ public class HarvestLog {
             if (!s.successful) {
                 if (includeOnlySuccessFulHarvests) {
                     String logMsg = "Skipping failed harvest '" + s.harvestName + "' of seed '" + s.seed + "'";
-                    SystemUtils.log(logMsg, Level.WARNING, writeToStdout);
+                    SystemUtils.log(logMsg, Level.WARN, writeToStdout, null);
                     continue;
                 } else {
                     String logMsg = "Including failed harvest '" + s.harvestName + "' of seed '" + s.seed + "' in harvestlog";
-                    SystemUtils.log(logMsg, Level.WARNING, writeToStdout);
+                    SystemUtils.log(logMsg, Level.WARN, writeToStdout, null);
                 }
             }
             harvestLogWriter.println(HarvestLog.seedPattern + s.getSeed());

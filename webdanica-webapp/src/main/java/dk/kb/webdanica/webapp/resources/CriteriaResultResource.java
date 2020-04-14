@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -31,6 +31,7 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -40,7 +41,7 @@ import dk.kb.webdanica.webapp.User;
  */
 public class CriteriaResultResource implements ResourceAbstract {
 	
-	private static final Logger logger = Logger.getLogger(CriteriaResultResource.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(CriteriaResultResource.class);
 	private static final String CRITERIA_RESULT_SHOW_TEMPLATE = "criteriaresult_master.html";
 
 	protected int R_CRITERIA_RESULT = -1;
@@ -79,7 +80,7 @@ public class CriteriaResultResource implements ResourceAbstract {
 	        if (CK == null) {
 	        	// create default dummy blacklist
 	        	String errMsg = "No url, and harvestname information found in the path: " + pathInfo;
-	        	logger.warning(errMsg);
+	        	logger.warn(errMsg);
 	        	b = SingleCriteriaResult.createErrorResult(errMsg); 
 	        } else {
 	        	try {
@@ -92,7 +93,7 @@ public class CriteriaResultResource implements ResourceAbstract {
 	            if (b == null) { // no criteria_result found with given url and harvestname
 	            	String errMsg = "No result found for url='" + CK.url + "', harvest='" 
         			+ CK.harvest + "'.";
-	            	logger.warning(errMsg);
+	            	logger.warn(errMsg);
 	            	b = SingleCriteriaResult.createErrorResult(errMsg);
 	            }
 	        } 
@@ -186,13 +187,13 @@ public class CriteriaResultResource implements ResourceAbstract {
 	        			+ Servlet.environment.getBlacklistsPath() 
 	        			+ "\" class=\"btn btn-primary\"><i class=\"icon-white icon-list\"></i> Tilbage til oversigten</a>");
 	        } else {
-	        	logger.warning("No back´placeholder found in template '" + templateName+ "'" );
+	        	logger.warn("No back´placeholder found in template '" + templateName+ "'" );
 	        }
 
 	        if (headingPlace != null) {
 	            headingPlace.setText(heading);
 	        } else {
-	        	logger.warning("No heading´ placeholder found in template '" + templateName + "'" );
+	        	logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
 	        }
 	        String urlOrig = b.urlOrig;
 	        if (urlOrig == null) {
@@ -247,7 +248,7 @@ public class CriteriaResultResource implements ResourceAbstract {
 	            out.flush();
 	            out.close();
 	        } catch (IOException e) {
-	        	logger.warning("IOException thrown, but ignored: " + e);        
+	        	logger.warn("IOException thrown, but ignored: " + e);
 	        }
 	    }
 	
@@ -261,7 +262,7 @@ public class CriteriaResultResource implements ResourceAbstract {
 	            	resultKeys = new CriteriaKeys(argumentParts[0], CriteriaUtils.fromBase64(argumentParts[1]));
 	            	logger.info("Found Criteriakeys: " + resultKeys);
 	            } else {
-	            	logger.warning("Unable to find harvestname and url from pathinfo: " + pathInfo);
+	            	logger.warn("Unable to find harvestname and url from pathinfo: " + pathInfo);
 	            }
 	        }
 	        return resultKeys;

@@ -5,10 +5,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import dk.kb.webdanica.webapp.Environment;
+import org.slf4j.LoggerFactory;
 
 /**
  * Workflow thread worker for overall coordination.
@@ -16,7 +17,7 @@ import dk.kb.webdanica.webapp.Environment;
 public class WorkflowWorkThread extends WorkThreadAbstract {
 
     static {
-        logger = Logger.getLogger(WorkflowWorkThread.class.getName());
+        logger = LoggerFactory.getLogger(WorkflowWorkThread.class);
     }
 
     private GregorianCalendar dayCal;
@@ -47,7 +48,7 @@ public class WorkflowWorkThread extends WorkThreadAbstract {
     	dayCal = new GregorianCalendar();
     	dayDate = dayCal.getTime();
 
-    	logger.log(Level.INFO, "Generating the initial schedules.");
+    	logger.info( "Generating the initial schedules.");
 		long ctm = System.currentTimeMillis();
     	schedule_day(ctm);
     	schedule_trim_overdue(ctm);
@@ -88,7 +89,7 @@ public class WorkflowWorkThread extends WorkThreadAbstract {
 	protected void process_run() {
 	    long ctm = System.currentTimeMillis();
 	    if (ctm >= nextReschedule) {
-	        logger.log(Level.INFO, "Generating new daily schedules.");
+	        logger.info( "Generating new daily schedules.");
 	        schedule_day(ctm);
 	    }
 	    environment.bScheduleHarvesting = false;

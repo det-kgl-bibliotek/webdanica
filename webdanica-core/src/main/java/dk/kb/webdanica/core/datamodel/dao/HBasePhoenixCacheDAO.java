@@ -9,12 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.datamodel.Cache;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * See <a href="https://raw.githubusercontent.com/netarchivesuite/webdanica/master/scripts/hbase-phoenix/create_statecache.sql">create-script for table statecache</a
@@ -22,7 +23,7 @@ import dk.kb.webdanica.core.utils.DatabaseUtils;
  */
 public class HBasePhoenixCacheDAO implements CacheDAO {
 	
-	private static final Logger logger = Logger.getLogger(HBasePhoenixCacheDAO.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(HBasePhoenixCacheDAO.class);
 	
 	private static final String INSERT_SQL; 
 	static {
@@ -56,7 +57,7 @@ public class HBasePhoenixCacheDAO implements CacheDAO {
 							rs.getTimestamp("last_updated").getTime(),
 							rs.getLong("uuid"));
 			} else {
-				logger.log(Level.WARNING, "No statecache record found - null record returned");
+				logger.warn( "No statecache record found - null record returned");
 				return null;
 			}
 		} finally {

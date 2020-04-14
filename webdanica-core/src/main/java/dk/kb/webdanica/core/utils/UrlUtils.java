@@ -4,7 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -15,10 +15,11 @@ import dk.kb.webdanica.core.datamodel.URL_REJECT_REASON;
 import dk.kb.webdanica.core.seeds.filtering.AcceptedProtocols;
 import dk.kb.webdanica.core.utils.UrlInfo;
 import dk.netarkivet.common.utils.DomainUtils;
+import org.slf4j.LoggerFactory;
 
 
 public class UrlUtils {
-    private static final Logger logger = Logger.getLogger(UrlUtils.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(UrlUtils.class);
 
     private static Pattern VALID_IPV4_PATTERN = null;
     private static Pattern VALID_IPV6_PATTERN = null;
@@ -30,7 +31,7 @@ public class UrlUtils {
         VALID_IPV4_PATTERN = Pattern.compile(ipv4Pattern, Pattern.CASE_INSENSITIVE);
         VALID_IPV6_PATTERN = Pattern.compile(ipv6Pattern, Pattern.CASE_INSENSITIVE);
       } catch (PatternSyntaxException e) {
-        //logger.severe("Unable to compile pattern", e);
+        //logger.error("Unable to compile pattern", e);
       }
     }
 
@@ -68,7 +69,7 @@ public class UrlUtils {
 			    return URL_REJECT_REASON.IP_URL;
 			}
 		} catch (URISyntaxException e) {
-			logger.warning("UriSyntaxException thrown for seed '" + seed + "'. Seed considered bad: " 
+			logger.warn("UriSyntaxException thrown for seed '" + seed + "'. Seed considered bad: "
 			        + ExceptionUtils.getFullStackTrace(e));
 			return URL_REJECT_REASON.BAD_URL;
 		}
@@ -114,7 +115,7 @@ public class UrlUtils {
 	        domain = DomainUtils.domainNameFromHostname(hostname);
 	        tld = findTld(domain);
         } catch (Throwable e) {
-            logger.warning(e.getClass().getName() + " thrown for url '" + url + "': " 
+            logger.warn(e.getClass().getName() + " thrown for url '" + url + "': "
                     + ExceptionUtils.getFullStackTrace(e));
         }
 		

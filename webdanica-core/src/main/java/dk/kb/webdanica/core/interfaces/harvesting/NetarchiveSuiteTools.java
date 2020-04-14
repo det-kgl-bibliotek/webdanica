@@ -6,23 +6,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import dk.netarkivet.common.utils.ExceptionUtils;
 import dk.netarkivet.harvester.datamodel.HarvestDBConnection;
 import dk.netarkivet.harvester.datamodel.HarvestDefinition;
 import dk.netarkivet.harvester.datamodel.HarvestDefinitionDAO;
 import dk.netarkivet.harvester.datamodel.JobStatus;
+import org.slf4j.LoggerFactory;
 
 public class NetarchiveSuiteTools {
     
-    private static final Logger logger = Logger.getLogger(NetarchiveSuiteTools.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(NetarchiveSuiteTools.class);
     
     
     public static HarvestDefinition getHarvestDefinition(String harvestdefinitionName) {
         if (harvestdefinitionName == null) {
-            logger.warning("Null harvestdefinitionName is not valid");
+            logger.warn("Null harvestdefinitionName is not valid");
             return null;
         }
         HarvestDefinitionDAO hdao = HarvestDefinitionDAO.getInstance();
@@ -30,14 +31,14 @@ public class NetarchiveSuiteTools {
         if (hdao.exists(harvestdefinitionName)) {
             return hdao.getHarvestDefinition(harvestdefinitionName);
         } else {
-            logger.warning("No harvestdefinition w/name='" + harvestdefinitionName + "' exists!");
+            logger.warn("No harvestdefinition w/name='" + harvestdefinitionName + "' exists!");
             return null;
         }
     }
     
     public static HarvestDefinition getHarvestDefinition(Long hid) {
         if (hid == null) {
-            logger.warning("Null harvestdefinitionId is not valid");
+            logger.warn("Null harvestdefinitionId is not valid");
             return null;
         }
         HarvestDefinitionDAO hdao = HarvestDefinitionDAO.getInstance();
@@ -45,7 +46,7 @@ public class NetarchiveSuiteTools {
         if (hdao.exists(hid)) {
             return hdao.read(hid);
         } else {
-            logger.warning("No harvestdefinition w/id='" + hid + "' exists!");
+            logger.warn("No harvestdefinition w/id='" + hid + "' exists!");
             return null;
         }
     }
@@ -78,7 +79,7 @@ public class NetarchiveSuiteTools {
             }
             stm.close();
         } catch (SQLException e) {
-          logger.log(Level.WARNING, 
+          logger.warn(
                   "Exception while finding jobs for hid = " + hid + ", cause= " + ExceptionUtils.getSQLExceptionCause(e), e);
         } finally {
             HarvestDBConnection.release(con);
@@ -102,7 +103,7 @@ public class NetarchiveSuiteTools {
             for (NasJob j: results) {
                 jobsFound += j.getJobId() + " ";
             }
-            logger.warning("Returning null, as more than one job returned for hid=" + hid +  ". Jobs found=" + jobsFound);
+            logger.warn("Returning null, as more than one job returned for hid=" + hid +  ". Jobs found=" + jobsFound);
             return null;
         }
     }

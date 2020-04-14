@@ -7,7 +7,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -15,6 +15,7 @@ import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
 import dk.kb.webdanica.core.datamodel.criteria.DataSource;
 import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
+import org.slf4j.LoggerFactory;
 
 /** 
  * See 
@@ -22,7 +23,7 @@ import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
  */  
 public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 
-	private static final Logger logger = Logger.getLogger(HBasePhoenixCriteriaResultsDAO.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(HBasePhoenixCriteriaResultsDAO.class);
 
 	private SingleCriteriaResult getResultFromResultSet(ResultSet rs) throws Exception {
 		SingleCriteriaResult s = null;
@@ -331,10 +332,10 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 			if (rs != null && rs.next()) {
 				s = getResultFromResultSet(rs);
 			} else {
-				logger.warning("No CriteriaResult found for url '" + url + "' and harvest '" + harvest + "'!");
+				logger.warn("No CriteriaResult found for url '" + url + "' and harvest '" + harvest + "'!");
 			}
 		} catch (Throwable e) {
-			logger.severe("Failure retrieving a CriteriaResult found for url '" + url + "' and harvest '" + harvest + "': " + e);
+			logger.error("Failure retrieving a CriteriaResult found for url '" + url + "' and harvest '" + harvest + "': " + e);
 		} finally {
         	CloseUtils.closeQuietly(rs);
         	CloseUtils.closeQuietly(stm);

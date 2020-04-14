@@ -5,11 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.json.simple.JSONObject;
 
 import dk.kb.webdanica.core.datamodel.criteria.CriteriaJson;
+import org.slf4j.LoggerFactory;
 
 /*
 metadata://netarkivet.dk/crawl/logs/alerts.log?heritrixVersion=3.3.0-LBS-2014-03&harvestid=11&jobid=147
@@ -42,7 +43,7 @@ metadata://netarkivet.dk/crawl/logs/progress-statistics.log?heritrixVersion=3.3.
 
 public class NasReports {
 	
-		private static final Logger logger = Logger.getLogger(NasReports.class.getName());
+		private static final Logger logger = LoggerFactory.getLogger(NasReports.class);
 	
 		public static final String CRAWL_REPORT_PATTERN = "reports/crawl-report.txt";
 		public static final String SEEDS_REPORT_PATTERN = "reports/seeds-report.txt";
@@ -67,10 +68,10 @@ public class NasReports {
 				try {
 					sr = new SeedReport(report);
 				} catch (Throwable e) {
-					logger.warning("Failed to parse the report as a seedsport: " +  e);
+					logger.warn("Failed to parse the report as a seedsport: " +  e);
 				}
 			} else {
-				logger.warning("No seeds_report found among the reports");
+				logger.warn("No seeds_report found among the reports");
 			}
 			return sr;
 		}

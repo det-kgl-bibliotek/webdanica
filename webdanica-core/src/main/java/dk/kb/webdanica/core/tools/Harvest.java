@@ -74,16 +74,17 @@ public class Harvest {
 		}
 		
 		List<SingleSeedHarvest> results = new ArrayList<SingleSeedHarvest>();
-		boolean writeToStdout = true;
 		if (argumentIsSeedFile) {
 			System.out.println("harvesting based on seeds from file '" + argumentAsFile.getAbsolutePath() + "'");
-			results = SingleSeedHarvest.doSeriesOfharvests(argumentAsFile, scheduleName, templateName, harvestPrefix, harvestMaxBytes, harvestMaxObjects, writeToStdout);
+			results = SingleSeedHarvest.doSeriesOfharvests(argumentAsFile, scheduleName, templateName, harvestPrefix, harvestMaxBytes, harvestMaxObjects,
+														   true);
 		} else {
 			URL_REJECT_REASON reason = UrlUtils.isRejectableURL(argument);
 			if (reason.equals(URL_REJECT_REASON.NONE)) {
 				System.out.println("Do single harvest of seed '" + argument + "'");
 				String eventHarvestName = harvestPrefix + SingleSeedHarvest.getTimestamp(); 
-				SingleSeedHarvest result = SingleSeedHarvest.doSingleHarvest(argument, eventHarvestName, scheduleName, templateName, harvestMaxBytes, harvestMaxObjects, writeToStdout);		
+				SingleSeedHarvest result = SingleSeedHarvest.doSingleHarvest(argument, eventHarvestName, scheduleName, templateName, harvestMaxBytes, harvestMaxObjects,
+																			 true);
 				results.add(result);
 			} else {
 				String errMsg = "No harvesting done. The argument '" + argument + "' is not a valid url";
@@ -108,7 +109,7 @@ public class Harvest {
     	String harvestLogHeader = harvestLogHeaderPrefix 
     			+ (argumentIsSeedFile?" seedfile " + argumentAsFile.getAbsolutePath():" seed " + argument);
     	
-    	int written = HarvestLog.writeHarvestLog(harvestLog, harvestLogHeader, onlySuccessFul, results, writeToStdout);
+    	int written = HarvestLog.writeHarvestLog(harvestLog, harvestLogHeader, onlySuccessFul, results, true);
     	System.out.println(written + " harvests were written to log '" + harvestLog.getAbsolutePath() + "'");
     	System.out.println();System.out.println();
     	if (saveHarvestInWebdanicaDB) {

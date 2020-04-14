@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -31,11 +29,13 @@ import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
 import dk.netarkivet.common.utils.StringUtils;
 import dk.netarkivet.common.webinterface.HTMLUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class CriteriaResultsResource implements ResourceAbstract {
 
-	    private static final Logger logger = Logger.getLogger(CriteriaResultsResource.class.getName());
+	    private static final Logger logger = LoggerFactory.getLogger(CriteriaResultsResource.class);
 
 	    private Environment environment;
 
@@ -129,7 +129,7 @@ public class CriteriaResultsResource implements ResourceAbstract {
 		        }
 	        } catch (Exception e) {
 	        	String error = "Exception thrown when retrieving the criteriaresults";
-	        	logger.log(Level.WARNING, error, e);
+	        	logger.warn( error, e);
 	        	CommonResource.show_error(error + e, resp, environment);
 	        	return;
 	        }
@@ -225,7 +225,7 @@ public class CriteriaResultsResource implements ResourceAbstract {
 	            out.flush();
 	            out.close();
 	        } catch (IOException e) {
-	        	logger.warning("Unexpected exception: " + e);
+	        	logger.warn("Unexpected exception: " + e);
 	        }
 	    }
 		
@@ -234,7 +234,7 @@ public class CriteriaResultsResource implements ResourceAbstract {
 			String linkPrefix = environment.getCriteriaResultPath();
         	String base64Encoded = Base64.encodeString(url);
         	if (base64Encoded == null) {
-        		logger.warning("base64 encoding of url '" +  url + "' gives null");
+        		logger.warn("base64 encoding of url '" +  url + "' gives null");
         		base64Encoded = url;
         	}
         	String link = "<A href=\"" + linkPrefix + harvestName + "/" + HTMLUtils.encode(base64Encoded) + "/\">" + linkText + "</A>";

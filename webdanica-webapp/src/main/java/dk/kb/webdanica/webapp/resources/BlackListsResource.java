@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -24,11 +24,12 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.slf4j.LoggerFactory;
 
 
 public class BlackListsResource implements ResourceAbstract {
 
-	    private static final Logger logger = Logger.getLogger(BlackListsResource.class.getName());
+	    private static final Logger logger = LoggerFactory.getLogger(BlackListsResource.class);
 
 	    private Environment environment;
 
@@ -70,7 +71,7 @@ public class BlackListsResource implements ResourceAbstract {
 
 	    private void blacklist_add(User dab_user, HttpServletRequest req,
                 HttpServletResponse resp) {
-	        	logger.warning("NOT YET IMPLEMENTED");
+	        	logger.warn("NOT YET IMPLEMENTED");
 	        
         }
 

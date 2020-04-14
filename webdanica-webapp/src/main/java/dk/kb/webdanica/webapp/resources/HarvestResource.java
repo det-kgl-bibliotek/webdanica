@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -26,10 +26,11 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.slf4j.LoggerFactory;
 
 public class HarvestResource implements ResourceAbstract {
 
-	private static final Logger logger = Logger.getLogger(HarvestResource.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(HarvestResource.class);
     
     private static final String HARVEST_SHOW_TEMPLATE = "harvest_master.html";
 
@@ -215,13 +216,13 @@ public class HarvestResource implements ResourceAbstract {
         			+ Servlet.environment.getHarvestsPath() 
         			+ "\" class=\"btn btn-primary\"><i class=\"icon-white icon-list\"></i> Tilbage til oversigten</a>");
         } else {
-        	logger.warning("No back´placeholder found in template '" + HARVEST_SHOW_TEMPLATE + "'" );
+        	logger.warn("No back´placeholder found in template '" + HARVEST_SHOW_TEMPLATE + "'" );
         }
 
         if (headingPlace != null) {
             headingPlace.setText(heading);
         } else {
-        	logger.warning("No heading´ placeholder found in template '" + HARVEST_SHOW_TEMPLATE + "'" );
+        	logger.warn("No heading´ placeholder found in template '" + HARVEST_SHOW_TEMPLATE + "'" );
         }
         
         ResourceUtils.insertText(namePlace, "name",  b.getHarvestName(), HARVEST_SHOW_TEMPLATE, logger);
@@ -242,7 +243,7 @@ public class HarvestResource implements ResourceAbstract {
         try {
             critCount = cdao.getCountByHarvest(b.getHarvestName());
         } catch (Exception e) {
-        	logger.log(Level.WARNING, "Unable to retrieve number of critresults for this harvest", e);
+        	logger.warn( "Unable to retrieve number of critresults for this harvest", e);
         }
 
         String linkToCriteriaresults = "No criteriaresults found for this harvest";
@@ -299,7 +300,7 @@ public class HarvestResource implements ResourceAbstract {
             out.flush();
             out.close();
         } catch (IOException e) {
-        	logger.warning("IOException thrown, but ignored: " + e);        
+        	logger.warn("IOException thrown, but ignored: " + e);
         } catch (Throwable e) {
         	String errMsg = "Exception thrown during rendering of harvest:  " + b;
         	CommonResource.show_error(errMsg, resp, environment);

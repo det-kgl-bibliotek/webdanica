@@ -2,7 +2,6 @@ package dk.kb.webdanica.core.batch;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Logger;
 
 import org.archive.io.warc.WARCRecord;
 
@@ -11,6 +10,8 @@ import dk.netarkivet.common.utils.archive.ArchiveRecordBase;
 import dk.netarkivet.common.utils.archive.HeritrixArchiveRecordWrapper;
 import dk.netarkivet.common.utils.batch.WARCBatchFilter;
 import dk.netarkivet.common.utils.warc.WARCBatchJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Batch job that extracts information about the harvested urls.
@@ -19,7 +20,7 @@ import dk.netarkivet.common.utils.warc.WARCBatchJob;
 public class WARCExtractUrlsJob extends WARCBatchJob {
 
     /** Logger for this class. */
-	 private static final Logger logger = Logger.getLogger(WARCExtractUrlsJob.class.getName());
+	 private static final Logger logger = LoggerFactory.getLogger(WARCExtractUrlsJob.class);
 
     /**
      * Constructs a new job for extracting CDX indexes.
@@ -58,7 +59,7 @@ public class WARCExtractUrlsJob extends WARCBatchJob {
      */
     @Override
     public void processRecord(WARCRecord sar, OutputStream os) {
-        logger.fine("Processing WARCRecord with offset: " + sar.getHeader().getOffset());
+        logger.debug("Processing WARCRecord with offset: " + sar.getHeader().getOffset());
      
         ArchiveRecordBase record = new HeritrixArchiveRecordWrapper(sar);
         ArchiveHeaderBase header = record.getHeader();

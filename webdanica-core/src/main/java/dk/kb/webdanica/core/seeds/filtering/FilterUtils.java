@@ -3,7 +3,7 @@ package dk.kb.webdanica.core.seeds.filtering;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -13,10 +13,11 @@ import dk.kb.webdanica.core.datamodel.Domain;
 import dk.kb.webdanica.core.datamodel.Seed;
 import dk.kb.webdanica.core.datamodel.Status;
 import dk.kb.webdanica.core.datamodel.dao.DomainsDAO;
+import org.slf4j.LoggerFactory;
 
 public class FilterUtils {
     
-    private static final Logger logger = Logger.getLogger(FilterUtils.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(FilterUtils.class);
     
     /**
      * Investigate if the given seed is to be rejected.
@@ -86,7 +87,7 @@ public class FilterUtils {
         Domain d = domainDAO.getDomain(s.getDomain());
         if (d != null) {
             if (d.getDomain().equals("N/A")) {
-                logger.warning("Seed '" + s.getUrl()
+                logger.warn("Seed '" + s.getUrl()
                         + "' belongs to bogus domain '" + d.getDomain() + "'");
             }
             DanicaStatus ds = d.getDanicaStatus();
@@ -106,7 +107,7 @@ public class FilterUtils {
                 return true;
             }
         } else {
-            logger.warning("Domain '" + s.getDomain() + "' of seed '"
+            logger.warn("Domain '" + s.getDomain() + "' of seed '"
                     + s.getUrl() + "' is not in the database");
         }
         return false;

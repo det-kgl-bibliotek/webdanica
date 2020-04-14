@@ -3,7 +3,8 @@ package dk.kb.webdanica.core.interfaces.harvesting;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
 [code] [status] [seed] [redirect]
@@ -13,7 +14,7 @@ import java.util.logging.Logger;
 
 public class SeedReport { 
 	
-	private static final Logger logger = Logger.getLogger(SeedReport.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SeedReport.class);
 	
 	public static String SEEDS_HEADER_PATTERN = "[code] [status] [seed] [redirect]";
 	

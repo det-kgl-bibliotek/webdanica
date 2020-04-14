@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -30,6 +30,7 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.netarkivet.common.distribute.arcrepository.ArcRepositoryClientFactory;
 import dk.netarkivet.common.utils.StringUtils;
 import dk.netarkivet.harvester.datamodel.DBSpecifics;
+import org.slf4j.LoggerFactory;
 
 /**
  * The workthread responsible for initiating harvests in NetarchiveSuite, waiting for them to finish, and
@@ -43,7 +44,7 @@ import dk.netarkivet.harvester.datamodel.DBSpecifics;
 public class HarvestWorkThread extends WorkThreadAbstract {
 
     static {
-        logger = Logger.getLogger(HarvestWorkThread.class.getName());
+        logger = LoggerFactory.getLogger(HarvestWorkThread.class);
     }
 
     private List<Seed> queueList = new LinkedList<Seed>();
@@ -119,7 +120,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         if (!SettingsUtilities.verifyWebdanicaSettings(requiredSettings, false)) {
             String errMsg = "HarvestWorkFlow will not be enabled as some of the required harvesting settings are not defined. Please correct your webdanicasettings file. The required settings are:"
                     + StringUtils.conjoin(",", requiredSettings);
-            logger.log(Level.WARNING, errMsg);
+            logger.warn( errMsg);
             configuration.getEmailer().sendAdminEmail(
                     "[Webdanica-" + configuration.getEnv()
                             + "] HarvestWorkFlow not enabled", errMsg);
@@ -142,7 +143,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         if (!SettingsUtilities.verifyClass(dbdriver, false)) {
             String errMsg = "HarvestWorkFlow will not be enabled as the necessary databasedriver to connect to Netarchivesuite '"
                     + dbdriver + "' does not exist in the classpath";
-            logger.log(Level.WARNING, errMsg);
+            logger.warn( errMsg);
             configuration.getEmailer().sendAdminEmail(
                     "[Webdanica-" + configuration.getEnv()
                             + "] HarvestWorkFlow not enabled", errMsg);
@@ -155,7 +156,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         if (!SettingsUtilities.verifyClass(arcrepositoryClient, false)) {
             String errMsg = "HarvestWorkFlow will not be enabled as the necessary acrepositoryClient '"
                     + arcrepositoryClient + "' does not exist in the classpath";
-            logger.log(Level.WARNING, errMsg);
+            logger.warn( errMsg);
             configuration.getEmailer().sendAdminEmail(
                     "[Webdanica-" + configuration.getEnv()
                             + "] HarvestWorkFlow not enabled", errMsg);
@@ -166,7 +167,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         } catch (Throwable e) {
             String errMsg = "HarvestWorkFlow will not be enabled as the necessary acrepositoryClient '"
                     + arcrepositoryClient + "' has a invalid configuration. We get the following exception: ";
-            logger.log(Level.WARNING, errMsg, e);
+            logger.warn( errMsg, e);
             configuration.getEmailer().sendAdminEmail(
                     "[Webdanica-" + configuration.getEnv()
                             + "] HarvestWorkFlow not enabled", errMsg + ExceptionUtils.getFullStackTrace(e));
@@ -201,7 +202,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
             String errMsg = "HarvestWorkFlow will not be enabled as the given directory '"
                     + harvestLogDir.getAbsolutePath()
                     + "' does not exist or is not a proper directory";
-            logger.log(Level.WARNING, errMsg);
+            logger.warn( errMsg);
             configuration.getEmailer().sendAdminEmail(
                     "[Webdanica-" + configuration.getEnv()
                             + "] HarvestWorkFlow not enabled", errMsg);
@@ -218,7 +219,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
             if (!fileWasCreated) {
                 String errMsg = "HarvestWorkFlow will not be enabled as we're unable to write to the directory '"
                         + harvestLogDir.getAbsolutePath() + "'";
-                logger.log(Level.WARNING, errMsg);
+                logger.warn( errMsg);
                 configuration.getEmailer().sendAdminEmail(
                         "[Webdanica-" + configuration.getEnv()
                                 + "] HarvestWorkFlow not enabled", errMsg);
@@ -229,7 +230,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
             if (!success) {
                 String errMsg = "HarvestWorkFlow will not be enabled as we're unable to set the correct permissions when writing a file (e.g rw_rw_rw) to dir '"
                         + harvestLogDir.getAbsolutePath() + "'";
-                logger.log(Level.WARNING, errMsg);
+                logger.warn( errMsg);
                 configuration.getEmailer().sendAdminEmail(
                         "[Webdanica-" + configuration.getEnv()
                                 + "] HarvestWorkFlow not enabled", errMsg);
@@ -237,7 +238,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
             } else {
                 if (deleteTestFile) {
                     if (!testFile.delete()) {
-                        logger.log(Level.WARNING, "Unable to delete testfile '"
+                        logger.warn( "Unable to delete testfile '"
                                 + testFile.getAbsolutePath() + "'");
                     }
                 }
@@ -249,7 +250,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
             configuration.getEmailer().sendAdminEmail(
                     "[Webdanica-" + configuration.getEnv()
                             + "] HarvestWorkFlow not enabled", errMsg);
-            logger.log(Level.WARNING, errMsg);
+            logger.warn( errMsg);
             return false;
         } catch (SecurityException e) {
             String errMsg = "SecurityException thrown during check that harvestLogDir '"
@@ -257,7 +258,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
             configuration.getEmailer().sendAdminEmail(
                     "[Webdanica-" + configuration.getEnv()
                             + "] HarvestWorkFlow not enabled", errMsg);
-            logger.log(Level.WARNING, errMsg);
+            logger.warn( errMsg);
             return false;
         }
     }
@@ -271,10 +272,10 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         if (!environment.bScheduleHarvesting) {
             return;
         }
-        logger.log(Level.INFO, "Running process of thread '" + threadName
+        logger.info( "Running process of thread '" + threadName
                + "' at '" + new Date() + "'");
         if (harvestingInProgress.get()) {
-            logger.log(Level.INFO,
+            logger.info(
                     "Harvesting process already in progress at '" + new Date()
                             + "'. Skipping");
             return;
@@ -289,7 +290,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         } catch (Throwable e) {
             String errMsg = "Exception thrown during method HarvestWorkThread.process_run:"
                     + e;
-            logger.log(Level.WARNING, errMsg);
+            logger.warn( errMsg);
             harvestingInProgress.set(Boolean.FALSE);
             configuration
                     .getEmailer()
@@ -303,7 +304,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
 
         enqueue(seedsReadyForHarvesting);
         if (!seedsReadyForHarvesting.isEmpty()) {
-            logger.log(Level.FINE, "Found '" + seedsReadyForHarvesting.size()
+            logger.debug( "Found '" + seedsReadyForHarvesting.size()
                     + "' seeds ready for harvesting");
         }
         try {
@@ -315,7 +316,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
                 queueList.clear();
             }
             if (!workList.isEmpty()) {
-                logger.log(Level.INFO, "Starting harvest of " + workList.size()
+                logger.info( "Starting harvest of " + workList.size()
                         + " seeds");
                 lastWorkRun = System.currentTimeMillis();
                 startProgress(workList.size());
@@ -326,7 +327,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
                 Cache.updateCache(configuration.getDAOFactory());
             }
         } catch (Throwable e) {
-            logger.log(Level.SEVERE, e.toString(), e);
+            logger.error( e.toString(), e);
         } finally {
             harvestingInProgress.set(Boolean.FALSE);
         }
@@ -370,7 +371,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
                     failure = true;
                     failureReason = "Harvest of seed '" + s.getUrl()
                             + "' failed to be constructed. Possible reason: unknown/illegal domain or an ftp-url"; 
-                    logger.warning(failureReason);
+                    logger.warn(failureReason);
                 } else {
                     // wait until no longer alive or 1 hour has passed for a single
                     // harvest
@@ -387,7 +388,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
                         failureReason = "Harvest of seed '" + s.getUrl()
                                 + "' failed to finished before deadline (" + deadlineDate + ")"; 
                         aborted = true; 
-                        logger.warning(failureReason);
+                        logger.warn(failureReason);
                     } 
                 }
                 
@@ -410,7 +411,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
                 }
 
             } catch (Exception e) {
-                logger.log(Level.SEVERE, e.toString(), e);
+                logger.error( e.toString(), e);
                 failure = true;
                 savedException = e;
             } finally {
@@ -440,7 +441,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
                 } catch (Exception e) {
                     String errMsg = "Unable to save state of seed: "
                             + ExceptionUtils.getFullStackTrace(e);
-                    logger.log(Level.SEVERE, errMsg, e);
+                    logger.error( errMsg, e);
                     configuration
                             .getEmailer()
                             .sendAdminEmail(
@@ -457,12 +458,12 @@ public class HarvestWorkThread extends WorkThreadAbstract {
             if (!harvests.isEmpty()) {
                 writeHarvestLog(harvests, configuration);
             } else {
-                logger.warning("No seeds harvested successfully out of " + workList.size() + " seeds"); 
+                logger.warn("No seeds harvested successfully out of " + workList.size() + " seeds");
             }
         } catch (Throwable e) {
             String errMsg = "Unable to write a harvestlog to directory '"
                     + configuration.getHarvestLogDir() + "': " + ExceptionUtils.getFullStackTrace(e);
-            logger.log(Level.SEVERE, errMsg, e);
+            logger.warn( errMsg, e);
             configuration
                     .getEmailer()
                     .sendAdminEmail(
@@ -527,19 +528,19 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         int written = HarvestLog.writeHarvestLog(harvestLog,
                 harvestLogHeader, true, harvests, false);
         if (written == 0) {
-            logger.log(Level.WARNING, "No harvests out of " + harvests.size()
+            logger.warn( "No harvests out of " + harvests.size()
                     + " were successful, and no harvestlog is written");
             // remove empty harvestlog
             boolean deleted = harvestLog.delete();
             if (!deleted) {
-                logger.log(Level.WARNING, "Unable to delete empty harvestlog '"
+                logger.warn( "Unable to delete empty harvestlog '"
                         + harvestLog.getAbsolutePath() + "'");
             }
             return;
         }
         boolean success = harvestLog.setWritable(true, false);
         if (!success) {
-            logger.log(Level.SEVERE,
+            logger.error(
                     "Unable to give the harvestlog the correct permissions");
         }
         harvestLog.renameTo(harvestLogFinal);

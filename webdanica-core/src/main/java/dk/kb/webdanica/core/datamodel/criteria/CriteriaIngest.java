@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
+import ch.qos.logback.classic.Level;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -179,8 +179,8 @@ public class CriteriaIngest {
                         || res.Cext3Orig == null
                         || res.Cext3Orig.length() != 14) {
                     SystemUtils.log("Skipping line '"
-                            + trimmedLine
-                            + "': Missing one or more of fields url, Cext1, Cext3Orig", Level.INFO, true);
+                                    + trimmedLine
+                                    + "': Missing one or more of fields url, Cext1, Cext3Orig", Level.INFO, true, null);
                     success = false;
                 }
                 if (success && doInsert) {
@@ -221,7 +221,7 @@ public class CriteriaIngest {
 
                         boolean inserted = dao.insertRecord(res);
                         if (!inserted) {
-                            SystemUtils.log("Record not inserted", Level.WARNING, true);
+                            SystemUtils.log("Record not inserted", Level.WARN, true, null);
                         } else {
                             insertedCount++;
                         }
@@ -235,10 +235,16 @@ public class CriteriaIngest {
                                 Domain d = Domain.createNewUndecidedDomain(s
                                         .getDomain());
                                 if (d.getDomain() != null) {
-                                    SystemUtils.log("Inserting domain '" + d.getDomain() + "' in database for seed '" + res.url + "'", Level.INFO, true);
+                                    SystemUtils.log(
+                                            "Inserting domain '" + d.getDomain() + "' in database for seed '" + res.url + "'",
+                                            Level.INFO,
+                                            true, null);
                                     ddao.insertDomain(d);
                                 } else {
-                                    SystemUtils.log("No domain found for seed '" + res.url + "': no domain insertion done", Level.WARNING, true);
+                                    SystemUtils.log(
+                                            "No domain found for seed '" + res.url + "': no domain insertion done",
+                                            Level.WARN,
+                                            true, null);
                                 }
                             }
                             rejected 
@@ -286,13 +292,13 @@ public class CriteriaIngest {
 
         boolean verbose = false;
         if (verbose) { // FIXME
-            SystemUtils.log("Processed " + linecount + " lines", Level.INFO, true);
-            SystemUtils.log("Skipped " + skippedCount + " lines", Level.INFO, true);
-            SystemUtils.log("Ignored " + ignoredCount + " lines", Level.INFO, true);
-            SystemUtils.log("Inserted " + insertedCount + " records", Level.INFO, true);
-
+            SystemUtils.log("Processed " + linecount + " lines", Level.INFO, true, null);
+            SystemUtils.log("Skipped " + skippedCount + " lines", Level.INFO, true, null);
+            SystemUtils.log("Ignored " + ignoredCount + " lines", Level.INFO, true, null);
+            SystemUtils.log("Inserted " + insertedCount + " records", Level.INFO, true, null);
+    
             for (String ignored : ignoredSet) {
-                SystemUtils.log(" - " + ignored, Level.INFO, true);
+                SystemUtils.log(" - " + ignored, Level.INFO, true, null);
             }
         }
 

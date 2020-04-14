@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -28,10 +28,11 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.slf4j.LoggerFactory;
 
 public class IngestLogResource implements ResourceAbstract {
 
-    private static final Logger logger = Logger.getLogger(IngestLogResource.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(IngestLogResource.class);
     
     private static final String INGESTLOG_SHOW_TEMPLATE = "ingestlog_master.html";
 
@@ -90,7 +91,7 @@ public class IngestLogResource implements ResourceAbstract {
 	    			result = dao.readIngestLog(id);
 	    		} catch (Throwable e) {
 	    			String logMsg = "Either pathinfo '" + pathInfo + "' does not contain a valid identifier for an ingestlog, or some else went wrong";
-	    			logger.log(Level.WARNING,logMsg, e);
+	    			logger.warn(logMsg, e);
 	    		}
 	    	}
 	    } 
@@ -322,13 +323,13 @@ public class IngestLogResource implements ResourceAbstract {
                     + Servlet.environment.getBlacklistsPath() 
                     + "\" class=\"btn btn-primary\"><i class=\"icon-white icon-list\"></i> Tilbage til oversigten</a>");
         } else {
-            logger.warning("No back´placeholder found in template '" + templateName + "'" );
+            logger.warn("No back´placeholder found in template '" + templateName + "'" );
         }
 
         if (headingPlace != null) {
             headingPlace.setText(heading);
         } else {
-            logger.warning("No heading´ placeholder found in template '" + templateName + "'" );
+            logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
         }
 
         ResourceUtils.insertText(insertionDatePlace, "insertionDate", b.getDate().toString(), templateName, logger);
@@ -357,7 +358,7 @@ public class IngestLogResource implements ResourceAbstract {
             out.flush();
             out.close();
         } catch (IOException e) {
-            logger.warning("IOException thrown, but ignored: " + e);        
+            logger.warn("IOException thrown, but ignored: " + e);
         }
     }
         

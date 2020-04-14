@@ -6,11 +6,11 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provide some general System Utilities.
@@ -18,9 +18,11 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 public class SystemUtils {
 
     /** Logging mechanism. */
-    private static final Logger logger = Logger.getLogger(SystemUtils.class.getName());
-
-    /**
+    private static final Logger logger = LoggerFactory.getLogger(SystemUtils.class);
+	private static final Logger stdout = LoggerFactory.getLogger("SystemUtils-stdout");
+	
+	
+	/**
     * Provide the hostname of the machine on which the program is running.
     * @return the hostname as a {@link String}
     * Borrowed from Yggdrasil code base
@@ -58,7 +60,7 @@ public class SystemUtils {
             return hostName;
         }
         // Nothing worked, hostname undetermined.
-        logger.warning("Hostname undetermined");
+        logger.warn("Hostname undetermined");
         throw new UnknownHostException("Hostname undetermined");
     }
 
@@ -196,32 +198,28 @@ public class SystemUtils {
      * @param exception An exception to append to the log report (possibly null)
      */
     public static void log(String logMsg, Level loglevel, boolean writeToSystemOut, Throwable exception) {
-        String stacktrace = "";
-        if (writeToSystemOut) {
-            if (exception != null) {
-                stacktrace = ExceptionUtils.getFullStackTrace(exception);
-            }
-            if (loglevel == Level.SEVERE || loglevel == Level.WARNING) {
-                System.err.println(logMsg + stacktrace);
-            } else {
-                System.out.println(logMsg + stacktrace);
-            }
-        } else {
-            if (exception != null) {
-                logger.log(loglevel, logMsg, exception);
-            } else {
-                logger.log(loglevel, logMsg);
-            }
-        }
-    }
-    /**
-     * Convenience method to easily log to stdout/stderr or to a logfile.
-     * @param logMsg the log message
-     * @param loglevel the log level to use
-     * @param writeToSystemOut If true, we write to System.out or System.err depending on the loglevel. In case of SEVERE and WARNING, we write to System.err 
-     */
-    public static void log(String logMsg, Level loglevel, boolean writeToSystemOut) {
-        log(logMsg, loglevel, writeToSystemOut, null);
-    }
+		Logger myLogger;
+		if (writeToSystemOut) {
+			myLogger = stdout;
+		} else {
+			myLogger = logger;
+		}
+		logOnLevel(myLogger, loglevel, logMsg, exception);
+	
+	}
     
+    public static void logOnLevel(Logger logger, Level level, String msg, Throwable ex){
+    	
+    	if (level == Level.ERROR){
+    		logger.error(msg,ex);
+		} else if (level == Level.WARN){
+    		logger.warn(msg,ex);
+		} else if (level == Level.INFO){
+    		logger.info(msg,ex);
+		} else if (level == Level.DEBUG){
+    		logger.debug(msg,ex);
+		}
+  
+	}
+	
 }

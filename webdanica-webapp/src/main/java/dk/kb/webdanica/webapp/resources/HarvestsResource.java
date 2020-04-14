@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -25,10 +25,11 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.slf4j.LoggerFactory;
 
 public class HarvestsResource implements ResourceAbstract {
 
-	    private static final Logger logger = Logger.getLogger(HarvestsResource.class.getName());
+	    private static final Logger logger = LoggerFactory.getLogger(HarvestsResource.class);
 
 	    private Environment environment;
 
@@ -110,7 +111,7 @@ public class HarvestsResource implements ResourceAbstract {
 	        } catch (Exception e) {
 	        	// Create error-page
 	        	String errMsg = "Unexpected exception thrown:" + e;
-	        	logger.log(Level.WARNING, errMsg, e);
+	        	logger.warn( errMsg, e);
 	        	CommonResource.show_error(errMsg, resp, environment);
 	        	return;	
 	        }

@@ -2,7 +2,6 @@ package dk.kb.webdanica.webapp.resources;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.exceptions.WebdanicaException;
@@ -10,6 +9,8 @@ import dk.kb.webdanica.core.utils.Settings;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.netarkivet.common.exceptions.UnknownID;
 import dk.kb.webdanica.webapp.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourcesMap {
 
@@ -20,7 +21,7 @@ public class ResourcesMap {
 	private static final String RIGHT_ANGLE_BRACKET_ENCODED = "%3E";
 	
 	
-	private static final Logger logger = Logger.getLogger(ResourcesMap.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(ResourcesMap.class);
 	private boolean defaultSecuredValue;
 	
 	public ResourcesMap() {
@@ -32,7 +33,7 @@ public class ResourcesMap {
 			paths = Settings.getAll(WebdanicaSettings.WEBAPP_RESOURCE_PATH);
 			bools = Settings.getAll(WebdanicaSettings.WEBAPP_RESOURCE_SECURED);
 		} catch (UnknownID e) {
-			logger.warning("No webapp ressources found in the webdanica settings file. "
+			logger.warn("No webapp ressources found in the webdanica settings file. "
 					 + "Check that your settings file is configured correctly");
 			return;
 		}
@@ -54,7 +55,7 @@ public class ResourcesMap {
 	public ResourceDescription getResourceByPath(String path) {
 		ResourceDescription rd = map.get(path);
 		if (rd == null) {
-			logger.warning("No resource found in settings with path '" + path 
+			logger.warn("No resource found in settings with path '" + path
 					+ "'. Returning dummy resourcedescription with secured=" + defaultSecuredValue);
 			rd = new ResourceDescription("dummypath", defaultSecuredValue);
 		}

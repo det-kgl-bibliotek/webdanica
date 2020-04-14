@@ -7,12 +7,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.datamodel.DanicaStatus;
 import dk.kb.webdanica.core.datamodel.Seed;
 import dk.kb.webdanica.core.datamodel.Status;
 import dk.kb.webdanica.core.utils.CloseUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * See 
@@ -24,7 +25,7 @@ public class HBasePhoenixSeedsDAO implements SeedsDAO {
 
     private static final String EXISTS_SQL;
     
-    private static final Logger logger = Logger.getLogger(HBasePhoenixSeedsDAO.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(HBasePhoenixSeedsDAO.class);
 
     static {
         UPSERT_SQL = ""
@@ -65,7 +66,7 @@ public class HBasePhoenixSeedsDAO implements SeedsDAO {
         } else {
             insertedTime = singleSeed.getInsertedTime();
             if (insertedTime==null) {
-                logger.warning("InsertedTime shouldn't be null for updates, but was for seed w/url '"  + singleSeed.getUrl() 
+                logger.warn("InsertedTime shouldn't be null for updates, but was for seed w/url '"  + singleSeed.getUrl()
                         + "'. Setting insertedTime for current time");
                 insertedTime=now;
             }

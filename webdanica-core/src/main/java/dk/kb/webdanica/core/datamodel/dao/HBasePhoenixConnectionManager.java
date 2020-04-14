@@ -9,17 +9,18 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
 
 import org.apache.phoenix.jdbc.PhoenixDriver;
+import org.slf4j.LoggerFactory;
 
 public class HBasePhoenixConnectionManager {
 	
-	private static final Logger logger = Logger.getLogger(HBasePhoenixConnectionManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(HBasePhoenixConnectionManager.class);
 
 	protected HBasePhoenixConnectionManager() {
 	}
@@ -110,17 +111,17 @@ public class HBasePhoenixConnectionManager {
 	            try {
 	                DriverManager.deregisterDriver(driver);
 	            } catch (SQLException ex) {
-	            	logger.warning("Exception thrown during deregistering of driver '" + driver.getClass().getName() + "': " + ex); 
+	            	logger.warn("Exception thrown during deregistering of driver '" + driver.getClass().getName() + "': " + ex);
 	            }
 	        } else {
 	            // driver was not registered by the webapp's ClassLoader and may be in use elsewhere
-	        	logger.warning("jdbc-driver '" + driver.getClass().getName() + "' not registered by this app, so we don't touch it");       }
+	        	logger.warn("jdbc-driver '" + driver.getClass().getName() + "' not registered by this app, so we don't touch it");       }
 	    }
 	    if (driverP != null) {
 	    	try {
 	            driverP.close();
             } catch (SQLException e) {
-            	logger.log(Level.WARNING, "Exception while trying to close the Phoenix JDBC driver", e);
+            	logger.warn( "Exception while trying to close the Phoenix JDBC driver", e);
             }
 	    	driverP = null;
 	    }

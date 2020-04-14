@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -34,10 +34,11 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.slf4j.LoggerFactory;
 
 public class DomainResource implements ResourceAbstract {
 
-	    private static final Logger logger = Logger.getLogger(DomainResource.class.getName());
+	    private static final Logger logger = LoggerFactory.getLogger(DomainResource.class);
 
 	    private Environment environment;
 
@@ -173,7 +174,7 @@ public class DomainResource implements ResourceAbstract {
 	        if (headingPlace != null) {
 	            headingPlace.setText(heading);
 	        } else {
-	            logger.warning("No heading´ placeholder found in template '" + templateName + "'" );
+	            logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
 	        }
 	        for (Seed s: seeds) {
 	            
@@ -212,7 +213,7 @@ public class DomainResource implements ResourceAbstract {
                 out.flush();
                 out.close();
             } catch (IOException e) {
-                logger.warning("IOException thrown, but ignored: " + e);        
+                logger.warn("IOException thrown, but ignored: " + e);
             }
 
 	    }
@@ -357,7 +358,7 @@ public class DomainResource implements ResourceAbstract {
 	        if (headingPlace != null) {
 	            headingPlace.setText(heading);
 	        } else {
-	        	logger.warning("No heading´ placeholder found in template '" + templateName + "'" );
+	        	logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
 	        }
 
 	        ResourceUtils.insertText(danicaStatePlace, "danicaState",  d.getDanicaStatus().toString(), DOMAIN_SHOW_TEMPLATE, logger);
@@ -408,7 +409,7 @@ public class DomainResource implements ResourceAbstract {
 	            out.flush();
 	            out.close();
 	        } catch (IOException e) {
-	        	logger.warning("IOException thrown, but ignored: " + e);        
+	        	logger.warn("IOException thrown, but ignored: " + e);
 	        }
 	    }
 
@@ -469,7 +470,7 @@ public class DomainResource implements ResourceAbstract {
 	                header = "Listing all " + tldList.size() + " top level domains:";
 	            } catch (Exception e) {
 	                String errMsg = "System-error: Exception thrown";
-	                logger.log(Level.WARNING, errMsg, e);
+	                logger.warn( errMsg, e);
 	                CommonResource.show_error(errMsg, resp, environment);
 	                return;
 	            } 
@@ -499,7 +500,7 @@ public class DomainResource implements ResourceAbstract {
                     domains = daofactory.getDomainsDAO().getDomains(null, tld, environment.getConfig().getMaxUrlsToFetch());
                 } catch (DaoException e) {
                     String errMsg = "System-error: Exception thrown: " + ExceptionUtils.getFullStackTrace(e);
-                    logger.log(Level.WARNING, errMsg, e);
+                    logger.warn( errMsg, e);
                     CommonResource.show_error(errMsg, resp, environment);
                     return;
                    
@@ -511,7 +512,7 @@ public class DomainResource implements ResourceAbstract {
                     try {
                         seedscount = daofactory.getSeedsDAO().getDomainSeedsCount(d.getDomain());
                     } catch (DaoException e) {
-                        logger.log(Level.WARNING, "Error while retrieving seedscount for domain '" + d.getDomain() + "':", e);
+                        logger.warn( "Error while retrieving seedscount for domain '" + d.getDomain() + "':", e);
                     }
 	                sb.append("<tr>");
 	                sb.append("<td>");    
@@ -619,7 +620,7 @@ public class DomainResource implements ResourceAbstract {
 		                + Servlet.environment.getDomainsPath() 
 		                + "\" class=\"btn btn-primary\"><i class=\"icon-white icon-list\"></i> Tilbage til oversigten</a>");
 		    } else {
-		        logger.warning("No back´placeholder found in template '" + templateName + "'" );
+		        logger.warn("No back´placeholder found in template '" + templateName + "'" );
 		    }
 		}
 		

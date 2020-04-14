@@ -3,7 +3,6 @@ package dk.kb.webdanica.webapp.resources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -19,10 +18,12 @@ import dk.kb.webdanica.core.utils.SystemUtils;
 import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommonResource {
 	
-	private static final Logger logger = Logger.getLogger(CommonResource.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(CommonResource.class);
 	
 	private static final String ERROR_TEMPLATE = "error_master.html";
 	private static final String NOTICE_TEMPLATE = "notice_master.html";
@@ -101,13 +102,13 @@ public class CommonResource {
 					+ Servlet.environment.getSeedsPath() 
 					+ "\" class=\"btn btn-primary\"><i class=\"icon-white icon-list\"></i> Tilbage til oversigten</a>");
 		} else {
-			logger.warning("No back´placeholder found in template '" + templateName+ "'" );
+			logger.warn("No back´placeholder found in template '" + templateName+ "'" );
 		}
 
 		if (headingPlace != null) {
 			headingPlace.setText(heading);
 		} else {
-			logger.warning("No heading´ placeholder found in template '" + templateName + "'" );
+			logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
 		}
 
 		if (alertPlace != null) {
@@ -123,7 +124,7 @@ public class CommonResource {
 				alertSb.append("</div>");
 				alertPlace.setText(alertSb.toString());
 			} else {
-				logger.warning("No alert placeholder found in template '" + templateName + "'" );
+				logger.warn("No alert placeholder found in template '" + templateName + "'" );
 			}
 
 			try {
@@ -133,7 +134,7 @@ public class CommonResource {
 				out.flush();
 				out.close();
 			} catch (IOException e) {
-				logger.warning("IOException thrown, but ignored: " + e);        
+				logger.warn("IOException thrown, but ignored: " + e);
 			}
 		}
 	}
@@ -154,7 +155,7 @@ public class CommonResource {
                 alertSb.append("</div>");
                 alertPlace.setText(alertSb.toString());
             } else {
-            	logger.warning("No alert placeholder found in template '" + templateName + "'" );
+            	logger.warn("No alert placeholder found in template '" + templateName + "'" );
             }
             if (successStr != null) {
                 alertSb.append("<div class=\"row-fluid\">");
@@ -167,7 +168,7 @@ public class CommonResource {
                 alertSb.append("</div>");
                 alertPlace.setText(alertSb.toString());
             } else {
-            	logger.warning("No success placeholder found in template '" + templateName + "'" );
+            	logger.warn("No success placeholder found in template '" + templateName + "'" );
             }
         }
     }

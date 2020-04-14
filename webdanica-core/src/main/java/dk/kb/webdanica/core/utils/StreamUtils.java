@@ -10,17 +10,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 import java.util.zip.GZIPInputStream;
 
 
 import dk.kb.webdanica.core.Constants;
+import org.slf4j.LoggerFactory;
 
 
 public class StreamUtils {
 	
 	/** Logging mechanism. */
-    private static final Logger LOG = Logger.getLogger(StreamUtils.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(StreamUtils.class);
     
 	public static void writeline(FileOutputStream ftest, String txt) throws FileNotFoundException, IOException {
 		byte[] contentInBytes = txt.getBytes();
@@ -54,7 +55,7 @@ public class StreamUtils {
 	//StringBuilder res = new StringBuilder(); // Thought this could be the problem, but no   
     	StringBuffer res = new StringBuffer();
     	if (in == null){
-    		LOG.warning("NULL inputstream to method getInputStreamAsString");
+    		LOG.warn("NULL inputstream to method getInputStreamAsString");
     		return "";
     	}
 

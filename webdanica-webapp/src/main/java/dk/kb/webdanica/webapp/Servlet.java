@@ -1,23 +1,8 @@
 package dk.kb.webdanica.webapp;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import com.antiaction.common.servlet.AutoIncrement;
 import com.antiaction.common.servlet.PathMap;
 import com.antiaction.common.templateengine.login.LoginTemplateCallback;
-
 import dk.kb.webdanica.webapp.resources.BlackListResource;
 import dk.kb.webdanica.webapp.resources.BlackListsResource;
 import dk.kb.webdanica.webapp.resources.CriteriaResultResource;
@@ -33,6 +18,19 @@ import dk.kb.webdanica.webapp.resources.ResourceManagerAbstract;
 import dk.kb.webdanica.webapp.resources.SeedsResource;
 import dk.kb.webdanica.webapp.resources.StaticResource;
 import dk.kb.webdanica.webapp.resources.StatusResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Servlet extends HttpServlet implements ResourceManagerAbstract,
         LoginTemplateCallback<User> {
@@ -43,7 +41,7 @@ public class Servlet extends HttpServlet implements ResourceManagerAbstract,
     private static final long serialVersionUID = -1590306102259729140L;
 
     /** Logging mechanism. */
-    private static final Logger logger = Logger.getLogger(Servlet.class
+    private static final Logger logger = LoggerFactory.getLogger(Servlet.class
             .getName());
 
     public static Environment environment;
@@ -109,9 +107,9 @@ public class Servlet extends HttpServlet implements ResourceManagerAbstract,
             ingestResource.resources_init(environment);
             ingestResource.resources_add(this);
 
-            logger.log(Level.INFO, this.getClass().getName() + " initialized.");
+            logger.info( this.getClass().getName() + " initialized.");
         } catch (Throwable t) {
-            logger.log(Level.SEVERE, this.getClass().getName()
+            logger.error( this.getClass().getName()
                     + " failed to initialize properly.", t);
         }
     }
@@ -137,7 +135,7 @@ public class Servlet extends HttpServlet implements ResourceManagerAbstract,
             environment.cleanup();
             environment = null;
         }
-        logger.log(Level.INFO, this.getClass().getName() + " destroyed.");
+        logger.info( this.getClass().getName() + " destroyed.");
         super.destroy();
     }
 
@@ -288,12 +286,12 @@ public class Servlet extends HttpServlet implements ResourceManagerAbstract,
                                 resp, resource.getId(), numerics, pathInfo);
                     }
                 } else {
-                    logger.warning("No resource found for path: " + pathInfo);
+                    logger.warn("No resource found for path: " + pathInfo);
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, pathInfo);
                 }
             }
         } catch (Throwable t) {
-            logger.log(Level.SEVERE, t.toString(), t);
+            logger.error( t.toString(), t);
             StringBuilder sb = new StringBuilder();
             sb.append("<!DOCTYPE html><html lang=\"en\"><head>");
             sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
@@ -338,9 +336,9 @@ public class Servlet extends HttpServlet implements ResourceManagerAbstract,
          * Connection conn = null; try { conn =
          * environment.dataSource.getConnection(); current_user =
          * User.getAdminByCredentials(conn, id, password); } catch (SQLException
-         * e) { logger.log(Level.SEVERE, e.toString(), e); } finally { try { if
+         * e) { logger.error( e.toString(), e); } finally { try { if
          * (conn != null && !conn.isClosed()) { conn.close(); } } catch
-         * (SQLException e) { logger.log(Level.SEVERE, e.toString(), e); } } if
+         * (SQLException e) { logger.error( e.toString(), e); } } if
          * (current_user != null) { if (!current_user.active) { current_user =
          * null; logger.info("User account with id '" + id + "' is not active");
          * } } else { logger.info("No known user '" + id +

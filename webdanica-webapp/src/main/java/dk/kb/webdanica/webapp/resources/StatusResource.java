@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -46,10 +46,11 @@ import dk.kb.webdanica.webapp.StatusBar;
 import dk.kb.webdanica.webapp.User;
 import dk.kb.webdanica.webapp.workflow.WorkProgress;
 import dk.kb.webdanica.webapp.workflow.WorkThreadAbstract;
+import org.slf4j.LoggerFactory;
 
 public class StatusResource implements ResourceAbstract {
 
-    private static final Logger logger = Logger.getLogger(StatusResource.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(StatusResource.class);
 
     private Environment environment;
 
@@ -753,22 +754,23 @@ public class StatusResource implements ResourceAbstract {
 
         StringBuilder sb = new StringBuilder();
         sb.append("<pre>");
-        Iterator<LogRecord> iter = Servlet.environment.logRecords.iterator();
-        LogRecord record;
-        while (iter.hasNext()) {
-        	record = iter.next();
-            sb.append(dateFormat.format(record.getMillis()));
-        	sb.append(" ");
-        	sb.append(record.getSourceClassName());
-        	sb.append(" ");
-        	sb.append(record.getSourceMethodName());
-        	sb.append("<br />\n");
-        	sb.append(record.getLevel());
-        	sb.append(": ");
-        	sb.append(record.getMessage());
-        	sb.append("<br />\n");
-        	throwable_stacktrace_dump(record.getThrown(), sb);
-        }
+        //TODO log collection, how to do this in SLF4J
+        //Iterator<LogRecord> iter = Servlet.environment.logRecords.iterator();
+        //LogRecord record;
+        //while (iter.hasNext()) {
+        //	record = iter.next();
+        //    sb.append(dateFormat.format(record.getMillis()));
+        //	sb.append(" ");
+        //	sb.append(record.getSourceClassName());
+        //	sb.append(" ");
+        //	sb.append(record.getSourceMethodName());
+        //	sb.append("<br />\n");
+        //	sb.append(record.getLevel());
+        //	sb.append(": ");
+        //	sb.append(record.getMessage());
+        //	sb.append("<br />\n");
+        //	throwable_stacktrace_dump(record.getThrown(), sb);
+        //}
         sb.append("</pre>");
 
         if (titlePlace != null) {
@@ -950,7 +952,7 @@ public class StatusResource implements ResourceAbstract {
                 conn.close();
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, e.toString(), e);
+            logger.error( e.toString(), e);
         }
         */
     }

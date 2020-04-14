@@ -7,11 +7,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -46,6 +42,8 @@ import dk.netarkivet.common.utils.ApplicationUtils;
 import dk.netarkivet.common.utils.FileUtils;
 import dk.netarkivet.common.utils.StringUtils;
 import dk.netarkivet.common.utils.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  Setup the environment for the Webdanica webapplication running on 8080 as a ROOT.war
@@ -54,7 +52,7 @@ import dk.netarkivet.common.utils.SystemUtils;
 public class Environment {
 
     /** Logging mechanism. */
-    private static final Logger logger = Logger.getLogger(Environment.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(Environment.class);
 
     /** servletConfig. */
     private ServletConfig servletConfig = null;
@@ -123,11 +121,7 @@ public class Environment {
     /*
      * Log.
      */
-
-    public List<LogRecord> newLogRecords = new LinkedList<LogRecord>();
-
-    public List<LogRecord> logRecords = new LinkedList<LogRecord>();
-
+    
     private int defaultItemsPerPage = 25; // create settings
 
     private ServletContext servletContext;
@@ -165,40 +159,7 @@ public class Environment {
          * Logging.
          */
 
-        String loggingPropertiesFilename = servletContext.getRealPath("/WEB-INF/logging.properties");
-        File loggingPropertiesFile = new File(loggingPropertiesFilename);
-        if (loggingPropertiesFile != null && loggingPropertiesFile.exists() && loggingPropertiesFile.isFile()) {
-            try {
-                LogManager.getLogManager().readConfiguration(new FileInputStream(loggingPropertiesFile));
-                logger.log(Level.INFO, "java.util.logging reconfigured using: " + loggingPropertiesFilename);
-            } catch (SecurityException e) {
-                e.printStackTrace();
-                logger.log(Level.SEVERE, e.toString(), e);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                logger.log(Level.SEVERE, e.toString(), e);
-            } catch (IOException e) {
-                e.printStackTrace();
-                logger.log(Level.SEVERE, e.toString(), e);
-            }
-        }
-
-        Logger rootLogger = Logger.getLogger("");
-        rootLogger.addHandler(new Handler() {
-            @Override
-            public void publish(LogRecord record) {
-                synchronized (newLogRecords) {
-                    newLogRecords.add(record);
-                }
-            }
-            @Override
-            public void flush() {
-            }
-            @Override
-            public void close() throws SecurityException {
-            }
-        });
-
+       
         String webdanicaHomeEnv = System.getenv("WEBDANICA_HOME"); 
         if (webdanicaHomeEnv == null) {
             throw new ServletException("'WEBDANICA_HOME' must be defined in the environment!");
@@ -267,7 +228,7 @@ public class Environment {
             try {
                 fileWasCreated = testFile.createNewFile();
             } catch (IOException e) {
-                logger.warning("Unable to create file in tmpdir: " + tmpdir.getAbsolutePath());
+                logger.warn("Unable to create file in tmpdir: " + tmpdir.getAbsolutePath());
             }
             if (!fileWasCreated) {
                 throw new ServletException("The netarchivesuite setting 'settings.common.tempDir'(" + tmpdir.getAbsolutePath() + ") is invalid: we don't have write privileges to this directory");
@@ -419,7 +380,7 @@ public class Environment {
                     + (harvesterThread.bRunning? " HarvesterThread": "")
                     + (statecacheThread.bRunning? " StateCacheThread": ""))
                     ;
-            logger.log(Level.INFO, "Waiting for threads(" + threads + ") to exit.");
+            logger.info("Waiting for threads(" + threads + ") to exit.");
             try {
                 Thread.sleep(5000); // Wait 5 seconds before trying again.
             } catch (InterruptedException e) {

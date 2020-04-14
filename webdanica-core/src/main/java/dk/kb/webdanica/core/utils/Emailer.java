@@ -2,8 +2,9 @@ package dk.kb.webdanica.core.utils;
 
 import java.util.Date;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -16,7 +17,7 @@ import javax.mail.internet.MimeMessage;
 public class Emailer {
 
     /** Logging mechanism. */
-    private static Logger logger = Logger.getLogger(Emailer.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(Emailer.class);
 
     private static Emailer emailer;
 
@@ -95,7 +96,7 @@ public class Emailer {
 
             Transport.send(message);
         } catch (MessagingException e) {
-            logger.log(Level.SEVERE, e.toString(), e);
+            logger.error(e.toString(), e);
         }
     }
     

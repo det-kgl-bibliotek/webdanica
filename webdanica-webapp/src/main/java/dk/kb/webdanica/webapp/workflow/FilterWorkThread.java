@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.datamodel.BlackList;
@@ -22,6 +22,7 @@ import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.kb.webdanica.webapp.Configuration;
 import dk.kb.webdanica.webapp.Constants;
 import dk.kb.webdanica.webapp.Environment;
+import org.slf4j.LoggerFactory;
 
 /**
  * Seeds filter work-thread. A worker thread to reject seeds matching ignored
@@ -31,7 +32,7 @@ import dk.kb.webdanica.webapp.Environment;
 public class FilterWorkThread extends WorkThreadAbstract {
 
     static {
-        logger = Logger.getLogger(FilterWorkThread.class.getName());
+        logger = LoggerFactory.getLogger(FilterWorkThread.class);
     }
 
     private List<Seed> queueList = new LinkedList<Seed>();
@@ -109,7 +110,7 @@ public class FilterWorkThread extends WorkThreadAbstract {
 		}
     	// ensure that only filtering process is run at a time
     	if (filteringInProgress.get()) {
-            logger.log(Level.INFO,
+            logger.info(
                     "Filtering process already in progress at '" + new Date()
                             + "'. Skipping");
             return;
@@ -117,12 +118,12 @@ public class FilterWorkThread extends WorkThreadAbstract {
             filteringInProgress.set(Boolean.TRUE);
         }
         try {
-            logger.log(Level.INFO, "Starting process_run of thread '" + threadName
+            logger.info( "Starting process_run of thread '" + threadName
                     + "' at '" + new Date() + "'");
             List<Seed> seedsNeedFiltering = seeddao.getSeeds(Status.NEW, maxRecordsProcessedInEachRun); 
             enqueue(seedsNeedFiltering);
             if (seedsNeedFiltering.size() > 0) {
-                logger.log(Level.INFO, "Found '" + seedsNeedFiltering.size()
+                logger.info( "Found '" + seedsNeedFiltering.size()
                         + "' seeds ready for filtering");
             }
             synchronized (queueList) {
@@ -133,7 +134,7 @@ public class FilterWorkThread extends WorkThreadAbstract {
                 queueList.clear();
             }
             if (workList.size() > 0) {
-                logger.log(Level.INFO, "Filter queue: " + workList.size());
+                logger.info( "Filter queue: " + workList.size());
                 lastWorkRun = System.currentTimeMillis();
                 filter(workList);
                 startProgress(workList.size());
@@ -144,7 +145,7 @@ public class FilterWorkThread extends WorkThreadAbstract {
             // Update cache
             Cache.updateCache(configuration.getDAOFactory());
         } catch (Throwable e) {
-            logger.log(Level.SEVERE, e.toString(), e);
+            logger.error( e.toString(), e);
         } finally {
         	logger.info("Finished process_run of thread '" + threadName
                     + "' at '" + new Date() + "'");

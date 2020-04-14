@@ -1,11 +1,9 @@
 package dk.kb.webdanica.webapp.workflow;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The HarvesterThread initiates a SingleSeedHarvest in Netarchivesuite and wait for it to finish.
@@ -13,7 +11,7 @@ import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
 public class HarvesterThread implements Runnable {
 
 	/** The log. */
-	private static final Logger logger = Logger.getLogger(HarvestWorkThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(HarvesterThread.class);
 	private String url;
 	private String eventHarvestName;
 	private String scheduleName;
@@ -47,7 +45,7 @@ public class HarvesterThread implements Runnable {
 		try {
 			harvestSuccess = harvest.finishHarvest(false);
 		} catch (Throwable e) {
-			logger.log(Level.WARNING, "Exception during harvesting:" + ExceptionUtils.getFullStackTrace(e), e);
+			logger.warn( "Exception during harvesting:" + ExceptionUtils.getFullStackTrace(e), e);
 		}
 	}
 	

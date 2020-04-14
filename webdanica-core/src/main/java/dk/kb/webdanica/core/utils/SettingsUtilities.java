@@ -2,7 +2,8 @@ package dk.kb.webdanica.core.utils;
 
 import java.io.File;
 import java.util.Set;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for settingsfile utilities.
@@ -10,7 +11,7 @@ import java.util.logging.Logger;
 public class SettingsUtilities {
 	
 	/** Logging mechanism. */
-    private static final Logger logger = Logger.getLogger(SettingsUtilities.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(SettingsUtilities.class);
 
     /**
      * Tests if the given settingsFile is a valid SimpleXMl settingsfile.
@@ -23,7 +24,7 @@ public class SettingsUtilities {
     		new SimpleXml(settingsFile);
     	} catch(Throwable e) {
     		if (verbose) {
-    			logger.warning(e.toString());
+    			logger.warn(e.toString());
     		}
     		return false;
     	}
@@ -48,13 +49,13 @@ public class SettingsUtilities {
 	    if (Settings.hasKey(settingsName)) {
 	    	String settingsValue = Settings.get(settingsName);  
 	    	if (settingsValue == null || settingsValue.isEmpty()) {
-	    		if (logging) logger.warning("Using default value '" + default_string_value + "' for setting '" + settingsName + "', as the value in the settings is null or empty");
+	    		if (logging) logger.warn("Using default value '" + default_string_value + "' for setting '" + settingsName + "', as the value in the settings is null or empty");
 	    	} else {
 	    		if (logging) logger.info("Using value '" + settingsValue + "' for setting '" + settingsName + "'.");
 	    		returnValue = settingsValue;
 	    	}
 	    } else {
-	    	if (logging) logger.warning("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '" + default_string_value + "'");
+	    	if (logging) logger.warn("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '" + default_string_value + "'");
 	    }
 	    return returnValue;
     }
@@ -68,7 +69,7 @@ public class SettingsUtilities {
 	    if (Settings.hasKey(settingsName)) {
 	    	String settingsValueAsString = Settings.get(settingsName);  
 	    	if (settingsValueAsString == null || settingsValueAsString.isEmpty()) {
-	    	    if (logging) logger.warning("Using default value '" + default_int_value + "' for setting '" + settingsName + "', as the value in the settings is null or empty");
+	    	    if (logging) logger.warn("Using default value '" + default_int_value + "' for setting '" + settingsName + "', as the value in the settings is null or empty");
 	    	} else { // Try to parse the settingsValueAsString as a valid Integer
 	    		int intValue;
 	    		try {
@@ -76,12 +77,12 @@ public class SettingsUtilities {
 	            	returnValue = intValue;
 	            	if (logging) logger.info("Using value '" + returnValue + "' for setting '" + settingsName + "'.");
 	            } catch (NumberFormatException e) {
-	                if (logging) logger.warning("Using default value '" + default_int_value + "' for setting '" + settingsName + "', as the value '" + settingsValueAsString 
+	                if (logging) logger.warn("Using default value '" + default_int_value + "' for setting '" + settingsName + "', as the value '" + settingsValueAsString
 	            			+ "'  in the settings is not a valid integer");
 	            }
 	    	}
 	    } else {
-	        if (logging) logger.warning("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '" + default_int_value + "'");
+	        if (logging) logger.warn("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '" + default_int_value + "'");
 	    }
 	    return returnValue;
     }
@@ -91,14 +92,14 @@ public class SettingsUtilities {
 	    if (Settings.hasKey(settingsName)) {
 	    	String settingsValueAsString = Settings.get(settingsName);  
 	    	if (settingsValueAsString == null || settingsValueAsString.isEmpty()) {
-	    		logger.warning("Using default value '" + default_bool_value + "' for setting '" + settingsName + "', as the value in the settings is null or empty");
+	    		logger.warn("Using default value '" + default_bool_value + "' for setting '" + settingsName + "', as the value in the settings is null or empty");
 	    	} else {
 	    		boolean boolValue = Boolean.parseBoolean(settingsValueAsString);
 	            returnValue = boolValue;
 	            logger.info("Using value '" + returnValue + "' for setting '" + settingsName + "'.");
 	    	}
 	    } else {
-	    	logger.warning("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '" + default_bool_value + "'");
+	    	logger.warn("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '" + default_bool_value + "'");
 	    }
 	    return returnValue;
     }
@@ -115,7 +116,7 @@ public class SettingsUtilities {
 				System.err.println("ERROR: Required java property '" + propertyKey + "' is undefined");
 				System.exit(1);
 			} else {
-				logger.warning("Required java property '" + propertyKey + "' is undefined");
+				logger.warn("Required java property '" + propertyKey + "' is undefined");
 				return false;
 			}
 		}
@@ -128,7 +129,7 @@ public class SettingsUtilities {
 				System.err.println(errMsg);
 				System.exit(1);
 			} else {
-				logger.warning(errMsg);
+				logger.warn(errMsg);
 				return false;
 			}
 		}
@@ -171,7 +172,7 @@ public class SettingsUtilities {
         if (Settings.hasKey(settingsName)) {
             String settingsValueAsString = Settings.get(settingsName);  
             if (settingsValueAsString == null || settingsValueAsString.isEmpty()) {
-                logger.warning("Using default value '" + default_long_value + "' for setting '" 
+                logger.warn("Using default value '" + default_long_value + "' for setting '"
                         + settingsName + "', as the value in the settings is null or empty");
             } else { // Try to parse the settingsValueAsString as a valid Long
                 long longValue;
@@ -180,13 +181,13 @@ public class SettingsUtilities {
                     returnValue = longValue;
                     logger.info("Using value '" + returnValue + "' for setting '" + settingsName + "'.");
                 } catch (NumberFormatException e) {
-                    logger.warning("Using default value '" + default_long_value + "' for setting '" + settingsName + "', as the value '" 
+                    logger.warn("Using default value '" + default_long_value + "' for setting '" + settingsName + "', as the value '"
                             + settingsValueAsString 
                             + "'  in the settings is not a valid Long");
                 }
             }
         } else {
-            logger.warning("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '" 
+            logger.warn("The setting '" + settingsName + "' is not defined in the settingsfile. Using the default value: '"
                     + default_long_value + "'");
         }
         return returnValue;

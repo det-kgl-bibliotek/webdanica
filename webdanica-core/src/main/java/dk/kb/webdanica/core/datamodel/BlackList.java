@@ -3,16 +3,17 @@ package dk.kb.webdanica.core.datamodel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 
 public class BlackList {
 	
 	 /** Logging mechanism. */
-    private static final Logger logger = Logger.getLogger(BlackList.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(BlackList.class);
     
 	private List<String> theList;
 	private UUID uid; // null, if not added to the database
@@ -48,7 +49,7 @@ public class BlackList {
 				Pattern p = Pattern.compile(regex);
 				patternList.add(p);
 			} else {
-				logger.warning("Ignoring invalid pattern '" + regex + "'");
+				logger.warn("Ignoring invalid pattern '" + regex + "'");
 			}
 		}
 		return patternList;
@@ -104,7 +105,7 @@ public class BlackList {
 
 		List<Pattern> regexes = getListAsPatterns();
 		if(regexes.size()==0){
-			logger.warning("Evaluating url on empty blacklist");
+			logger.warn("Evaluating url on empty blacklist");
 			return null;
 		}
 		for (Pattern p: regexes) {

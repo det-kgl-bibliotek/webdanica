@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
@@ -49,10 +49,11 @@ import dk.kb.webdanica.webapp.User;
 import dk.kb.webdanica.webapp.workflow.HarvestWorkThread;
 import dk.netarkivet.common.utils.I18n;
 import dk.netarkivet.common.webinterface.HTMLUtils;
+import org.slf4j.LoggerFactory;
 
 public class SeedsResource implements ResourceAbstract {
 
-	private static final Logger logger = Logger.getLogger(SeedsResource.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SeedsResource.class);
 
 	protected static final int A_ACCEPT = 1;
 
@@ -242,14 +243,14 @@ public class SeedsResource implements ResourceAbstract {
 	        }
         } catch (Exception e) {
 	        String errMsg = "Unexpected exception thrown:" + e;
-        	logger.log(Level.WARNING, errMsg, e);
+        	logger.warn( errMsg, e);
         	CommonResource.show_error(errMsg, resp, environment);
         	return;
         	
         }
     	if (seedToShow == null) {
     		String errMsg = "Should not happen. No seed found in database";
-        	logger.log(Level.WARNING, errMsg);
+        	logger.warn( errMsg);
         	CommonResource.show_error(errMsg, resp, environment);
         	return;
     	}
@@ -367,13 +368,13 @@ public class SeedsResource implements ResourceAbstract {
         			+ Servlet.environment.getSeedsPath() + seedToShow.getStatus().ordinal() + "/"
         			+ "\" class=\"btn btn-primary\"><i class=\"icon-white icon-list\"></i> Tilbage til oversigten</a>");
         } else {
-        	logger.warning("No back´placeholder found in template '" + templateName+ "'" );
+        	logger.warn("No back´placeholder found in template '" + templateName+ "'" );
         }
 
         if (headingPlace != null) {
             headingPlace.setText(heading);
         } else {
-        	logger.warning("No heading´ placeholder found in template '" + templateName + "'" );
+        	logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
         }
         
         String redirectedUrlText = seedToShow.getRedirectedUrl();
@@ -462,7 +463,7 @@ public class SeedsResource implements ResourceAbstract {
         	}
         } catch (Throwable e) {
         	String errMsg = "Unexpected exception thrown:" + e;
-        	logger.log(Level.WARNING, errMsg, e);
+        	logger.warn( errMsg, e);
         	CommonResource.show_error(errMsg, resp, environment);
         	return;
         }
@@ -480,7 +481,7 @@ public class SeedsResource implements ResourceAbstract {
             out.flush();
             out.close();
         } catch (IOException e) {
-        	logger.warning("IOException thrown, but ignored: " + e);        
+        	logger.warn("IOException thrown, but ignored: " + e);
         }
    }
 
@@ -526,17 +527,17 @@ public class SeedsResource implements ResourceAbstract {
 		String statusReason = s.getStatusReason();//
 		String harvestName = findHarvestNameInStatusReason(statusReason);
 		if (harvestName == null) {
-			logger.warning("Can't find harvestname in field statusreason. marker has changed: '" +  statusReason + "'");
+			logger.warn("Can't find harvestname in field statusreason. marker has changed: '" +  statusReason + "'");
 			return;
 		};
 		
 		SingleSeedHarvest ssh = hdao.getHarvest(harvestName);
 		if (ssh == null) {
-			logger.warning("Can't find harvest '" + harvestName + "' in harvests table");
+			logger.warn("Can't find harvest '" + harvestName + "' in harvests table");
 			return;
 		} else {
 			if (!ssh.isSuccessful()) {
-				logger.warning("Can't retry analysis of failed harvest '" + harvestName + "'");
+				logger.warn("Can't retry analysis of failed harvest '" + harvestName + "'");
 				return;
 			} else {
 				// writeharvest to harvestLogs
@@ -545,7 +546,7 @@ public class SeedsResource implements ResourceAbstract {
 					harvests.add(ssh);
 					HarvestWorkThread.writeHarvestLog(harvests, conf);
 				} catch (Throwable e) {
-					logger.log(Level.WARNING, "Failed to harvestlog for harvest '" + harvestName + "' to harvestlogsdir", e);
+					logger.warn( "Failed to harvestlog for harvest '" + harvestName + "' to harvestlogsdir", e);
 					return;
 				}
 		        // update status of seed
@@ -590,7 +591,7 @@ public class SeedsResource implements ResourceAbstract {
             urlRecords = dao.getSeeds(Status.fromOrdinal(online_status), 10000);  
         } catch (Exception e) {
         	String errMsg = "Unexpected exception thrown:" + e;
-        	logger.log(Level.WARNING, errMsg, e);
+        	logger.warn( errMsg, e);
         	CommonResource.show_error(errMsg, resp, environment);
         	return;
         }
@@ -612,7 +613,7 @@ public class SeedsResource implements ResourceAbstract {
             out.flush();
             out.close();
         } catch (IOException e) {
-        	logger.warning("IOException thrown: " + e);
+        	logger.warn("IOException thrown: " + e);
         }
     }
     
@@ -652,7 +653,7 @@ public class SeedsResource implements ResourceAbstract {
         	try {
         		itemsPerPage = Integer.parseInt(itemsperpageStr);
         	} catch (NumberFormatException e) {
-        		logger.warning("The given value of 'itemsperpage': '" + itemsperpageStr
+        		logger.warn("The given value of 'itemsperpage': '" + itemsperpageStr
         				+ "' is not a valid integer!. Using the default: 25"); 
         		itemsPerPage = 25;
         		itemsperpageStr = "25";
@@ -709,10 +710,10 @@ public class SeedsResource implements ResourceAbstract {
         try {
         	cache = cdao.getCache();
         } catch (Throwable e) {
-        	logger.warning("Exception thrown during call to cdao.getCache(): " + e);
+        	logger.warn("Exception thrown during call to cdao.getCache(): " + e);
         }
         if (cache == null) {
-        	logger.warning("No cache available from cdao.getCache(). Using dummy values instead");
+        	logger.warn("No cache available from cdao.getCache(). Using dummy values instead");
         	cache = Cache.getDummyCache();
         }
         String heading = null;
@@ -720,7 +721,7 @@ public class SeedsResource implements ResourceAbstract {
             heading = buildStatemenu(statemenuSb, status, sdao, cache, seedsRequest);
         } catch (Throwable e) {
             String errMsg = "Building statemenu failed: " +  ExceptionUtils.getFullStackTrace(e);
-            logger.log(Level.WARNING, errMsg, e);
+            logger.warn( errMsg, e);
             CommonResource.show_error(errMsg, resp, environment);
             return;
         }
@@ -746,7 +747,7 @@ public class SeedsResource implements ResourceAbstract {
                 urlRecords = sdao.getSeeds(domain, maxUrlsToFetch);
             } catch (Exception e) {
                 String errMsg = "Exception on retrieving max " + maxUrlsToFetch + " seeds from domain '" + domain + "' : " +  ExceptionUtils.getFullStackTrace(e);
-                logger.log(Level.WARNING, errMsg, e);
+                logger.warn( errMsg, e);
                 CommonResource.show_error(errMsg, resp, environment);
                 return;
             }   
@@ -755,7 +756,7 @@ public class SeedsResource implements ResourceAbstract {
                 urlRecords = sdao.getSeeds(domain, wantedStatus, maxUrlsToFetch);
             } catch (Exception e) {
                 String errMsg = "Exception on retrieving max " + maxUrlsToFetch + " seeds from domain '" + domain + "' with state '" +  wantedStatus + "': " +  ExceptionUtils.getFullStackTrace(e);
-                logger.log(Level.WARNING, errMsg, e);
+                logger.warn( errMsg, e);
                 CommonResource.show_error(errMsg, resp, environment);
                 return;
             }
@@ -764,7 +765,7 @@ public class SeedsResource implements ResourceAbstract {
                 urlRecords = sdao.getSeeds(wantedStatus, maxUrlsToFetch);
             } catch (Exception e) {
                 String errMsg = "Exception on retrieving max " + maxUrlsToFetch + " seeds with status " + wantedStatus + ": " +  ExceptionUtils.getFullStackTrace(e);
-                logger.log(Level.WARNING, errMsg, e);
+                logger.warn( errMsg, e);
                 CommonResource.show_error(errMsg, resp, environment);
                 return;
             } 
@@ -776,20 +777,20 @@ public class SeedsResource implements ResourceAbstract {
         // Implementing paging with cassandra
         // https://datastax.github.io/java-driver/manual/paging/
         if (page < 1) {
-        	logger.warning("Got negative pagenr '" +  page + "'. Changing it to page=1");
+        	logger.warn("Got negative pagenr '" +  page + "'. Changing it to page=1");
             page = 1;
             
         }
         if (itemsPerPage < 1) {
         	int defaultItemsPerPage = environment.getDefaultItemsPerPage();
-        	logger.warning("Got negative itemsPerPage '" +  itemsPerPage + "'. Changing it to itemsPerPage=" + defaultItemsPerPage);
+        	logger.warn("Got negative itemsPerPage '" +  itemsPerPage + "'. Changing it to itemsPerPage=" + defaultItemsPerPage);
             itemsPerPage = defaultItemsPerPage;
             
         }
         int items = urlRecordsFiltered.size();
         int pages = Pagination.getPages(items, itemsPerPage);
         if (page > pages) {
-        	logger.warning("Asked for page " + page + ", but we only have " + pages + ". Set page to maxpage");
+        	logger.warn("Asked for page " + page + ", but we only have " + pages + ". Set page to maxpage");
             page = pages;
         }
         int fItem = (page - 1) * itemsPerPage;
@@ -822,7 +823,7 @@ public class SeedsResource implements ResourceAbstract {
             // Add encoded link to show details about seed  
             String base64Encoded = Base64.encodeString(urlRecord.getUrl());
         	if (base64Encoded == null) {
-        		logger.warning("base64 encoding of url '" +  urlRecord.getUrl() + "' gives null. Maybe it's already encoded?");
+        		logger.warn("base64 encoding of url '" +  urlRecord.getUrl() + "' gives null. Maybe it's already encoded?");
         		base64Encoded = urlRecord.getUrl();
         	}
         	String linkToShowPage = Servlet.environment.getSeedPath() + HTMLUtils.encode(base64Encoded) + "/\"";
@@ -919,7 +920,7 @@ public class SeedsResource implements ResourceAbstract {
            
            linksPlace.setText(StringUtils.join(linkSet, "&nbsp;&nbsp;"));
         } else {
-        	logger.warning("Linksplace not in the used template '" + templateName + "'");
+        	logger.warn("Linksplace not in the used template '" + templateName + "'");
         }
 
         /*
@@ -938,7 +939,7 @@ public class SeedsResource implements ResourceAbstract {
             out.flush();
             out.close();
         } catch (IOException e) {
-        	logger.log(Level.WARNING, "Unexpected exception thrown", e);
+        	logger.warn( "Unexpected exception thrown", e);
         }
 
     }
