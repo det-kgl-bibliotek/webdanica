@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
+
 HARVESTLOG=$1
 DATADIR=$2
 WORKFLOW_HOME=$3
@@ -59,4 +61,6 @@ fi
 OPTS2=-Dwebdanica.settings.file=$WORKFLOW_HOME/webdanica_settings.xml 
 OPTS3=-Dlogback.configurationFile=$WORKFLOW_HOME/silent_logback.xml 
 
-java $OPTS2 $OPTS3 -cp $JARFILE:lib/slf4j-api-1.7.7.jar:lib/commons-io-2.0.1.jar:lib/common-core-$NAS_VERSION.jar:lib/harvester-core-$NAS_VERSION.jar:lib/derbyclient-10.12.1.1.jar:lib/archive-core-$NAS_VERSION.jar dk.kb.webdanica.core.tools.FindHarvestWarcs $1 $2
+CLASSPATH="$JARFILE:$SCRIPT_DIR/lib/slf4j-api-1.7.7.jar:$SCRIPT_DIR/lib/commons-io-2.0.1.jar:$SCRIPT_DIR/lib/common-core-$NAS_VERSION.jar:$SCRIPT_DIR/lib/harvester-core-$NAS_VERSION.jar:$SCRIPT_DIR/lib/derbyclient-10.12.1.1.jar:$SCRIPT_DIR/lib/archive-core-$NAS_VERSION.jar"
+
+java $OPTS2 $OPTS3 -cp "$CLASSPATH" dk.kb.webdanica.core.tools.FindHarvestWarcs $1 $2

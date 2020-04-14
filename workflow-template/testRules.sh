@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
+
+PROG=$(readlink -f $BASH_SOURCE[0])
+
 # look for existence of WORKFLOW_HOME/lib/webdanica-core-$WEBDANICA_VERSION.jar
 WORKFLOW_HOME=/home/test/automatic-workflow
 CONFDIR=$WORKFLOW_HOME/conf
@@ -10,4 +14,4 @@ fi
 OPTS2=-Dwebdanica.settings.file=$CONFDIR/webdanica_settings.xml 
 OPTS3=-Dlogback.configurationFile=$CONFDIR/silent_logback.xml 
 
-java $OPTS2 $OPTS3 -cp $JARFILE:lib/slf4j-api-1.7.7.jar:lib/commons-io-2.0.1.jar:lib/common-core-5.1.jar:lib/harvester-core-5.1.jar:lib/derbyclient-10.12.1.1.jar:lib/archive-core-5.1.jar:lib/phoenix-4.7.0-HBase-1.1-client.jar:lib/json-simple-1.1.1.jar:lib/jwat-common-1.0.4.jar dk.kb.webdanica.core.tools.TestRules $1
+java $OPTS2 $OPTS3 -cp "$JARFILE:$SCRIPT_DIR/lib/slf4j-api-1.7.7.jar:$SCRIPT_DIR/lib/commons-io-2.0.1.jar:$SCRIPT_DIR/lib/common-core-5.1.jar:$SCRIPT_DIR/lib/harvester-core-5.1.jar:$SCRIPT_DIR/lib/derbyclient-10.12.1.1.jar:$SCRIPT_DIR/lib/archive-core-5.1.jar:$SCRIPT_DIR/lib/phoenix-4.7.0-HBase-1.1-client.jar:$SCRIPT_DIR/lib/json-simple-1.1.1.jar:$SCRIPT_DIR/lib/jwat-common-1.0.4.jar" dk.kb.webdanica.core.tools.TestRules $1
