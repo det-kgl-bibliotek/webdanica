@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 WORKFLOW_HOME=$1
-ME=`basename $0`
+ME=$(readlink -f $BASH_SOURCE[0])
 
 if [ -z $WORKFLOW_HOME ]; then
    echo "Missing WORKFLOW_HOME argument to script $ME"

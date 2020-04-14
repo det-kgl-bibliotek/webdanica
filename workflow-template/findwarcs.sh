@@ -6,7 +6,7 @@ WORKFLOW_HOME=$3
 WEBDANICA_VERSION=$4
 NAS_VERSION=$5
 
-PROG=`basename "$0"`
+PROG=$(readlink -f $BASH_SOURCE[0])
 
 if [ -z "$HARVESTLOG" ]; then
    echo "The 'harvestlog' argument is missing (arg #1). Exiting program $PROG"

@@ -7,7 +7,7 @@ HADOOP_HOME=$5
 WEBDANICA_VERSION=$6
 NAS_VERSION=$7
 
-PROG=`basename "$0"`
+PROG=$(readlink -f $BASH_SOURCE[0])
 
 if [ -z "$HARVESTLOG" ]; then
    echo "The 'HARVESTLOG' argument is missing (arg #1). Exiting program $PROG"

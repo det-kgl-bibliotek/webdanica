@@ -2,7 +2,8 @@
 # replace path in WORKFLOW_HOME with the correct full path
 #WORKFLOW_HOME=/REPLACE/WITH/CORRECT/FULL/PATH
 WORKFLOW_HOME=/home/test/workflow
-ME=`basename $0`
+
+ME=$(readlink -f $BASH_SOURCE[0])
 
 
 if [ ! -d "$WORKFLOW_HOME" ]; then
