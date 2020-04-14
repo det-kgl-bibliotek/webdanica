@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 SEQ_BASEDIR=$1
 CRITERIARESULTSDIR=$2
 WORKFLOW_HOME=$3

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 WORKFLOW_HOME=$1
 ME=`basename $0`
 

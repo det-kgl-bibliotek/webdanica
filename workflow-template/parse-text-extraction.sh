@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 FILE_TO_EXTRACT=$1
 OUTPUTDIR=$2
 HADOOP_BIN_HOME=$3

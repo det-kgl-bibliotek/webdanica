@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # replace path in WORKFLOW_HOME with the correct full path
 #WORKFLOW_HOME=/REPLACE/WITH/CORRECT/FULL/PATH
 WORKFLOW_HOME=/home/test/workflow

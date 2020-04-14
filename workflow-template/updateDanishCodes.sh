@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # replace path in HARVEST_SEEDS_HOME with the correct path
 HARVEST_SEEDS_HOME=/home/test/automatic-workflow
 OPTS1=-Ddk.netarkivet.settings.file=$HARVEST_SEEDS_HOME/conf/settings_NAS_Webdanica_staging.xml 

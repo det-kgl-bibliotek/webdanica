@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 HARVESTLOG=$1
 DATADIR=$2
 SEQDIR=$3

@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
+
 HARVESTLOG_FILE=$1
 WORKFLOW_HOME=$2
 WEBDATADIR=$3

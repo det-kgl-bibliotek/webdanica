@@ -1,5 +1,9 @@
-SETENV=/home/test/automatic-workflow/setenv.sh
-ME=`basename $0`
+#!/usr/bin/env bash
+SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
+
+SETENV=$SCRIPT_DIR/setenv.sh
+
+ME=$(readlink -f $BASH_SOURCE[0])
 if [ -r "$SETENV" ]; then
   . "$SETENV"
 else 

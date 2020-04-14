@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 WORKFLOW_HOME=$1
 WEBDANICA_VERSION=$2
 NAS_VERSION=$3

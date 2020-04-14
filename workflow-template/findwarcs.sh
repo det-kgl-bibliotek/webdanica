@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 HARVESTLOG=$1
 DATADIR=$2
 WORKFLOW_HOME=$3

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # look for existence of WORKFLOW_HOME/lib/webdanica-core-$WEBDANICA_VERSION.jar
 WORKFLOW_HOME=/home/test/automatic-workflow
 CONFDIR=$WORKFLOW_HOME/conf
