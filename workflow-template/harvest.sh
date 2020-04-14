@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # replace path in WORKFLOW_HOME with the correct full path
 #WORKFLOW_HOME=/REPLACE/WITH/CORRECT/FULL/PATH
-WORKFLOW_HOME=/home/test/workflow
+WORKFLOW_HOME=${WORKFLOW_HOME:-/home/test/workflow}
 
 ME=$(readlink -f $BASH_SOURCE[0])
 
