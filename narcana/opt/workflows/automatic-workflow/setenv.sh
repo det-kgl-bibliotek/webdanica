@@ -1,0 +1,57 @@
+WORKFLOW_USER_HOME=/opt/workflows
+
+WORKFLOW_HOME=$WORKFLOW_USER_HOME/automatic-workflow
+
+WEBDATADIR=/opt/webdanica/ARKIV
+
+WEBDANICA_VERSION=2.2-SNAPSHOT
+
+NAS_VERSION=5.4
+
+HADOOP_HOME=/usr/hdp/current/hadoop-client/
+
+PIG_HOME=/usr/hdp/current/pig-client
+
+BUSYFILE=$WORKFLOW_HOME/.busy
+
+WORKDIR=$WORKFLOW_HOME/working
+
+OLDJOBSDIR=$WORKFLOW_HOME/oldjobs
+
+FAILEDJOBS=$OLDJOBSDIR/failures
+
+OKJOBS=$OLDJOBSDIR/successes
+
+JAVA_HOME=/usr/lib/jvm/java-1.8.0
+
+PHOENIX_CLIENT_JAR=/usr/hdp/current/phoenix-client/phoenix-client.jar
+
+PATH=$JAVA_HOME/bin:$PATH
+
+FINDLOGS_SCRIPT=${WORKFLOW_HOME}/findharvestlogs.sh
+
+PIGBOOTUP_VERIFIER_SCRIPT=$WORKFLOW_HOME/verify_pig_bootup.sh
+
+PIGBOOTUP_FILE=$WORKFLOW_HOME/conf/.pigbootup
+
+AUTOMATIC_SCRIPT=${WORKFLOW_HOME}/automatic.sh
+
+WEBDANICA_LIBDIR=${WORKFLOW_HOME}/lib
+
+export WORKFLOW_HOME PIGBOOTUP_VERIFIER WEBDATADIR WEBDANICA_VERSION HADOOP_BINBIN PIG_HOME BUSYFILE WORKDIR OLDJOBSDIR JAVA_HOME PATH FINDLOGS_SCRIPT AUTOMATIC_SCRIPT NAS_VERSION PHOENIX_CLIENT_JAR
+
+mkdir -pv $WORKFLOW_HOME/criteria-results-automatic
+
+mkdir -pv $WORKFLOW_HOME/SEQ_AUTOMATIC
+
+mkdir -pv $WORKFLOW_HOME/logs
+
+mkdir -pv $WORKFLOW_HOME/reports
+
+mkdir -pv $WORKFLOW_HOME/working
+
+mkdir -pv $OLDJOBSDIR
+
+mkdir -pv $OKJOBS
+
+mkdir -pv $FAILEDJOBS

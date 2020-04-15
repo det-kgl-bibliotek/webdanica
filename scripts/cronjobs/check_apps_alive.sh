@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ## checks if the two webdanica websites on port 8080 and 8074 are answering.
 ## argument: the HOST of the webdanica system, e.g. http://kb-test-webdanica-001.kb.dk
 ## Also checks that the 3 WEBDANICA apps are running on the server
