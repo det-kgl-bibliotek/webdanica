@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -41,7 +42,7 @@ public class TestHBasePhoenixHarvestDAO {
 			dao.insertHarvest(report);
 
 			report = dao.getHarvest("harvestName");
-			harvestList = dao.getAll();
+			Iterator<SingleSeedHarvest> harvestIterator = dao.getAll();
 			harvestList = dao.getAllWithSeedurl("seedurl");
 			harvestList = dao.getAllWithSuccessfulstate(true);
 
