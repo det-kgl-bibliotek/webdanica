@@ -61,6 +61,6 @@ fi
 OPTS2=-Dwebdanica.settings.file=$WORKFLOW_HOME/webdanica_settings.xml 
 OPTS3=-Dlogback.configurationFile=$WORKFLOW_HOME/silent_logback.xml 
 
-CLASSPATH="$JARFILE:$SCRIPT_DIR/lib/slf4j-api-1.7.7.jar:$SCRIPT_DIR/lib/commons-io-2.0.1.jar:$SCRIPT_DIR/lib/common-core-$NAS_VERSION.jar:$SCRIPT_DIR/lib/harvester-core-$NAS_VERSION.jar:$SCRIPT_DIR/lib/derbyclient-10.12.1.1.jar:$SCRIPT_DIR/lib/archive-core-$NAS_VERSION.jar"
+CLASSPATH="$JARFILE:$SCRIPT_DIR/lib/*"
 
 java $OPTS2 $OPTS3 -cp "$CLASSPATH" dk.kb.webdanica.core.tools.FindHarvestWarcs $1 $2

@@ -38,14 +38,6 @@ fi
 echo Executing $PROG using webdanica settingsfile \"$WEBDANICA_SETTINGSFILE\"
 
 CLASSPATH="$WEBDANICA_JAR:\
-$SCRIPT_DIR/lib/slf4j-api-1.7.7.jar:\
-$SCRIPT_DIR/lib/commons-io-2.0.1.jar:\
-$SCRIPT_DIR/lib/common-core-$NAS_VERSION.jar:\
-$SCRIPT_DIR/lib/harvester-core-$NAS_VERSION.jar:\
-$SCRIPT_DIR/lib/derbyclient-10.12.1.1.jar:\
-$SCRIPT_DIR/lib/jwat-common-1.0.4.jar:\
-$SCRIPT_DIR/lib/guava-11.0.2.jar:\
-$SCRIPT_DIR/lib/archive-core-$NAS_VERSION.jar:\
-$SCRIPT_DIR/lib/postgresql-9.2-1003-jdbc4.jar"
+$SCRIPT_DIR/lib/*"
 
 java "$OPTS1" "$OPTS2" "$OPTS3" -cp "$CLASSPATH" dk.kb.webdanica.core.tools.Harvest $1

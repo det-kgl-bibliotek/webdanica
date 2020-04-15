@@ -45,4 +45,4 @@ fi
 OPTS2=-Dwebdanica.settings.file=$WORKFLOW_HOME/conf/webdanica_settings.xml 
 OPTS3=-Dlogback.configurationFile=$WORKFLOW_HOME/conf/silent_logback.xml 
 
-java $OPTS2 $OPTS3 -cp $JARFILE1:$JARFILE2:$SCRIPT_DIR/lib/slf4j-api-1.7.7.jar:$SCRIPT_DIR/lib/slf4j-log4j12-1.7.12.jar:$SCRIPT_DIR/lib/commons-io-2.0.1.jar:$SCRIPT_DIR/lib/common-core-$NAS_VERSION.jar:$SCRIPT_DIR/lib/harvester-core-$NAS_VERSION.jar:$SCRIPT_DIR/lib/archive-core-$NAS_VERSION.jar dk.kb.webdanica.webapp.tools.FindHarvestLogs $1 $2
+java $OPTS2 $OPTS3 -cp "$SCRIPT_DIR/lib/*" dk.kb.webdanica.webapp.tools.FindHarvestLogs $1 $2

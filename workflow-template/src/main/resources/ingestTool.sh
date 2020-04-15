@@ -23,14 +23,7 @@ OPTS3="-Dlogback.configurationFile=$WORKFLOW_HOME/conf/silent_logback.xml"
 
 CLASSPATH="$SCRIPT_DIR/lib/webdanica-core-$WEBDANICA_VERSION.jar:\
 $PHOENIX_CLIENT_JAR:\
-$SCRIPT_DIR/lib/commons-io-2.0.1.jar:\
-$SCRIPT_DIR/lib/common-core-$NAS_VERSION.jar:\
-$SCRIPT_DIR/lib/harvester-core-$NAS_VERSION.jar:\
-$SCRIPT_DIR/lib/archive-core-$NAS_VERSION.jar:\
-$SCRIPT_DIR/lib/jwat-common-1.0.4.jar:\
-$SCRIPT_DIR/lib/json-simple-1.1.1.jar:\
-$SCRIPT_DIR/lib/javax.mail-api-1.4.7.jar:\
-$SCRIPT_DIR/lib/mail-1.4.7.jar"
+$SCRIPT_DIR/lib/*"
 
 java "$OPTS2" \
 	"$OPTS3" \
