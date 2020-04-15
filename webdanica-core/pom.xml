@@ -27,20 +27,14 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>uk.org.lidalia</groupId>
             <artifactId>sysout-over-slf4j</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
+
+
 
 
         <dependency>
@@ -55,6 +49,14 @@
                 <exclusion>
                     <artifactId>log4j</artifactId>
                     <groupId>log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>*</artifactId>
@@ -80,6 +82,10 @@
                     <artifactId>commons-logging</artifactId>
                     <groupId>commons-logging</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -100,6 +106,14 @@
                     <groupId>org.mortbay.jetty</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
 
             </exclusions>
         </dependency>
@@ -109,6 +123,12 @@
             <version>1.1.1</version>
         </dependency>
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20140107</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.netarchivesuite</groupId>
             <artifactId>heritrix3-wrapper</artifactId>
             <version>1.0.0</version>
@@ -116,6 +136,14 @@
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
                     <groupId>commons-logging</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>ch.qos.logback</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -141,6 +169,12 @@
             <artifactId>phoenix-core</artifactId>
             <version>4.7.0-HBase-1.1</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
@@ -149,6 +183,12 @@
             <artifactId>hadoop-common</artifactId>
             <version>2.7.2</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
@@ -161,7 +201,7 @@
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-app</artifactId>
             <version>${tika.version}</version>
@@ -174,8 +214,12 @@
                     <artifactId>log4j</artifactId>
                     <groupId>log4j</groupId>
                 </exclusion>
-            </exclusions> <!-- previously hardwired to 1.12 -->
-        </dependency>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions> &lt;!&ndash; previously hardwired to 1.12 &ndash;&gt;
+        </dependency>-->
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-langdetect</artifactId>
@@ -275,6 +319,14 @@
                     <includes>
                         <include>**/*Tester.java</include>
                     </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
         </plugins>

@@ -30,29 +30,17 @@
       <scope>provided</scope>
     </dependency>
 
+
+
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.lidalia</groupId>
-      <artifactId>sysout-over-slf4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>log4j</artifactId>
+          <groupId>log4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -128,6 +116,22 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.2.3</version>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>lib/</directory>
+              <targetPath>WEB-INF/lib</targetPath>
+              <includes>
+                <include>**/*.jar</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>

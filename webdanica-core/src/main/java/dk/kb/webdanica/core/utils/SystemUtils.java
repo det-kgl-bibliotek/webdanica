@@ -6,7 +6,8 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import ch.qos.logback.classic.Level;
+
+import org.apache.log4j.Level;
 import org.slf4j.Logger;
 
 import org.apache.commons.lang.StringUtils;

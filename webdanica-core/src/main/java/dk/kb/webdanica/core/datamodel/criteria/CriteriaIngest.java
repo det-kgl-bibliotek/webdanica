@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import ch.qos.logback.classic.Level;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -27,6 +26,7 @@ import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.kb.webdanica.core.utils.StreamUtils;
 import dk.kb.webdanica.core.utils.SystemUtils;
 import dk.kb.webdanica.core.utils.TextUtils;
+import org.apache.log4j.Level;
 
 
 /**

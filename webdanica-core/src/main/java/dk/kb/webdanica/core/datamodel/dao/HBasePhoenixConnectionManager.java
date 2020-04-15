@@ -9,7 +9,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
-import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;

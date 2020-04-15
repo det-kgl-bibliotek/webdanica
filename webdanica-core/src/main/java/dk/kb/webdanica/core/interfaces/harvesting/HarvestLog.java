@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import ch.qos.logback.classic.Level;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +18,7 @@ import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
 import dk.kb.webdanica.core.utils.StreamUtils;
 import dk.kb.webdanica.core.utils.SystemUtils;
 import dk.netarkivet.harvester.datamodel.JobStatus;
+import org.apache.log4j.Level;
 
 /**	
  * 	Each harvestlog begins with a header like this: 

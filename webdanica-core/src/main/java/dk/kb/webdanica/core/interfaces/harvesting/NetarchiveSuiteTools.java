@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 
 import dk.netarkivet.common.utils.ExceptionUtils;

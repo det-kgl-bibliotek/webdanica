@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.datamodel.Cache;

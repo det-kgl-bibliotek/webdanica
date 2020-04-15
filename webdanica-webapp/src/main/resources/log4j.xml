@@ -1,0 +1,66 @@
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${catalina.base}/logs/webdanica.log"/>
+        <param name="Append" value="true"/>
+
+        <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+            <param name="FileNamePattern" value="${catalina.base}/logs/webdanica.%d{yyyy-MM-dd}.log"/>
+        </rollingPolicy>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %C{36} %l - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <param name="target" value="System.out"/>
+        <param name="encoding" value="UTF-8"/>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %C{36} %l - %m%n"/>
+        </layout>
+    </appender>
+
+
+    <appender name="STDOUT-systemutils" class="org.apache.log4j.ConsoleAppender">
+        <param name="target" value="System.out"/>
+        <param name="encoding" value="UTF-8"/>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %C{36} %l - %m%n"/>
+        </layout>
+
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="levelMax" value="INFO"/>
+        </filter>
+    </appender>
+
+    <appender name="STDERR-systemutils" class="org.apache.log4j.ConsoleAppender">
+        <param name="target" value="System.out"/>
+        <param name="encoding" value="UTF-8"/>
+        <param name="threshold" value="WARN"/>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %C{36} %l - %m%n"/>
+        </layout>
+    </appender>
+
+    <logger name="SystemUtils-stdout">
+        <level value="DEBUG"/>
+        <appender-ref ref="STDOUT-systemutils"/>
+        <appender-ref ref="STDERR-systemutils"/>
+    </logger>
+
+    <logger name="org.apache.phoenix.query">
+        <level value="WARN"/>
+    </logger>
+
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</log4j:configuration>
