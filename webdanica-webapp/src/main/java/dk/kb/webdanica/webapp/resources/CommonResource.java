@@ -14,6 +14,7 @@ import com.antiaction.common.templateengine.TemplateParts;
 import com.antiaction.common.templateengine.TemplatePlaceBase;
 import com.antiaction.common.templateengine.TemplatePlaceHolder;
 
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.core.utils.SystemUtils;
 import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
@@ -81,12 +82,12 @@ public class CommonResource {
 		 */
 
 		if (titlePlace != null) {
-			titlePlace.setText(HtmlEntity.encodeHtmlEntities(dk.kb.webdanica.webapp.Constants.WEBAPP_NAME).toString());
+			titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
 		}
 
 		if (appnamePlace != null) {
-			appnamePlace.setText(HtmlEntity.encodeHtmlEntities(dk.kb.webdanica.webapp.Constants.WEBAPP_NAME 
-					+ dk.kb.webdanica.webapp.Constants.SPACE + env.getVersion()).toString());
+			appnamePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME
+					+ Constants.SPACE + env.getVersion()).toString());
 		}
 
 		if (navbarPlace != null) {

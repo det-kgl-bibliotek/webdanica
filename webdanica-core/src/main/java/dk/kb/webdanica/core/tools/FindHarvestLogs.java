@@ -1,12 +1,12 @@
-package dk.kb.webdanica.webapp.tools;
+package dk.kb.webdanica.core.tools;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
-import dk.kb.webdanica.webapp.Constants;
 
 public class FindHarvestLogs {
 

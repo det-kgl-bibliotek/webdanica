@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
@@ -23,7 +22,7 @@ import com.antiaction.common.templateengine.TemplatePlaceHolder;
 
 import dk.kb.webdanica.core.datamodel.IngestLog;
 import dk.kb.webdanica.core.datamodel.dao.IngestLogDAO;
-import dk.kb.webdanica.webapp.Constants;
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
@@ -303,11 +302,11 @@ public class IngestLogResource implements ResourceAbstract {
          */
 
         if (titlePlace != null) {
-            titlePlace.setText(HtmlEntity.encodeHtmlEntities(dk.kb.webdanica.webapp.Constants.WEBAPP_NAME).toString());
+            titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
         }
 
         if (appnamePlace != null) {
-            appnamePlace.setText(HtmlEntity.encodeHtmlEntities(dk.kb.webdanica.webapp.Constants.WEBAPP_NAME + dk.kb.webdanica.webapp.Constants.SPACE + environment.getVersion()).toString());
+            appnamePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME + Constants.SPACE + environment.getVersion()).toString());
         }
 
         if (navbarPlace != null) {

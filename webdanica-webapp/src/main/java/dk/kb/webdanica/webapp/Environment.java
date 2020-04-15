@@ -19,6 +19,7 @@ import com.antiaction.common.templateengine.TemplateMaster;
 import com.antiaction.common.templateengine.login.LoginTemplateHandler;
 import com.antiaction.common.templateengine.storage.TemplateFileStorageManager;
 
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.utils.Settings;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
@@ -264,9 +265,9 @@ public class Environment {
         /*
          * Crontabs.
          */
-        String filteringCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_FILTERING, dk.kb.webdanica.webapp.Constants.DEFAULT_FILTERING_CRONTAB); 
-        String harvestingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_HARVESTING, dk.kb.webdanica.webapp.Constants.DEFAULT_HARVESTING_CRONTAB);
-        String statecachingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_STATECACHING, dk.kb.webdanica.webapp.Constants.DEFAULT_STATECACHING_CRONTAB);
+        String filteringCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_FILTERING, Constants.DEFAULT_FILTERING_CRONTAB);
+        String harvestingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_HARVESTING, Constants.DEFAULT_HARVESTING_CRONTAB);
+        String statecachingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_STATECACHING, Constants.DEFAULT_STATECACHING_CRONTAB);
 
         filterSchedule = CrontabSchedule.crontabFactory(filteringCrontab);
         harvestSchedule = CrontabSchedule.crontabFactory(harvestingCrontab);

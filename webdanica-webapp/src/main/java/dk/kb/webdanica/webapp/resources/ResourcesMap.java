@@ -3,12 +3,12 @@ package dk.kb.webdanica.webapp.resources;
 import java.util.HashMap;
 import java.util.Map;
 
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.exceptions.WebdanicaException;
 import dk.kb.webdanica.core.utils.Settings;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.netarkivet.common.exceptions.UnknownID;
-import dk.kb.webdanica.webapp.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

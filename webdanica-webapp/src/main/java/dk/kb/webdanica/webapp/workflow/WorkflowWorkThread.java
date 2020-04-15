@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
-import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 
 import dk.kb.webdanica.webapp.Environment;

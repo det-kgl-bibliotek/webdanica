@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import ch.qos.logback.classic.Level;
+import dk.kb.webdanica.core.Constants;
 import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
@@ -20,7 +20,6 @@ import dk.kb.webdanica.core.seeds.filtering.FilterUtils;
 import dk.kb.webdanica.core.seeds.filtering.ResolveRedirects;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.kb.webdanica.webapp.Configuration;
-import dk.kb.webdanica.webapp.Constants;
 import dk.kb.webdanica.webapp.Environment;
 import org.slf4j.LoggerFactory;
 

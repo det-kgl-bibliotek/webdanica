@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import ch.qos.logback.classic.Level;
+import dk.kb.webdanica.core.Constants;
 import org.slf4j.Logger;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -25,7 +25,6 @@ import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
 import dk.kb.webdanica.core.utils.Settings;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.kb.webdanica.webapp.Configuration;
-import dk.kb.webdanica.webapp.Constants;
 import dk.kb.webdanica.webapp.Environment;
 import dk.netarkivet.common.distribute.arcrepository.ArcRepositoryClientFactory;
 import dk.netarkivet.common.utils.StringUtils;

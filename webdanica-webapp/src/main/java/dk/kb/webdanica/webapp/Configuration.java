@@ -2,6 +2,7 @@ package dk.kb.webdanica.webapp;
 
 import java.io.File;
 
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.datamodel.WgetSettings;
 import dk.kb.webdanica.core.datamodel.dao.DAOFactory;

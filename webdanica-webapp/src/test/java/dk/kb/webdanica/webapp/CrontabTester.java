@@ -2,6 +2,7 @@ package dk.kb.webdanica.webapp;
 
 import java.util.List;
 
+import dk.kb.webdanica.core.Constants;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,9 +12,9 @@ import com.antiaction.common.cron.ScheduleAbstract;
 public class CrontabTester {
   @Test
   public void evaluateDefaultCrontabs() {
-	  String filteringCrontab = dk.kb.webdanica.webapp.Constants.DEFAULT_FILTERING_CRONTAB;
-	  String harvestingCrontab = dk.kb.webdanica.webapp.Constants.DEFAULT_HARVESTING_CRONTAB;
-	  String statecachingCrontab = dk.kb.webdanica.webapp.Constants.DEFAULT_STATECACHING_CRONTAB;
+	  String filteringCrontab = Constants.DEFAULT_FILTERING_CRONTAB;
+	  String harvestingCrontab = Constants.DEFAULT_HARVESTING_CRONTAB;
+	  String statecachingCrontab = Constants.DEFAULT_STATECACHING_CRONTAB;
 
 	  ScheduleAbstract filterSchedule = CrontabSchedule.crontabFactory(filteringCrontab);
 	  ScheduleAbstract harvestingSchedule = CrontabSchedule.crontabFactory(harvestingCrontab);

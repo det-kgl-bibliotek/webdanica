@@ -22,7 +22,7 @@ import com.antiaction.common.templateengine.TemplatePlaceHolder;
 import dk.kb.webdanica.core.datamodel.criteria.Codes;
 import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
 import dk.kb.webdanica.core.datamodel.dao.CriteriaResultsDAO;
-import dk.kb.webdanica.webapp.Constants;
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;

@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
@@ -39,7 +38,7 @@ import dk.kb.webdanica.core.datamodel.dao.HarvestDAO;
 import dk.kb.webdanica.core.datamodel.dao.SeedsDAO;
 import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
 import dk.kb.webdanica.webapp.Configuration;
-import dk.kb.webdanica.webapp.Constants;
+import dk.kb.webdanica.core.Constants;
 import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.MenuItem;
 import dk.kb.webdanica.webapp.Navbar;
@@ -347,12 +346,12 @@ public class SeedsResource implements ResourceAbstract {
          */
 
         if (titlePlace != null) {
-            titlePlace.setText(HtmlEntity.encodeHtmlEntities(dk.kb.webdanica.webapp.Constants.WEBAPP_NAME).toString());
+            titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
         }
 
         if (appnamePlace != null) {
-            appnamePlace.setText(HtmlEntity.encodeHtmlEntities(dk.kb.webdanica.webapp.Constants.WEBAPP_NAME 
-            		+ dk.kb.webdanica.webapp.Constants.SPACE + environment.getVersion()).toString());
+            appnamePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME
+            		+ Constants.SPACE + environment.getVersion()).toString());
         }
 
         if (navbarPlace != null) {

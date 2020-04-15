@@ -2,7 +2,6 @@ package dk.kb.webdanica.webapp.workflow;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
-import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.datamodel.dao.DAOFactory;
