@@ -12,17 +12,13 @@ public interface HarvestDAO {
 	SingleSeedHarvest getHarvest(String harvestName) throws Exception;
 
 	Iterator<SingleSeedHarvest> getAll() throws Exception;
-	
 	Iterator<String> getAllNames() throws Exception;
-
-	Iterator<SingleSeedHarvest> getAllWithSeedurl(String seed) throws Exception;
-
-	Iterator<SingleSeedHarvest> getAllWithSuccessfulstate(boolean b) throws Exception;
-	
 	Long getCount() throws Exception;
 	
-	boolean exists(String harvestName) throws Exception;
-
+	Iterator<SingleSeedHarvest> getAllWithSeedurl(String seed) throws Exception;
 	Long getCountWithSeedurl(String url) throws Exception;
-
+	
+	Iterator<SingleSeedHarvest> getAllWithSuccessfulstate(boolean b) throws Exception;
+	
+	boolean exists(String harvestName) throws Exception;
 }

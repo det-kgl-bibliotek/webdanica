@@ -1,5 +1,6 @@
 package dk.kb.webdanica.core.datamodel.dao;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,7 +42,8 @@ import org.slf4j.LoggerFactory;
 public class HBasePhoenixHarvestDAO implements HarvestDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(HBasePhoenixHarvestDAO.class);
-    public static long LIMIT = 100000L;
+ 
+	public static final long LIMIT = 100000L;
     
 	public SingleSeedHarvest getHarvestFromResultSet(ResultSet rs) throws Exception {
 		SingleSeedHarvest report = null;
@@ -80,92 +82,83 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 				);
 	}
 	
-	public static final String INSERT_SQL;
-
-	static {
-		INSERT_SQL = ""
-				+ "UPSERT INTO harvests (harvestname, seedurl, finalState, successful, harvested_time, files, error, " //1-7
-				+ "reports, fetched_urls " //8-9
-				+ ",analysis_state, analysis_state_reason" //10-11
-				+ ") " 
-				+ "VALUES (?,?,?,?,?,?,?,?,?, ?, ?) ";
-	}
 	
 	@Override
 	public boolean insertHarvest(SingleSeedHarvest report) throws Exception {
-		java.sql.Array sqlArr = null;
-		PreparedStatement stm = null;
-		int res = 0;
+		
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		
+		java.sql.Array sqlArrFiles = null;
+		java.sql.Array sqlArrReports = null;
+		java.sql.Array sqlArrUrls = null;
+		
+		int res;
 		try {
 			long harvestedTime = report.getHarvestedTime();
+		
 			if (!(harvestedTime > 0)) {
 				harvestedTime = System.currentTimeMillis();
-				System.err.println("harvestedTime undefined. setting it to  " + harvestedTime);
+				logger.warn("harvestedTime undefined. setting it to  " + harvestedTime);
 			} 
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			// Handle the case of getFiles == null
-			if (report.getFiles()== null) {
-			    String[] emptyStrArr = new String[0];
-                sqlArr = conn.createArrayOf("VARCHAR", emptyStrArr);
-			} else {
-			    List<String> strListFiles = report.getFiles();
-			    String[] strArrFiles = new String[strListFiles.size()];
-			    strArrFiles = strListFiles.toArray(strArrFiles);
-			    sqlArr = conn.createArrayOf("VARCHAR", strArrFiles);
-			}
-			stm = conn.prepareStatement(INSERT_SQL);
-			stm.clearParameters();
-			stm.setString(1, report.getHarvestName());
-			stm.setString(2, report.getSeed());
-			stm.setInt(3, report.getFinalState().ordinal());
-			stm.setBoolean(4, report.isSuccessful());
-			stm.setLong(5, harvestedTime);
-			stm.setArray(6, sqlArr);
-			stm.setString(7, report.getErrMsg());
-			//reports, fetched_urls, analysis_state, analysis_state_reason
-			if (report.getReports()== null) {
-				String[] emptyStrArr = new String[0];
-				sqlArr = conn.createArrayOf("VARCHAR", emptyStrArr);
-				stm.setArray(8, sqlArr);
-			} else {
-				List<String> strListReports = report.getReports().getReportsAsJsonLists();
-				String[] strArrReports = new String[strListReports.size()];
-				strArrReports = strListReports.toArray(strArrReports);
-				sqlArr = conn.createArrayOf("VARCHAR", strArrReports);
-				stm.setArray(8, sqlArr);
-			}	
+
 			
-			if (report.getFetchedUrls() == null) {
-				String[] emptyStrArr = new String[0];
-				sqlArr = conn.createArrayOf("VARCHAR", emptyStrArr);
-				stm.setArray(9, sqlArr);
-			} else {
-				List<String> strListUrls = new ArrayList<String>(report.getFetchedUrls());
-				String[] strArrUrls = new String[strListUrls.size()];
-				strArrUrls = strListUrls.toArray(strArrUrls);
-				sqlArr = conn.createArrayOf("VARCHAR", strArrUrls);
-				stm.setArray(9, sqlArr);
+			try (PreparedStatement stm = conn.prepareStatement(
+					"UPSERT INTO harvests (harvestname, seedurl, finalState, successful, harvested_time, files, error, "
+//1-7
+					+ "reports, fetched_urls " //8-9
+					+ ",analysis_state, analysis_state_reason" //10-11
+					+ ") "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?) ");) {
+				stm.setString(1, report.getHarvestName());
+				stm.setString(2, report.getSeed());
+				stm.setInt(3, report.getFinalState().ordinal());
+				stm.setBoolean(4, report.isSuccessful());
+				stm.setLong(5, harvestedTime);
+
+				sqlArrFiles =  createSQLArray(conn, report.getFiles());
+				stm.setArray(6, sqlArrFiles);
+				
+				stm.setString(7, report.getErrMsg());
+				
+				
+				//reports, fetched_urls, analysis_state, analysis_state_reason
+				
+				sqlArrReports = createSQLArray(conn, report.getReports().getReportsAsJsonLists());
+				stm.setArray(8, sqlArrReports);
+				
+				sqlArrUrls = createSQLArray(conn, report.getFetchedUrls());
+				stm.setArray(9, sqlArrUrls);
+				
+				// analysis_state
+				AnalysisStatus as = report.getAnalysisState();
+				if (as == null) {
+					as = AnalysisStatus.UNKNOWN_STATUS;
+				}
+				stm.setInt(10, as.ordinal());
+				
+				// analysis_state_reason
+				stm.setString(11, report.getAnalysisStateReason());
+				
+				res = stm.executeUpdate();
+				conn.commit();
 			}
-			// analysis_state
-			AnalysisStatus as = report.getAnalysisState();
-			if (as == null) {
-				as = AnalysisStatus.UNKNOWN_STATUS;
-			}
-			stm.setInt(10, as.ordinal());
-			// analysis_state_reason
-			stm.setString(11, report.getAnalysisStateReason());
-			res = stm.executeUpdate();
-			conn.commit();
 		} finally {
-			CloseUtils.freeQuietly(sqlArr);
-        	CloseUtils.closeQuietly(stm);
+			CloseUtils.freeQuietly(sqlArrFiles);
+			CloseUtils.freeQuietly(sqlArrReports);
+			CloseUtils.freeQuietly(sqlArrUrls);
 		}
 		return res != 0;
-	}	
-
-	public static final String SELECT_HARVEST_BY_NAME_SQL = "SELECT * FROM harvests WHERE harvestname=?";
-
-	public static final String SELECT_HARVEST_COUNT_SQL = "SELECT COUNT(*) FROM harvests";
+	}
+	
+	private Array createSQLArray(Connection conn, List<String> fetchedUrls) throws SQLException {
+		String[] strArrUrls;
+		if (fetchedUrls == null) {
+			strArrUrls = new String[0];
+		} else {
+			strArrUrls = fetchedUrls.toArray(new String[0]);
+		}
+		return conn.createArrayOf("VARCHAR", strArrUrls);
+	}
 	
 	/**
 	 * @param harvestName a given harvestname
@@ -173,96 +166,78 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 	 */
 	@Override
 	public SingleSeedHarvest getHarvest(String harvestName) throws Exception {
-		SingleSeedHarvest report = null;
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(SELECT_HARVEST_BY_NAME_SQL);
-			stm.clearParameters();
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		try (PreparedStatement stm = conn.prepareStatement("SELECT * FROM harvests WHERE harvestname=?")) {
 			stm.setString(1, harvestName);
-			rs = stm.executeQuery();
-			report = getHarvestFromResultSet(rs);
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
+			try (ResultSet rs = stm.executeQuery()) {
+				return getHarvestFromResultSet(rs);
+			}
 		}
-		return report; 
 	}
-	
-	private String READ_ALL_SQL = "SELECT * FROM harvests";
 	
 	@Override
 	public Iterator<SingleSeedHarvest> getAll() throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-		PreparedStatement stm = conn.prepareStatement(READ_ALL_SQL);
-		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> getHarvestsFromResultSet(rs), 1000);
+		try (PreparedStatement stm = conn.prepareStatement("SELECT * FROM harvests");) {
+			return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+												conn,
+												rs -> getHarvestsFromResultSet(rs),
+												1000);
+		}
 	}
 	
-
- 	public static final String GET_ALL_WITH_SEEDURL_SQL = "SELECT * FROM harvests WHERE seedurl=?";
-
- 	
+	
 	@Override
 	public Iterator<SingleSeedHarvest> getAllWithSeedurl(String seedurl) throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-		PreparedStatement stm = conn.prepareStatement(GET_ALL_WITH_SEEDURL_SQL);
-		stm.clearParameters();
-		stm.setString(1, seedurl);
-		return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
-											   conn,
-										  rs -> getHarvestsFromResultSet(rs),
-											   1000);
+		try (PreparedStatement stm = conn.prepareStatement("SELECT * FROM harvests WHERE seedurl=?");) {
+			stm.setString(1, seedurl);
+			return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+												conn,
+												rs -> getHarvestsFromResultSet(rs),
+												1000);
+		}
 	}
-
- 	public static final String GET_ALL_WITH_SUCCESSFUL_SQL = "SELECT * FROM harvests WHERE successful=?";
-
+	
 	@Override
 	public Iterator<SingleSeedHarvest> getAllWithSuccessfulstate(boolean successful) throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 		
-		PreparedStatement stm = conn.prepareStatement(GET_ALL_WITH_SUCCESSFUL_SQL);
-		stm.clearParameters();
-		stm.setBoolean(1, successful);
-		return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
-											   conn,
-										  rs -> getHarvestsFromResultSet(rs),
-											   1000);
+		try (PreparedStatement stm = conn.prepareStatement("SELECT * FROM harvests WHERE successful=?");) {
+			stm.setBoolean(1, successful);
+			return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+												conn,
+												rs -> getHarvestsFromResultSet(rs),
+												1000);
+		}
 		
 	}
-
-    @Override
-    public Long getCount() throws Exception {
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        long res = 0;
-        try {
-            Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-            stm = conn.prepareStatement(SELECT_HARVEST_COUNT_SQL);
-            stm.clearParameters();
-            rs = stm.executeQuery();
-            if (rs != null && rs.next()) {
-                res = rs.getLong(1);
-            }
-        } finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-        }
-        return res;
-    }
 	
-	public static final String GET_ALL_NAMES_LIMIT_SQL = "SELECT harvestname FROM harvests LIMIT ?";
+	@Override
+	public Long getCount() throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		
+		try (PreparedStatement stm = conn.prepareStatement("SELECT COUNT(*) FROM harvests");) {
+			try (ResultSet rs = stm.executeQuery();) {
+				if (rs != null && rs.next()) {
+					return rs.getLong(1);
+				}
+			}
+		}
+		return 0l;
+	}
 	
 	@Override
     public Iterator<String> getAllNames() throws Exception { // Limit currently hardwired to 100K
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 		
-		PreparedStatement stm = conn.prepareStatement(GET_ALL_NAMES_LIMIT_SQL);
-		stm.setLong(1, LIMIT);
-		return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
-											   conn,
-										  rs -> getHarvestNamesFromResultSet(rs),
-											   1000);
+		try (PreparedStatement stm = conn.prepareStatement("SELECT harvestname FROM harvests LIMIT ?");) {
+			stm.setLong(1, LIMIT);
+			return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+												conn,
+												rs -> getHarvestNamesFromResultSet(rs),
+												1000);
+		}
 		
 		
     }
@@ -277,50 +252,37 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
         }
         return harvests;
     }
-
-    public static final String SELECT_EXISTS_SQL = "SELECT count(*) FROM harvests where harvestname=?";
-	@Override
-    public boolean exists(String harvestName) throws Exception {
-		PreparedStatement stm = null;
-        ResultSet rs = null;
-        long res = 0;
-        try {
-            Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-            stm = conn.prepareStatement(SELECT_EXISTS_SQL);
-            stm.clearParameters();
-            stm.setString(1, harvestName);
-            rs = stm.executeQuery();
-            if (rs != null && rs.next()) {
-                res = rs.getLong(1);
-            }
-        } finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-        }
-	    return res != 0;
-    }
-
-	public static final String GET_COUNT_WITH_SEEDURL_SQL = "SELECT count(*) FROM harvests WHERE seedurl=?";
 	
 	@Override
-    public Long getCountWithSeedurl(String url) throws Exception {
-		PreparedStatement stm = null;
-        ResultSet rs = null;
-        long res = 0;
-        try {
-            Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-            stm = conn.prepareStatement(GET_COUNT_WITH_SEEDURL_SQL);
-            stm.clearParameters();
-            stm.setString(1, url);
-            rs = stm.executeQuery();
-            if (rs != null && rs.next()) {
-                res = rs.getLong(1);
-            }
-        } finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-        }
-	    return res;
+	public boolean exists(String harvestName) throws Exception {
+		long res = 0;
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		try (PreparedStatement stm = conn.prepareStatement("SELECT count(*) FROM harvests where harvestname=?");) {
+			stm.setString(1, harvestName);
+			try (ResultSet rs = stm.executeQuery();) {
+				if (rs != null && rs.next()) {
+					res = rs.getLong(1);
+				}
+			}
+		}
+		
+		return res != 0;
     }
+	
+	@Override
+	public Long getCountWithSeedurl(String url) throws Exception {
+		
+		long res = 0;
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		try (PreparedStatement stm = conn.prepareStatement("SELECT count(*) FROM harvests WHERE seedurl=?");) {
+			stm.setString(1, url);
+			try (ResultSet rs = stm.executeQuery();) {
+				if (rs != null && rs.next()) {
+					res = rs.getLong(1);
+				}
+			}
+		}
+		return res;
+	}
 
 }
