@@ -3,6 +3,7 @@ package dk.kb.webdanica.core.datamodel;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -37,12 +38,15 @@ public class TestHBasePhoenixIngestLogDAO {
 			HBasePhoenixIngestLogDAO dao = new HBasePhoenixIngestLogDAO();
 			dao.insertLog(log);
 
-			List<Long>dates = dao.getIngestDates();
-			for (int i=0; i<dates.size(); ++i) {
-				System.out.println(dates.get(i));
+			Iterator<Long> dates = dao.getIngestDates();
+			Long first = dates.next();
+			while (dates.hasNext()) {
+				Long date = dates.next();
+				System.out.println(date);
 			}
+			
 
-			log = dao.readIngestLog(dates.get(0));
+			log = dao.readIngestLog(first);
 			System.out.println(log.getDate() + " - " + log.getFilename());
 
 			conn.close();

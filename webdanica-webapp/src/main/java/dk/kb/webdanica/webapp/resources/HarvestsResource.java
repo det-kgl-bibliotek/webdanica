@@ -8,6 +8,7 @@ import com.antiaction.common.templateengine.TemplateParts;
 import com.antiaction.common.templateengine.TemplatePlaceBase;
 import com.antiaction.common.templateengine.TemplatePlaceHolder;
 import dk.kb.webdanica.core.Constants;
+import dk.kb.webdanica.core.datamodel.dao.HarvestDAO;
 import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
 import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
@@ -102,14 +103,12 @@ public class HarvestsResource implements ResourceAbstract {
         
         Iterator<SingleSeedHarvest> harvestList;
         try {
+            HarvestDAO harvestDAO = environment.getConfig().getDAOFactory().getHarvestDAO();
             if (hr.viewAll()) {
-                harvestList = environment.getConfig().getDAOFactory().getHarvestDAO().getAll();
+                harvestList = harvestDAO.getAll();
             } else {
-                harvestList = environment.getConfig()
-                                         .getDAOFactory()
-                                         .getHarvestDAO()
-                                         .getAllWithSeedurl(hr.getSeedUrl())
-                                         .iterator();
+                harvestList = harvestDAO.getAllWithSeedurl(hr.getSeedUrl());
+                                         
             }
         } catch (Exception e) {
             // Create error-page

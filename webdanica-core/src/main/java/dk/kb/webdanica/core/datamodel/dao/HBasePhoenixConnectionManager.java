@@ -9,6 +9,8 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+
+import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
@@ -55,15 +57,11 @@ public class HBasePhoenixConnectionManager {
 		connectionString = SettingsUtilities.getStringSetting(WebdanicaSettings.DATABASE_CONNECTION, defaultConnectionString);
 	}
 
-	protected static Map<Thread, Connection> threadConnectionMap = new TreeMap<Thread, Connection>(new Comparator<Thread>() {
-		@Override
-		public int compare(Thread o1, Thread o2) {
-			return o1.getId() == o2.getId() ? 0 : (o1.getId() > o2.getId() ? 1 : -1);
-		}
-	});
+	protected static Map<Thread, PhoenixConnection> threadConnectionMap =
+			new TreeMap<>(Comparator.comparingLong(Thread::getId));
 
-	public static synchronized Connection getThreadLocalConnection() throws SQLException {
-		Connection conn = threadConnectionMap.get(Thread.currentThread());
+	public static synchronized PhoenixConnection getThreadLocalConnection() throws SQLException {
+		PhoenixConnection conn = threadConnectionMap.get(Thread.currentThread());
 		if (conn != null && conn.isClosed()) {
 			threadConnectionMap.remove(Thread.currentThread());
 			conn = null;
@@ -71,7 +69,7 @@ public class HBasePhoenixConnectionManager {
 		if (conn == null) {
 			Properties connprops = new Properties();
 			
-			conn = DriverManager.getConnection(connectionString, connprops );
+			conn = (PhoenixConnection) DriverManager.getConnection(connectionString, connprops );
 			threadConnectionMap.put(Thread.currentThread(), conn);
 		}
 		return conn;

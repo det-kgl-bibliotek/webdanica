@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -93,10 +94,16 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         }
     }
 
-    public void enqueue(List<Seed> urlRecords) {
+    public long enqueue(Iterator<Seed> urlRecords) {
+        long count = 0;
         synchronized (queueList) {
-            queueList.addAll(urlRecords);
+            while (urlRecords.hasNext()) {
+                Seed next = urlRecords.next();
+                queueList.add(next);
+                count++;
+            }
         }
+        return count;
     }
 
     @Override
@@ -281,7 +288,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         } else {
             harvestingInProgress.set(Boolean.TRUE);
         }
-        List<Seed> seedsReadyForHarvesting = null;
+        Iterator<Seed> seedsReadyForHarvesting = null;
 
         try {
             seedsReadyForHarvesting = seeddao.getSeeds(
@@ -300,11 +307,10 @@ public class HarvestWorkThread extends WorkThreadAbstract {
                                     + Status.READY_FOR_HARVESTING + "'", errMsg);
             return;
         }
-
-        enqueue(seedsReadyForHarvesting);
-        if (!seedsReadyForHarvesting.isEmpty()) {
-            logger.debug( "Found '" + seedsReadyForHarvesting.size()
-                    + "' seeds ready for harvesting");
+    
+        long count = enqueue(seedsReadyForHarvesting);
+        if (seedsReadyForHarvesting.hasNext()) {
+            logger.debug( "Found '" + count + "' seeds ready for harvesting");
         }
         try {
             synchronized (queueList) {

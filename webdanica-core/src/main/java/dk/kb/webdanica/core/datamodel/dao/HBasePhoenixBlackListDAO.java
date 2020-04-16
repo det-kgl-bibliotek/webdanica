@@ -1,9 +1,12 @@
 package dk.kb.webdanica.core.datamodel.dao;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,43 +31,46 @@ public class HBasePhoenixBlackListDAO implements BlackListDAO {
 	}
 
 	@Override
-	public boolean insertList(BlackList aBlackList) throws Exception {
+	public boolean insertList(BlackList aBlackList) throws SQLException {
 		java.sql.Array sqlArr = null;
-		PreparedStatement stm = null;
 		int res = 0;
 		try {
-			String uuid = UUID.randomUUID().toString();
-			Long updated_time = System.currentTimeMillis();
-			List<String> strList = aBlackList.getList();
-			String[] strArr = new String[strList.size()];
-			strArr = strList.toArray(strArr);
 			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			sqlArr = conn.createArrayOf("VARCHAR", strArr);
-			stm = conn.prepareStatement(INSERT_SQL);
-			stm.clearParameters();
-			stm.setString(1, uuid);
-			stm.setString(2, aBlackList.getName());
-			stm.setString(3, aBlackList.getDescription());
-			stm.setArray(4, sqlArr);
-			stm.setLong(5, updated_time);
-			stm.setBoolean(6, aBlackList.isActive());
-			res = stm.executeUpdate();
-			conn.commit();
+			
+			String uuid = UUID.randomUUID().toString();
+			long updated_time = System.currentTimeMillis();
+			
+			sqlArr = toSQLArray(conn, aBlackList.getList());
+			
+			try (PreparedStatement stm = conn.prepareStatement(INSERT_SQL)) {
+				stm.clearParameters();
+				stm.setString(1, uuid);
+				stm.setString(2, aBlackList.getName());
+				stm.setString(3, aBlackList.getDescription());
+				stm.setArray(4, sqlArr);
+				stm.setLong(5, updated_time);
+				stm.setBoolean(6, aBlackList.isActive());
+				res = stm.executeUpdate();
+				conn.commit();
+			}
 		} finally {
 			CloseUtils.freeQuietly(sqlArr);
-        	CloseUtils.closeQuietly(stm);
 		}
 		return res != 0;
 	}
-
-	private static final String GET_BLACKLIST_SQL;
-
-	static {
-		GET_BLACKLIST_SQL = "SELECT * FROM blacklists WHERE uid=? ";
+	
+	private Array toSQLArray(Connection conn, List<String> strList) throws SQLException {
+		String[] strArr = new String[strList.size()];
+		strArr = strList.toArray(strArr);
+		Array sqlArr = conn.createArrayOf("VARCHAR", strArr);
+		return sqlArr;
 	}
+	
+	private static final String GET_BLACKLIST_SQL = "SELECT * FROM blacklists WHERE uid=? ";
+
 
 	@Override
-	public BlackList readBlackList(UUID uid) throws Exception {
+	public BlackList readBlackList(UUID uid) throws SQLException {
 		BlackList retrievedBlacklist = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
@@ -93,57 +99,37 @@ public class HBasePhoenixBlackListDAO implements BlackListDAO {
 		return retrievedBlacklist;
 	}
 
-	private static final String GET_ACTIVE_SQL;
+	private static final String GET_ACTIVE_SQL = "SELECT * "
+												 + " FROM blacklists "
+												 + " WHERE is_active=true ";
 
-	private static final String GET_ALL_SQL;
+	private static final String GET_ALL_SQL = "SELECT * "
+											  + " FROM blacklists ";
 
-	static {
-		GET_ACTIVE_SQL = "SELECT * "
-				+ "FROM blacklists "
-				+ "WHERE is_active=true ";
-
-		GET_ALL_SQL = "SELECT * "
-				+ "FROM blacklists ";
-	}
-
+	
 	@Override
-	public List<BlackList> getLists(boolean activeOnly) throws Exception {
-		List<BlackList> blacklistList = new ArrayList<BlackList>();
-		BlackList blacklist = null;
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			if (activeOnly) {
-				stm = conn.prepareStatement(GET_ACTIVE_SQL);
-			} else {
-				stm = conn.prepareStatement(GET_ALL_SQL);
-			}
-			stm.clearParameters();
-			rs = stm.executeQuery();
-			if (rs != null) {
-				while (rs.next()) {
-					blacklist = new BlackList(
-							UUID.fromString(rs.getString("uid")),
-							rs.getString("name"),
-							rs.getString("description"),
-							DatabaseUtils.sqlArrayToArrayList(rs.getArray("blacklist")),
-							rs.getLong("last_update"),
-							rs.getBoolean("is_active")
-					);
-					blacklistList.add(blacklist);
-				}
-			}
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
+	public Iterator<BlackList> getLists(boolean activeOnly) throws SQLException {
+		
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		String SQL = GET_ALL_SQL;
+		if (activeOnly) {
+			SQL = GET_ACTIVE_SQL;
 		}
-		return blacklistList; 
+		return Utils.getResultIterator(SQL, conn, rs -> {
+			List<BlackList> blacklistList = new ArrayList<>();
+			while (rs.next()) {
+				BlackList blacklist = new BlackList(
+						UUID.fromString(rs.getString("uid")),
+						rs.getString("name"),
+						rs.getString("description"),
+						DatabaseUtils.sqlArrayToArrayList(rs.getArray("blacklist")),
+						rs.getLong("last_update"),
+						rs.getBoolean("is_active")
+				);
+				blacklistList.add(blacklist);
+			}
+			return blacklistList;
+		});
 	}
-
-    @Override
-    public void close() {
-        // TODO Auto-generated method stub
-    }	
-
+	
 }

@@ -27,6 +27,8 @@ import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.kb.webdanica.core.utils.UrlUtils;
 import dk.netarkivet.harvester.datamodel.JobStatus;
 
+import static dk.kb.webdanica.core.datamodel.dao.Utils.count;
+
 /**
  * Program to load test the webdanica database.
  *  
@@ -214,13 +216,13 @@ public static void main(String[] args) throws Exception {
           long millisStarted = System.currentTimeMillis();
           HarvestDAO hdao = daoFactory.getHarvestDAO();
           System.out.println("Found " + hdao.getCount() + " harvests");
-          List<String> harvestNames = hdao.getAllNames();
+          Iterator<String> harvestNames = hdao.getAllNames();
           System.out.println("Retrieved " + hdao.getCount() + " harvestnames (limit of 100K)");
           String seedurlName = seedurlTemplate + "1/0";
-          List<SingleSeedHarvest> harvestsFound = hdao.getAllWithSeedurl(seedurlName);
-          System.out.println("Retrieved " + harvestsFound.size() + " harvests for seed " + seedurlName);
-          if (!harvestNames.isEmpty()) {
-              String harvestName = harvestNames.get(0);
+          Iterator<SingleSeedHarvest> harvestsFound = hdao.getAllWithSeedurl(seedurlName);
+          System.out.println("Retrieved " + count(harvestsFound) + " harvests for seed " + seedurlName);
+          if (harvestNames.hasNext()) {
+              String harvestName = harvestNames.next();
               SingleSeedHarvest hr = hdao.getHarvest(harvestName);
               System.out.println("Retrieved harvest for seed: " + hr.getSeed());
           }
@@ -238,18 +240,19 @@ public static void main(String[] args) throws Exception {
           long millisStarted = System.currentTimeMillis();
           CriteriaResultsDAO dao = daoFactory.getCriteriaResultsDAO();
           HarvestDAO hdao = daoFactory.getHarvestDAO();
-          List<String> harvestNames = hdao.getAllNames();
-          String harvestName = harvestNames.get(0);
-          List<SingleCriteriaResult> list = dao.getResultsByHarvestname(harvestName);
-          System.out.println("Retrieved " + list.size() + " criteria.results for harvest '" + harvestName + "'");
-          if (list.size() > 0) {
-              SingleCriteriaResult scr = list.get(0);
+          Iterator<String> harvestNames = hdao.getAllNames();
+          String harvestName = harvestNames.next();
+          Iterator<SingleCriteriaResult> list = dao.getResultsByHarvestname(harvestName);
+          if (list.hasNext()) {
+              SingleCriteriaResult scr = list.next();
+              System.out.println("Retrieved " + (count(list)+1) + " criteria.results for harvest '" + harvestName + "'");
+    
               String seedUrl = scr.seedurl;
               String url = scr.url;
-              List<SingleCriteriaResult> seedUrlResults = dao.getResultsBySeedurl(seedUrl);
-              System.out.println("Retrieved " + seedUrlResults.size() + " criteria.results for seedurl '" + seedUrl + "' and harvestname '" +  scr.harvestName + "'");
-              List<SingleCriteriaResult> urlResults = dao.getResultsByUrl(url);
-              System.out.println("Retrieved " + urlResults.size() + " criteria.results for seedurl '" + seedUrl + "'");
+              Iterator<SingleCriteriaResult> seedUrlResults = dao.getResultsBySeedurl(seedUrl);
+              System.out.println("Retrieved " + count(seedUrlResults) + " criteria.results for seedurl '" + seedUrl + "' and harvestname '" +  scr.harvestName + "'");
+              Iterator<SingleCriteriaResult> urlResults = dao.getResultsByUrl(url);
+              System.out.println("Retrieved " + count(urlResults) + " criteria.results for seedurl '" + seedUrl + "'");
           }
           long millisEnded = System.currentTimeMillis(); 
           System.out.println("Finished Step6 at " + new Date());
@@ -337,9 +340,7 @@ public static void main(String[] args) throws Exception {
 	        }
 	        
         } catch (Throwable e) {
-	        e.printStackTrace();
-        } finally {
-        	dao.close();
+	        throw new RuntimeException(e);
         }
         
 	    IngestLog logresult = null;

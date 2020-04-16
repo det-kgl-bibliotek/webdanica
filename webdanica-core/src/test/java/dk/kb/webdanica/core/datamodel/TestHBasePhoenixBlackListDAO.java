@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
+import dk.netarkivet.common.utils.IteratorUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -49,10 +50,10 @@ public class TestHBasePhoenixBlackListDAO {
 				System.err.println("No blacklist w/ uid=" + uidAsString);  
 			}
 
-			List<BlackList> blacklistList = dao.getLists(true);
+			List<BlackList> blacklistList = IteratorUtils.toList(dao.getLists(true));
 			System.out.println(blacklistList.size());
 
-			blacklistList = dao.getLists(false);
+			blacklistList = IteratorUtils.toList(dao.getLists(false));
 			System.out.println(blacklistList.size());
 
 			conn.close();

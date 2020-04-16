@@ -5,11 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import dk.kb.webdanica.core.datamodel.IngestLog;
+import dk.kb.webdanica.core.datamodel.Seed;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
+import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 
 /**
  * 
@@ -70,25 +73,23 @@ public class HBasePhoenixIngestLogDAO implements IngestLogDAO {
 	}
 
 	@Override
-	public List<Long> getIngestDates() throws Exception { // as represented as millis from epoch
-		List<Long> ingestDates = new ArrayList<Long>();
+	public Iterator<Long> getIngestDates() throws Exception { // as represented as millis from epoch
 		PreparedStatement stm = null;
-		ResultSet rs = null;
 		try {
 			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 			stm = conn.prepareStatement(GET_INGEST_DATES_SQL);
 			stm.clearParameters();
-			rs = stm.executeQuery();
-			if (rs != null) {
+			return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> {
+				List<Long> ingestDates = new ArrayList<>();
 				while (rs.next()) {
 					ingestDates.add(rs.getLong("inserted_date"));
 				}
-			}
+				return ingestDates;
+			}, 1000);
+		
 		} finally {
-        	CloseUtils.closeQuietly(rs);
         	CloseUtils.closeQuietly(stm);
 		}
-		return ingestDates;
 	}
 
 	private static final String GET_INGEST_BY_DATE_SQL;

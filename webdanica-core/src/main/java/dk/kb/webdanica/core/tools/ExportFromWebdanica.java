@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -37,14 +38,17 @@ public class ExportFromWebdanica {
 			daoFactory = new HBasePhoenixDAOFactory();
 		}
 		SeedsDAO dao = daoFactory.getSeedsDAO();
-		List<Seed> readySeeds = dao.getSeedsReadyToExport(includeAlreadyExported);
-		if (readySeeds.isEmpty()) {
+		Iterator<Seed> readySeeds = dao.getSeedsReadyToExport(includeAlreadyExported);
+		if (!readySeeds.hasNext()) {
 			System.out.println("No seeds found ready for export");
 			System.exit(0);
 		}
 		long alreadyExportedCount = 0;
 		Set<String> urlsToExport = new TreeSet<String>();
-		for (Seed s: readySeeds) {
+		long count = 0;
+		while (readySeeds.hasNext()) {
+			Seed s = readySeeds.next();
+			count++;
 			if (writeback) {
 				// if already exported don't update the exported_time value
 				if (!s.getExportedState()) {
@@ -65,7 +69,7 @@ public class ExportFromWebdanica {
 		String filename = "export-from-webdanica-" + SingleSeedHarvest.getTimestamp() + ".log";
 		File outputfile = new File(filename);
 		PrintWriter acceptWriter = new PrintWriter(new BufferedWriter(new FileWriter(outputfile)));
-		String logHeader = "The " + readySeeds.size() + " danica seeds exported";
+		String logHeader = "The " + count + " danica seeds exported";
     	if (includeAlreadyExported) {
     		logHeader += " of which " + alreadyExportedCount + " were previously exported :";
     	} else {

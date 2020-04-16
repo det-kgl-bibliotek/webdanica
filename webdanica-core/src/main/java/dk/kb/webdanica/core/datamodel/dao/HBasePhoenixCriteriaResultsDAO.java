@@ -1,21 +1,23 @@
 package dk.kb.webdanica.core.datamodel.dao;
 
+import dk.kb.webdanica.core.datamodel.criteria.DataSource;
+import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
+import dk.kb.webdanica.core.utils.CloseUtils;
+import dk.kb.webdanica.core.utils.DatabaseUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import org.slf4j.Logger;
-
-import org.apache.commons.lang.StringUtils;
-
-import dk.kb.webdanica.core.utils.CloseUtils;
-import dk.kb.webdanica.core.utils.DatabaseUtils;
-import dk.kb.webdanica.core.datamodel.criteria.DataSource;
-import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
-import org.slf4j.LoggerFactory;
 
 /** 
  * See 
@@ -25,7 +27,7 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(HBasePhoenixCriteriaResultsDAO.class);
 
-	private SingleCriteriaResult getResultFromResultSet(ResultSet rs) throws Exception {
+	private SingleCriteriaResult getResultFromResultSet(ResultSet rs) throws SQLException {
 		SingleCriteriaResult s = null;
 		s = new SingleCriteriaResult();
 		s.url = rs.getString("url");
@@ -52,7 +54,7 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 		return s;
 	}
 
-	private List<SingleCriteriaResult> getResultsFromResultSet(ResultSet rs) throws Exception {
+	private List<SingleCriteriaResult> getResultsFromResultSet(ResultSet rs) throws SQLException {
 		List<SingleCriteriaResult> resultList = new ArrayList<SingleCriteriaResult>();
 		if (rs != null) {
 			while (rs.next()) {
@@ -166,58 +168,63 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 		return res != 0;
 	}
 	
-	public static final String READ_ALL_WITH_URL_SQL;
-
-	static {
-		READ_ALL_WITH_URL_SQL = ""
+	public static final String READ_ALL_WITH_URL_SQL = ""
 				+ "SELECT * FROM criteria_results "
 				+ "WHERE url=?";
-	}
+	
 	
 	@Override
-	public List<SingleCriteriaResult> getResultsByUrl(String url) throws Exception {
-		List<SingleCriteriaResult> resultList = new ArrayList<SingleCriteriaResult>();
+	public Iterator<SingleCriteriaResult> getResultsByUrl(String url) throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		PreparedStatement stm = conn.prepareStatement(READ_ALL_WITH_URL_SQL);
+		stm.clearParameters();
+		stm.setString(1, url);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
+	}
+	
+	public static final String READ_ALL_WITH_URL_SQL_COUNT = ""
+													   + "SELECT count(*) FROM criteria_results "
+													   + "WHERE url=?";
+	private static final String READ_ALL_SQL_COUNT = "SELECT count(*) FROM criteria_results";
+	
+	@Override
+	public long getResultsByUrlCount(String url) throws Exception {
+		long count = 0;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		try {
 			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(READ_ALL_WITH_URL_SQL);
-			stm.clearParameters();
-			stm.setString(1, url);
+			if (url == null) {
+				stm = conn.prepareStatement(READ_ALL_SQL_COUNT);
+				stm.clearParameters();
+			} else {
+				stm = conn.prepareStatement(READ_ALL_WITH_URL_SQL_COUNT);
+				stm.clearParameters();
+				stm.setString(1, url);
+			}
 			rs = stm.executeQuery();
-			resultList = getResultsFromResultSet(rs);
+			if (rs != null && rs.next()) {
+				count = rs.getLong(1);
+			}
 		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
+			CloseUtils.closeQuietly(rs);
+			CloseUtils.closeQuietly(stm);
 		}
-		return resultList; 
+		return count;
 	}
-
-	public static final String READ_ALL_WITH_SEEDURL_SQL;
-
-	static {
-		READ_ALL_WITH_SEEDURL_SQL = ""
+	
+	public static final String READ_ALL_WITH_SEEDURL_SQL = ""
 				+ "SELECT * FROM criteria_results "
 				+ "WHERE seedurl=?";
-	}
+	
 
 	@Override
-	public List<SingleCriteriaResult> getResultsBySeedurl(String seedurl) throws Exception {
-		List<SingleCriteriaResult> seedList = new ArrayList<SingleCriteriaResult>();
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(READ_ALL_WITH_SEEDURL_SQL);
-			stm.clearParameters();
-			stm.setString(1, seedurl);
-			rs = stm.executeQuery();
-			seedList = getResultsFromResultSet(rs);
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-		}
-		return seedList; 
+	public Iterator<SingleCriteriaResult> getResultsBySeedurl(String seedurl) throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		PreparedStatement stm = conn.prepareStatement(READ_ALL_WITH_SEEDURL_SQL);
+		stm.clearParameters();
+		stm.setString(1, seedurl);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	public static final String READ_ALL_WITH_HARVESTNAME_SQL;
@@ -229,22 +236,12 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 	}
 
 	@Override
-	public List<SingleCriteriaResult> getResultsByHarvestname(String harvestname) throws Exception {
-		List<SingleCriteriaResult> seedList = new ArrayList<SingleCriteriaResult>();
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(READ_ALL_WITH_HARVESTNAME_SQL);
-			stm.clearParameters();
-			stm.setString(1, harvestname);
-			rs = stm.executeQuery();
-			seedList = getResultsFromResultSet(rs);
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-		}
-		return seedList; 
+	public Iterator<SingleCriteriaResult> getResultsByHarvestname(String harvestname) throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		PreparedStatement stm = conn.prepareStatement(READ_ALL_WITH_HARVESTNAME_SQL);
+		stm.clearParameters();
+		stm.setString(1, harvestname);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	public static final String READ_URLS_BY_HARVESTNAME_SQL;
@@ -256,33 +253,29 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 	}
 	
 	@Override
-	public List<String> getHarvestedUrls(String harvestname) throws Exception {
-		List<String> urlList = new ArrayList<String>();
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(READ_URLS_BY_HARVESTNAME_SQL);
-			stm.clearParameters();
-			stm.setString(1, harvestname);
-			rs = stm.executeQuery();
-			if (rs != null) {
-				while (rs.next()) {
-					String s = rs.getString("url");
-					urlList.add(s);
-				}
+	public Iterator<String> getHarvestedUrls(String harvestname) throws Exception {
+		
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		PreparedStatement stm = conn.prepareStatement(READ_URLS_BY_HARVESTNAME_SQL);
+		stm.clearParameters();
+		stm.setString(1, harvestname);
+
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> {
+			List<String> urlList = new ArrayList<String>();
+			while (rs.next()) {
+				String s = rs.getString("url");
+				urlList.add(s);
 			}
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-		}
-		return urlList; 
+			return urlList;
+		}, 1000);
+		
 	}
 
 	@Override
 	public void deleteRecordsByHarvestname(String harvestname) throws Exception {
-		List<String> urls = getHarvestedUrls(harvestname);
-		for (String url: urls) {
+		Iterator<String> urls = getHarvestedUrls(harvestname);
+		while (urls.hasNext()) {
+			String url = urls.next();
 			deleteRecordsByHarvestnameAndUrl(harvestname, url);
 		}
     }
@@ -346,35 +339,19 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 	private static final String READ_ALL_SQL = "SELECT * FROM criteria_results";
 
 	@Override
-	public List<SingleCriteriaResult> getResults() throws Exception {
-		List<SingleCriteriaResult> list = new ArrayList<SingleCriteriaResult>();
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(READ_ALL_SQL);
-			stm.clearParameters();
-			rs = stm.executeQuery();
-			list = getResultsFromResultSet(rs);
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-		}
-		return list; 
-    }
-
-	public static final String GET_COUNT_WITH_HARVESTNAME_SQL;
-	public static final String GET_COUNT_SQL;
-
-	static {
-		GET_COUNT_WITH_HARVESTNAME_SQL = ""
-				+ "SELECT count(*) FROM criteria_results "
-				+ "WHERE harvestname=?";
-		
-		 GET_COUNT_SQL = ""
-	                + "SELECT count(*) FROM criteria_results";
+	public Iterator<SingleCriteriaResult> getResults() throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		return Utils.getResultIterator(READ_ALL_SQL, conn, rs -> getResultsFromResultSet(rs));
 	}
+	
+	
+	public static final String GET_COUNT_WITH_HARVESTNAME_SQL = ""
+																+ "SELECT count(*) FROM criteria_results "
+																+ "WHERE harvestname=?";
+	public static final String GET_COUNT_SQL = ""
+											   + "SELECT count(*) FROM criteria_results";
 
+	
 	@Override
 	public long getCountByHarvest(String harvestName) throws Exception {
 		long count = 0;

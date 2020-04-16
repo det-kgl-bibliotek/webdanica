@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import dk.kb.webdanica.core.datamodel.BlackList;
+import dk.netarkivet.common.utils.IteratorUtils;
 import org.apache.commons.lang.StringUtils;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
@@ -247,9 +250,12 @@ public class CriteriaIngest {
                                             true, null);
                                 }
                             }
-                            rejected 
-                                = FilterUtils.doFilteringOnSeed(s, daofactory.getBlackListDAO().getLists(true), 
-                                        rejectDKURLs, daofactory.getDomainsDAO());
+                            List<BlackList> blackLists = IteratorUtils.toList(daofactory.getBlackListDAO()
+                                                                                        .getLists(true));
+ 
+                            rejected
+                                = FilterUtils.doFilteringOnSeed(s, blackLists,
+                                                                rejectDKURLs, daofactory.getDomainsDAO());
                         } else {
                             s = sdao.getSeed(res.url);
                         }

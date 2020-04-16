@@ -1,16 +1,15 @@
 package dk.kb.webdanica.core.datamodel.dao;
 
-import java.util.List;
-import java.util.Set;
-
 import dk.kb.webdanica.core.datamodel.DanicaStatus;
 import dk.kb.webdanica.core.datamodel.Domain;
+
+import java.util.Iterator;
 
 public interface DomainsDAO extends AutoCloseable{
 
 	boolean insertDomain(Domain singleSeed) throws DaoException;
-
-	List<Domain> getDomains(DanicaStatus status, String tld, int limit) throws DaoException;
+	
+	Iterator<Domain> getDomains(DanicaStatus status, String tld, int limit) throws DaoException;
 	
 	Domain getDomain(String domain) throws DaoException;
 
@@ -22,5 +21,5 @@ public interface DomainsDAO extends AutoCloseable{
 
 	boolean update(Domain d) throws DaoException;
 
-	Set<String> getTlds() throws DaoException;
+	Iterator<String> getTlds() throws DaoException;
 }

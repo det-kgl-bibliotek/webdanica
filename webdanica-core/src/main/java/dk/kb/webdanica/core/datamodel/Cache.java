@@ -75,7 +75,7 @@ public class Cache {
 	 */
 	public static void updateCache(DAOFactory daoFactory) throws Exception {
 		SeedsDAO dao = daoFactory.getSeedsDAO();
-		long totalSeedsCount = dao.getSeedsCount(null);
+		long totalSeedsCount = dao.getSeedsCount();
 	    Map<Integer, Long> seedStatusCountMap = new HashMap<Integer,Long>();
 	    for (Status s: Status.values()) { // or (select distinct(status) from seeds)
 	    	seedStatusCountMap.put(s.ordinal(), dao.getSeedsCount(s));

@@ -7,10 +7,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import dk.kb.webdanica.core.datamodel.AnalysisStatus;
+import dk.kb.webdanica.core.datamodel.BlackList;
+import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
 import dk.kb.webdanica.core.interfaces.harvesting.NasReports;
 import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
 import dk.kb.webdanica.core.tools.AutochainingIterator;
@@ -18,6 +21,7 @@ import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
 import dk.kb.webdanica.core.utils.SimpleXml;
 import dk.netarkivet.harvester.datamodel.JobStatus;
+import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,93 +196,45 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 		}
 		return report; 
 	}
-
-
+	
+	private String READ_ALL_SQL = "SELECT * FROM harvests";
+	
 	@Override
 	public Iterator<SingleSeedHarvest> getAll() throws Exception {
-		
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-		
-		try (PreparedStatement cursorCreate = conn.prepareStatement(
-				"DECLARE harvestCursor CURSOR FOR SELECT * FROM harvests")) {
-			logger.info("Declaring harvest cursor");
-			
-			cursorCreate.execute();
-		}
-		
-		try (PreparedStatement cursorOpen = conn.prepareStatement(
-				"OPEN harvestCursor")) {
-			logger.info("Opening harvest cursor");
-			
-			cursorOpen.execute();
-		}
-		Function<Integer, Iterator<SingleSeedHarvest>> getNextFunction = i -> {
-			try (PreparedStatement statement = conn.prepareStatement("FETCH NEXT 1000 ROWS FROM harvestCursor");) {
-				ResultSet rset = statement.executeQuery();
-				List<SingleSeedHarvest> hits = getHarvestsFromResultSet(rset);
-				logger.info("Fetched {} hits on harvest cursor",hits.size());
-				return hits.iterator();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		};
-		Consumer<Integer> closeFunction = i -> {
-			logger.info("Closing harvest cursor");
-			try (PreparedStatement statement = conn.prepareStatement("CLOSE harvestCursor");) {
-				statement.execute();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		};
-		AutochainingIterator<SingleSeedHarvest> iterator = new AutochainingIterator<SingleSeedHarvest>(
-				getNextFunction,
-				closeFunction);
-		
-	
-		return iterator;
+		return Utils.getResultIterator(READ_ALL_SQL, conn, rs -> getHarvestsFromResultSet(rs));
 	}
+	
 
  	public static final String GET_ALL_WITH_SEEDURL_SQL = "SELECT * FROM harvests WHERE seedurl=?";
 
  	
 	@Override
-	public List<SingleSeedHarvest> getAllWithSeedurl(String seedurl) throws Exception {
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(GET_ALL_WITH_SEEDURL_SQL);
-			stm.clearParameters();
-			stm.setString(1, seedurl);
-			rs = stm.executeQuery();
-			return getHarvestsFromResultSet(rs);
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-		}
+	public Iterator<SingleSeedHarvest> getAllWithSeedurl(String seedurl) throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		PreparedStatement stm = conn.prepareStatement(GET_ALL_WITH_SEEDURL_SQL);
+		stm.clearParameters();
+		stm.setString(1, seedurl);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
+										  conn,
+										  rs -> getHarvestsFromResultSet(rs),
+										  1000);
 	}
 
  	public static final String GET_ALL_WITH_SUCCESSFUL_SQL = "SELECT * FROM harvests WHERE successful=?";
 
 	@Override
-	public List<SingleSeedHarvest> getAllWithSuccessfulstate(boolean successful) throws Exception {
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		try {
-			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-			stm = conn.prepareStatement(GET_ALL_WITH_SUCCESSFUL_SQL);
-			stm.clearParameters();
-			stm.setBoolean(1, successful);
-			rs = stm.executeQuery();
-			return getHarvestsFromResultSet(rs);
-		} finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-		}
-	}
-
-	@Override
-	public void close() {
+	public Iterator<SingleSeedHarvest> getAllWithSuccessfulstate(boolean successful) throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		
+		PreparedStatement stm = conn.prepareStatement(GET_ALL_WITH_SUCCESSFUL_SQL);
+		stm.clearParameters();
+		stm.setBoolean(1, successful);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
+										  conn,
+										  rs -> getHarvestsFromResultSet(rs),
+										  1000);
+		
 	}
 
     @Override
@@ -304,32 +260,28 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 	public static final String GET_ALL_NAMES_LIMIT_SQL = "SELECT harvestname FROM harvests LIMIT ?";
 	
 	@Override
-    public List<String> getAllNames() throws Exception { // Limit currently hardwired to 100K
-        List<String> harvests = new ArrayList<String>();
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        try {
-            Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-            stm = conn.prepareStatement(GET_ALL_NAMES_LIMIT_SQL);
-            stm.clearParameters();
-            stm.setLong(1, LIMIT);
-            rs = stm.executeQuery();
-            getHarvestNamesFromResultSet(rs, harvests);
-        } finally {
-        	CloseUtils.closeQuietly(rs);
-        	CloseUtils.closeQuietly(stm);
-        }
-        return harvests; 
+    public Iterator<String> getAllNames() throws Exception { // Limit currently hardwired to 100K
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		
+		PreparedStatement stm = conn.prepareStatement(GET_ALL_NAMES_LIMIT_SQL);
+		stm.setLong(1, LIMIT);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
+										  conn,
+										  rs -> getHarvestNamesFromResultSet(rs),
+										  1000);
+		
+		
     }
 
-    private void getHarvestNamesFromResultSet(ResultSet rs, List<String> harvests) throws Exception {
-        String name;
+    private List<String> getHarvestNamesFromResultSet(ResultSet rs) throws SQLException {
+        List<String> harvests = new ArrayList<>();
         if (rs != null) {
-            while (rs.next()) { 
-                name = rs.getString("harvestname");
+            while (rs.next()) {
+				String name = rs.getString("harvestname");
                 harvests.add(name);
             }
         }
+        return harvests;
     }
 
     public static final String SELECT_EXISTS_SQL = "SELECT count(*) FROM harvests where harvestname=?";

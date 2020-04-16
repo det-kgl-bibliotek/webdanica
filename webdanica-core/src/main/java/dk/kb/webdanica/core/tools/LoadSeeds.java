@@ -307,7 +307,6 @@ public IngestLog processSeeds() throws IOException {
         throw new RuntimeException("Failed to read file " + seedsfile, e);
     } finally {
         ddao.close();
-        sdao.close();
     }
     // trying to update the cache
     try {

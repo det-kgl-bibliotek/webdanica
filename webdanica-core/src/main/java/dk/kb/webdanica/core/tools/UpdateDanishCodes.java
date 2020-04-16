@@ -1,5 +1,6 @@
 package dk.kb.webdanica.core.tools;
 
+import java.util.Iterator;
 import java.util.List;
 
 import dk.kb.webdanica.core.datamodel.criteria.CalcDanishCode;
@@ -19,8 +20,9 @@ public class UpdateDanishCodes {
     public static void main(String[] args) throws Exception {
     	daoFactory = DatabaseUtils.getDao();
     	CriteriaResultsDAO cdao = daoFactory.getCriteriaResultsDAO();
-    	List<SingleCriteriaResult> results = cdao.getResults(); // FIXME add limit
-    	for (SingleCriteriaResult s: results) {
+    	Iterator<SingleCriteriaResult> results = cdao.getResults(); // FIXME add limit
+		while (results.hasNext()) {
+			SingleCriteriaResult s = results.next();
     		if (s.calcDanishCode < 0){
     			boolean matched = CalcDanishCode.checkForDanishCode4(s, s.C.get("C4b"));
     			if (matched) {

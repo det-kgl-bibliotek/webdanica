@@ -3,6 +3,7 @@ package dk.kb.webdanica.webapp.resources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -130,7 +131,7 @@ public class IngestLogResource implements ResourceAbstract {
         // Primary textarea
         StringBuffer sb = new StringBuffer();
 
-        List<Long> logList = null;
+        Iterator<Long> logList = null;
         try {
             logList = environment.getConfig().getDAOFactory().getIngestLogDAO().getIngestDates();
         } catch (Exception e) {
@@ -138,7 +139,8 @@ public class IngestLogResource implements ResourceAbstract {
             CommonResource.show_error(logMsg, resp, environment, e);
             return;
         }
-        for (Long b: logList) {
+        while (logList.hasNext()) {
+            Long b = logList.next();
             sb.append("<tr>");
             sb.append("<td>");
             sb.append("<a href=\"");

@@ -3,6 +3,7 @@ package dk.kb.webdanica.core.interfaces.harvesting;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -58,10 +59,11 @@ public class SynchronizeCrawlertraps {
                 1000);
         
         BlackListDAO dao = DatabaseUtils.getDao().getBlackListDAO();
-        List<BlackList> lists = dao.getLists(false);
+        Iterator<BlackList> lists = dao.getLists(false);
         
         GlobalCrawlerTrapListDAO gdao = GlobalCrawlerTrapListDAO.getInstance();
-        for (BlackList b: lists) {
+        while (lists.hasNext()) {
+            BlackList b = lists.next();
             ByteArrayInputStream bais = new ByteArrayInputStream(b.getName().getBytes()); // dummy inputStream
             GlobalCrawlerTrapList trap = new GlobalCrawlerTrapList(bais, b.getName(), b.getDescription(), b.isActive());
             Set<String> trapSet = new HashSet<String>();

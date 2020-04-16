@@ -8,6 +8,7 @@
 package dk.kb.webdanica.webapp.resources;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -40,6 +41,7 @@ public interface ResourceAbstract {
      * @param pathInfo
      * @throws IOException
      */
-    public void resource_service(ServletContext servletContext, User dab_user, HttpServletRequest req, HttpServletResponse resp, int resource_id, List<Integer> numerics, String pathInfo) throws IOException;
+    public void resource_service(ServletContext servletContext, User dab_user, HttpServletRequest req, HttpServletResponse resp, int resource_id, List<Integer> numerics, String pathInfo)
+            throws IOException, SQLException;
 
 }

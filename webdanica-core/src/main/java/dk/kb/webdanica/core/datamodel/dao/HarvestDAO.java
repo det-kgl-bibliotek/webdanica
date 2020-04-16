@@ -13,16 +13,14 @@ public interface HarvestDAO {
 
 	Iterator<SingleSeedHarvest> getAll() throws Exception;
 	
-	List<String> getAllNames() throws Exception;
+	Iterator<String> getAllNames() throws Exception;
 
-	List<SingleSeedHarvest> getAllWithSeedurl(String seed) throws Exception;
+	Iterator<SingleSeedHarvest> getAllWithSeedurl(String seed) throws Exception;
 
-	List<SingleSeedHarvest> getAllWithSuccessfulstate(boolean b) throws Exception;
+	Iterator<SingleSeedHarvest> getAllWithSuccessfulstate(boolean b) throws Exception;
 	
 	Long getCount() throws Exception;
-
-	void close();
-
+	
 	boolean exists(String harvestName) throws Exception;
 
 	Long getCountWithSeedurl(String url) throws Exception;

@@ -32,8 +32,8 @@ public class Pagination {
      * @param itemsPerPage items displayed per page
      * @return the total number of pages
      */
-    public static int getPages(int items, int itemsPerPage) {
-        int pages = (items + itemsPerPage - 1) / itemsPerPage;
+    public static long getPages(long items, int itemsPerPage) {
+        long pages = (items + itemsPerPage - 1) / itemsPerPage;
         if (pages == 0) {
             pages = 1;
         }
@@ -48,7 +48,7 @@ public class Pagination {
      * @param pages total number of pages
      * @return HTML text block
      */
-    public static String getPagination(int page, int itemsPerPage, int pages, boolean bShowAll) {
+    public static String getPagination(long page, int itemsPerPage, long pages, boolean bShowAll) {
         if (page < 1) {
             page = 1;
         }
@@ -76,7 +76,7 @@ public class Pagination {
                     + itemsPerPage + "\">" + 1 + "</a></li>");
         }
         // List.
-        int tmpPage = page - 3;
+        long tmpPage = page - 3;
         if (tmpPage > pages - 7) {
             tmpPage = pages - 7;
         }

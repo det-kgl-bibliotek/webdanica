@@ -1,5 +1,6 @@
 package dk.kb.webdanica.core.datamodel.dao;
 
+import java.util.Iterator;
 import java.util.List;
 
 import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
@@ -10,15 +11,17 @@ public interface CriteriaResultsDAO {
 
 	SingleCriteriaResult getSingleResult(String url, String harvest) throws Exception;
 
-	List<SingleCriteriaResult> getResultsByHarvestname(String string) throws Exception;
+	Iterator<SingleCriteriaResult> getResultsByHarvestname(String string) throws Exception;
 
-	List<SingleCriteriaResult> getResultsByUrl(String url) throws Exception;
+	Iterator<SingleCriteriaResult> getResultsByUrl(String url) throws Exception;
+	
+	long getResultsByUrlCount(String url) throws Exception;
 
-	List<SingleCriteriaResult> getResultsBySeedurl(String string) throws Exception;
+	Iterator<SingleCriteriaResult> getResultsBySeedurl(String string) throws Exception;
 
-	List<SingleCriteriaResult> getResults() throws Exception;
+	Iterator<SingleCriteriaResult> getResults() throws Exception;
 
-	List<String> getHarvestedUrls(String harvestname) throws Exception;
+	Iterator<String> getHarvestedUrls(String harvestname) throws Exception;
 
 	long getCountByHarvest(String harvestName) throws Exception;
 

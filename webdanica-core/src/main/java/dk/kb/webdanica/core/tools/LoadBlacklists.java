@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -67,16 +68,17 @@ public class LoadBlacklists {
 		
 		BlackListDAO dao = DatabaseUtils.getDao().getBlackListDAO();
 		System.out.println("Showing all existing blacklists:");
-		List<BlackList> allLists = dao.getLists(false);
-		for (BlackList b: allLists) {
+		Iterator<BlackList> allLists = dao.getLists(false);
+		while (allLists.hasNext()) {
+			BlackList b = allLists.next();
 			System.out.println(b);
 		}
 		System.out.println("Showing all existing active blacklists:");
-		List<BlackList> activeListOnly = dao.getLists(true);
-		for (BlackList b: activeListOnly) {
+		Iterator<BlackList> activeListOnly = dao.getLists(true);
+		while (activeListOnly.hasNext()) {
+			BlackList b = activeListOnly.next();
 			System.out.println(b);
 		}
-		dao.close();
 	}
 	   
 	

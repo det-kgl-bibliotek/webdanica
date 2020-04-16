@@ -2,6 +2,7 @@ package dk.kb.webdanica.core.datamodel;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -47,9 +48,9 @@ public class TestHBasePhoenixSeedsDAO {
 			// debug
 			System.out.println(cnt);
 
-			List<Seed> seedList = dao.getSeeds(Status.NEW, 100000);
-			for (int i=0; i<seedList.size(); ++i) {
-				seed = seedList.get(i);
+			Iterator<Seed> seedList = dao.getSeeds(Status.NEW, 100000);
+			while (seedList.hasNext()) {
+				seed = seedList.next();
 				System.out.println(seed.getUrl());
 			}
 

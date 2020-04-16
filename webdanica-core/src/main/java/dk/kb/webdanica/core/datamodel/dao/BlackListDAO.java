@@ -1,18 +1,16 @@
 package dk.kb.webdanica.core.datamodel.dao;
 
-import java.util.List;
-import java.util.UUID;
-
 import dk.kb.webdanica.core.datamodel.BlackList;
+
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.UUID;
 
 public interface BlackListDAO {
 
-	boolean insertList(BlackList aBlackList) throws Exception;
+	boolean insertList(BlackList aBlackList) throws SQLException;
 
-	BlackList readBlackList(UUID fromString) throws Exception;
+	BlackList readBlackList(UUID fromString) throws SQLException;
 
-	List<BlackList> getLists(boolean b) throws Exception;
-
-	void close();
-
+	Iterator<BlackList> getLists(boolean b) throws SQLException;
 }

@@ -3,6 +3,7 @@ package dk.kb.webdanica.webapp.resources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -119,7 +120,7 @@ public class CriteriaResultsResource implements ResourceAbstract {
 	        // Primary textarea
 	        StringBuffer sb = new StringBuffer();
 	        String harvestName = getHarvestName(pathInfo);
-	        List<SingleCriteriaResult> blacklistList = null;
+	        Iterator<SingleCriteriaResult> blacklistList = null;
 	       
 	        try {
 		        if (harvestName == null) {
@@ -133,7 +134,8 @@ public class CriteriaResultsResource implements ResourceAbstract {
 	        	CommonResource.show_error(error + e, resp, environment);
 	        	return;
 	        }
-	        for (SingleCriteriaResult b: blacklistList) {
+			while (blacklistList.hasNext()) {
+				SingleCriteriaResult b = blacklistList.next();
 	        	sb.append("<tr>");
 	        	sb.append("<td>");
 	        	String linkText = StringUtils.makeEllipsis(b.url, 50) + " (harvest: " + b.harvestName + ")";

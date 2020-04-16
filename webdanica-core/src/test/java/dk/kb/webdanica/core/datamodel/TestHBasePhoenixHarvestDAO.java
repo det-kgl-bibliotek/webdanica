@@ -43,8 +43,8 @@ public class TestHBasePhoenixHarvestDAO {
 
 			report = dao.getHarvest("harvestName");
 			Iterator<SingleSeedHarvest> harvestIterator = dao.getAll();
-			harvestList = dao.getAllWithSeedurl("seedurl");
-			harvestList = dao.getAllWithSuccessfulstate(true);
+			harvestIterator = dao.getAllWithSeedurl("seedurl");
+			harvestIterator = dao.getAllWithSuccessfulstate(true);
 
 			conn.close();
 		}

@@ -48,7 +48,7 @@ public class DatabaseUtils {
 	public static void printDatabaseStats(DAOFactory daoFactory) throws Exception {
 	       SeedsDAO dao = daoFactory.getSeedsDAO();
 	       long millisStarted = System.currentTimeMillis();
-	       long initialSeedsCount = dao.getSeedsCount(null);
+	       long initialSeedsCount = dao.getSeedsCount();
 	       Map<Integer, Long> mapcount = new HashMap<Integer,Long>();
 	       for (Status s: Status.values()) {
 	           mapcount.put(s.ordinal(), dao.getSeedsCount(s));

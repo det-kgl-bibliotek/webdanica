@@ -1,10 +1,12 @@
 package dk.kb.webdanica.webapp.workflow;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import dk.kb.webdanica.core.Constants;
+import dk.netarkivet.common.utils.IteratorUtils;
 import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
@@ -69,12 +71,18 @@ public class FilterWorkThread extends WorkThreadAbstract {
             queueList.add(urlRecord);
         }
     }
-
-    public void enqueue(List<Seed> urlRecords) {
+    public long enqueue(Iterator<Seed> urlRecords) {
+        long count = 0;
         synchronized (queueList) {
-            queueList.addAll(urlRecords);
+            while (urlRecords.hasNext()) {
+                Seed next = urlRecords.next();
+                queueList.add(next);
+                count++;
+            }
         }
+        return count;
     }
+
 
     @Override
     public int getQueueSize() {
@@ -119,10 +127,10 @@ public class FilterWorkThread extends WorkThreadAbstract {
         try {
             logger.info( "Starting process_run of thread '" + threadName
                     + "' at '" + new Date() + "'");
-            List<Seed> seedsNeedFiltering = seeddao.getSeeds(Status.NEW, maxRecordsProcessedInEachRun); 
-            enqueue(seedsNeedFiltering);
-            if (seedsNeedFiltering.size() > 0) {
-                logger.info( "Found '" + seedsNeedFiltering.size()
+            Iterator<Seed> seedsNeedFiltering = seeddao.getSeeds(Status.NEW, maxRecordsProcessedInEachRun);
+            long count = enqueue(seedsNeedFiltering);
+            if (count > 0) {
+                logger.info( "Found '" + count
                         + "' seeds ready for filtering");
             }
             synchronized (queueList) {
@@ -159,7 +167,7 @@ public class FilterWorkThread extends WorkThreadAbstract {
      */
     private void filter(List<Seed> workList) throws Exception {
     	// only use the active blacklists for filtering
-        List<BlackList> activeBlackLists = blacklistDao.getLists(true);
+        List<BlackList> activeBlackLists = IteratorUtils.toList(blacklistDao.getLists(true));
         for (Seed s : workList) {
             String url = s.getUrl();
             if (ResolveRedirects.isPossibleUrlredirect(url)) {

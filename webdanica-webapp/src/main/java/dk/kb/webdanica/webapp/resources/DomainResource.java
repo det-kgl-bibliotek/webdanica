@@ -3,9 +3,9 @@ package dk.kb.webdanica.webapp.resources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
 import dk.kb.webdanica.core.Constants;
 import org.slf4j.Logger;
 
@@ -105,7 +105,7 @@ public class DomainResource implements ResourceAbstract {
 	        if (dsr.getValid()) {
 	            String domain = dsr.getDomain();
 	            int maxfetched = environment.getConfig().getMaxUrlsToFetch();
-	            List<Seed> seeds;
+	            Iterator<Seed> seeds;
                 try {
                     seeds = daofactory.getSeedsDAO().getSeeds(domain, dsr.getStatus(), dsr.getDanicaStatus(), maxfetched);
                     domainSeedsShow(pathInfo, dab_user, req, resp, seeds, dsr);
@@ -126,7 +126,7 @@ public class DomainResource implements ResourceAbstract {
 	     * @throws IOException
 	     */
 	    private void domainSeedsShow(String pathInfo, User dab_user,
-	            HttpServletRequest req, HttpServletResponse resp, List<Seed> seeds, DomainSeedsRequest dsr) throws IOException {
+	            HttpServletRequest req, HttpServletResponse resp, Iterator<Seed> seeds, DomainSeedsRequest dsr) throws IOException {
 	        ServletOutputStream out = resp.getOutputStream();
 	        resp.setContentType("text/html; charset=utf-8");
 	        Caching.caching_disable_headers(resp);
@@ -159,25 +159,10 @@ public class DomainResource implements ResourceAbstract {
 	        StringBuffer sb = new StringBuffer();
 
 
-	        String all = " ";
-	        if (dsr.getDanicaStatus() == null && dsr.getStatus() == null) {
-	            all= "all ";
-	        }
-	        String heading = "Showing " + all + seeds.size() + " seeds from domain '" + dsr.getDomain() + "'";
-	        if (dsr.getStatus() != null) {
-	            heading += ", with state '" + dsr.getStatus() + "'";
-	        }
-	        if (dsr.getDanicaStatus() != null) {
-	            heading += ", with danica-state '" + dsr.getDanicaStatus() + "'";
-	        }
-
-	        if (headingPlace != null) {
-	            headingPlace.setText(heading);
-	        } else {
-	            logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
-	        }
-	        for (Seed s: seeds) {
-	            
+	        long seedCount = 0;
+			while (seeds.hasNext()) {
+				Seed s = seeds.next();
+	            seedCount++;
 	            String showDetails = "<A href=\"" + Servlet.environment.getSeedPath() + "/" + CriteriaUtils.toBase64(s.getUrl()) + "\"> Show details </A>";
 	            sb.append("<tr>");
 	            sb.append("<td>");    
@@ -205,6 +190,25 @@ public class DomainResource implements ResourceAbstract {
 	        if (usersPlace != null) {
                 usersPlace.setText(sb.toString());
             }
+		
+	        
+			String all = " ";
+			if (dsr.getDanicaStatus() == null && dsr.getStatus() == null) {
+				all= "all ";
+			}
+			String heading = "Showing " + all + seedCount + " seeds from domain '" + dsr.getDomain() + "'";
+			if (dsr.getStatus() != null) {
+				heading += ", with state '" + dsr.getStatus() + "'";
+			}
+			if (dsr.getDanicaStatus() != null) {
+				heading += ", with danica-state '" + dsr.getDanicaStatus() + "'";
+			}
+		
+			if (headingPlace != null) {
+				headingPlace.setText(heading);
+			} else {
+				logger.warn("No heading´ placeholder found in template '" + templateName + "'" );
+			}
 	        
 	        try {
                 for (int i = 0; i < templateParts.parts.size(); ++i) {
@@ -241,7 +245,7 @@ public class DomainResource implements ResourceAbstract {
                 if (domain != null) {
                     Long seedscount = 0L;
                     try {
-                        seedscount = daofactory.getSeedsDAO().getDomainSeedsCount(domain.getDomain());
+                        seedscount = daofactory.getSeedsDAO().getSeedsCount(domain.getDomain());
                     } catch (DaoException e) {
                         String error = "Impossible to extract seedscount for domain '" +  domain.getDomain() + "': " + ExceptionUtils.getFullStackTrace(e);
                         CommonResource.show_error(error, resp, environment);
@@ -462,19 +466,20 @@ public class DomainResource implements ResourceAbstract {
 	        // Primary textarea
 	        StringBuffer sb = new StringBuffer();
 	        
-	        Set<String> tldList = new HashSet<String>();
+	        Iterator<String> tldList;
 	        String header = "";
 	        if (!showDomainsForTld) {
 	            try {
 	                tldList = daofactory.getDomainsDAO().getTlds();
-	                header = "Listing all " + tldList.size() + " top level domains:";
+	                header = "Listing all top level domains:";
 	            } catch (Exception e) {
 	                String errMsg = "System-error: Exception thrown";
 	                logger.warn( errMsg, e);
 	                CommonResource.show_error(errMsg, resp, environment);
 	                return;
-	            } 
-	            for (String t: tldList) {
+	            }
+				while (tldList.hasNext()) {
+					String t = tldList.next();
                     sb.append("<tr>");
                     sb.append("<td>");    
                     sb.append("<a href=\"");
@@ -494,7 +499,7 @@ public class DomainResource implements ResourceAbstract {
                 }
 	        } else { 
 	            Long domainsCount = 0L;
-	            List<Domain> domains = null;
+	            Iterator<Domain> domains;
 	            try {
 	                domainsCount = daofactory.getDomainsDAO().getDomainsCount(null, tld);
                     domains = daofactory.getDomainsDAO().getDomains(null, tld, environment.getConfig().getMaxUrlsToFetch());
@@ -507,10 +512,11 @@ public class DomainResource implements ResourceAbstract {
                 }
 	            header = "Listing all " + domainsCount + " domains in top level domain '" +  tld + "':";
 	            String domainLinkPrefix = "<A href=\"" + environment.getDomainSeedsPath() + "/";
-	            for (Domain d: domains) {
+				while (domains.hasNext()) {
+					Domain d = domains.next();
 	                Long seedscount = 0L;
                     try {
-                        seedscount = daofactory.getSeedsDAO().getDomainSeedsCount(d.getDomain());
+                        seedscount = daofactory.getSeedsDAO().getSeedsCount(d.getDomain());
                     } catch (DaoException e) {
                         logger.warn( "Error while retrieving seedscount for domain '" + d.getDomain() + "':", e);
                     }
