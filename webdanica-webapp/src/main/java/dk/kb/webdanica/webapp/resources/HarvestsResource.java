@@ -14,10 +14,12 @@ import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
@@ -73,10 +75,6 @@ public class HarvestsResource implements ResourceAbstract {
         HarvestRequest hr = HarvestRequest.getRequest(HarvestsResource.HARVESTS_PATH, pathInfo);
         
         
-        resp.setContentType("text/html; charset=utf-8");
-        
-        Caching.caching_disable_headers(resp);
-        
         
         TemplatePlaceHolder titlePlace = TemplatePlaceBase.getTemplatePlaceHolder("title");
         TemplatePlaceHolder appnamePlace = TemplatePlaceBase.getTemplatePlaceHolder("appname");
@@ -96,10 +94,12 @@ public class HarvestsResource implements ResourceAbstract {
         placeHolders.add(headingPlace);
         placeHolders.add(contentPlace);
         placeHolders.add(usersPlace);
+    
+        Template template = environment.getTemplateMaster().getTemplate("harvests_list.html");
+        //This magic must happen before you start to fill content into the placeholders, as below
+        TemplateParts templateParts = template.filterTemplate(placeHolders, resp.getCharacterEncoding());
         
-        
-        // Primary textarea
-        StringBuilder sb = new StringBuilder();
+     
         
         Iterator<SingleSeedHarvest> harvestList;
         try {
@@ -108,7 +108,6 @@ public class HarvestsResource implements ResourceAbstract {
                 harvestList = harvestDAO.getAll();
             } else {
                 harvestList = harvestDAO.getAllWithSeedurl(hr.getSeedUrl());
-                                         
             }
         } catch (Exception e) {
             // Create error-page
@@ -117,9 +116,104 @@ public class HarvestsResource implements ResourceAbstract {
             CommonResource.show_error(errMsg, resp, environment);
             return;
         }
+    
+        titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
+    
+    
+        appnamePlace.setText(HtmlEntity.encodeHtmlEntities(
+                Constants.WEBAPP_NAME + Constants.SPACE + environment.getVersion()).toString());
+    
+    
+        navbarPlace.setText(Navbar.getNavbar(Navbar.N_HARVESTS));
+    
+    
+        userPlace.setText(Navbar.getUserHref(dab_user));
         
+        StringBuilder sb = showHarvestList(harvestList);
+        //logger.trace("This is the harvest list '{}'",sb.toString());
+        usersPlace.setText(sb.toString());
+        contentPlace.setText(sb.toString());
+    
+        StringBuilder menuSb = showMenu();
+        menuPlace.setText(menuSb.toString());
+    
+        String heading = showHeading(hr);
+        headingPlace.setText(heading);
+    
+        
+        resp.setContentType("text/html; charset=utf-8");
+        Caching.caching_disable_headers(resp);
+        // Write out the page requested by the client browser
+        ServletOutputStream out = resp.getOutputStream();
+        try {
+            for (int i = 0; i < templateParts.parts.size(); ++i) {
+				TemplatePartBase templatePartBase = templateParts.parts.get(i);
+                //logger.trace("Writing out '{}",templatePartBase.getText());
+				out.write(templatePartBase.getBytes());
+            }
+            out.flush();
+        } catch (IOException e) {
+            logger.error("Caught Exception", e);
+            throw new RuntimeException(e);
+        } finally {
+            out.close();
+        }
+    }
+    
+    @NotNull
+    private String showHeading(HarvestRequest hr) {
+        /*
+         * Heading.
+         */
+        
+        String heading = "Liste over høstninger i systemet";
+        if (!hr.viewAll()) {
+            heading = "Liste over høstninger i systemet af seedurl '" + hr.getSeedUrl() + "'";
+        }
+        return heading;
+    }
+    
+    @NotNull
+    private StringBuilder showMenu() {
+        /*
+         * Menu.
+         */
+        
+        StringBuilder menuSb = new StringBuilder();
+        
+        menuSb.append("<li id=\"state_0\"");
+        menuSb.append(" class=\"active\"");
+        menuSb.append("><a href=\"");
+        menuSb.append(Servlet.environment.getHarvestsPath());
+        menuSb.append("\">");
+        menuSb.append("Liste over harvests");
+        menuSb.append("</a></li>\n");
+        
+         /*
+	        if (dab_user.hasAnyPermission(USER_ADD_PERMISSIONS)) {
+	            menuSb.append("<li id=\"state_1\"");
+	            menuSb.append("><a href=\"");
+	            menuSb.append(DABServlet.environment.usersPath);
+	            menuSb.append("add/\">");
+	            menuSb.append("Opret bruger");
+	            menuSb.append("</a></li>\n");
+	        }
+*/
+        return menuSb;
+    }
+    
+    private StringBuilder showHarvestList(Iterator<SingleSeedHarvest> harvestList) {
+        // Primary textarea
+        StringBuilder sb = new StringBuilder();
+    
+        long count = 0;
         while (harvestList.hasNext()) {
             SingleSeedHarvest harvest = harvestList.next();
+            count++;
+            
+            if (count > 1_000){ //TODO just for debugging remove this after
+                break;
+            }
             sb.append("<tr>");
             sb.append("<td>");
             sb.append("<a href=\"");
@@ -137,89 +231,7 @@ public class HarvestsResource implements ResourceAbstract {
             sb.append("</td>");
             sb.append("</tr>\n");
         }
-        
-        /*
-         * Menu.
-         */
-        
-        StringBuilder menuSb = new StringBuilder();
-        
-        menuSb.append("<li id=\"state_0\"");
-        menuSb.append(" class=\"active\"");
-        menuSb.append("><a href=\"");
-        menuSb.append(Servlet.environment.getHarvestsPath());
-        menuSb.append("\">");
-        menuSb.append("Liste over harvests");
-        menuSb.append("</a></li>\n");
-/*
-	        if (dab_user.hasAnyPermission(USER_ADD_PERMISSIONS)) {
-	            menuSb.append("<li id=\"state_1\"");
-	            menuSb.append("><a href=\"");
-	            menuSb.append(DABServlet.environment.usersPath);
-	            menuSb.append("add/\">");
-	            menuSb.append("Opret bruger");
-	            menuSb.append("</a></li>\n");
-	        }
-*/
-        /*
-         * Heading.
-         */
-        
-        String heading = "Liste over høstninger i systemet";
-        if (!hr.viewAll()) {
-            heading = "Liste over høstninger i systemet af seedurl '" + hr.getSeedUrl() + "'";
-        }
-        /*
-         * Places.
-         */
-        
-        if (titlePlace != null) {
-            titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
-        }
-        
-        if (appnamePlace != null) {
-            appnamePlace.setText(HtmlEntity.encodeHtmlEntities(
-                    Constants.WEBAPP_NAME + Constants.SPACE + environment.getVersion()).toString());
-        }
-        
-        if (navbarPlace != null) {
-            navbarPlace.setText(Navbar.getNavbar(Navbar.N_HARVESTS));
-        }
-        
-        if (userPlace != null) {
-            userPlace.setText(Navbar.getUserHref(dab_user));
-        }
-        
-        if (menuPlace != null) {
-            menuPlace.setText(menuSb.toString());
-        }
-        
-        if (headingPlace != null) {
-            headingPlace.setText(heading);
-        }
-        
-        /*
-         * if ( contentPlace != null ) { contentPlace.setText( sb.toString() );
-         * }
-         */
-        
-        if (usersPlace != null) {
-            usersPlace.setText(sb.toString());
-        }
-	
-		Template template = environment.getTemplateMaster().getTemplate("harvests_list.html");
-	
-		TemplateParts templateParts = template.filterTemplate(placeHolders, resp.getCharacterEncoding());
-	
-		// Write out the page requested by the client browser
-        try (OutputStream out = new BufferedOutputStream(resp.getOutputStream())) {
-            for (int i = 0; i < templateParts.parts.size(); ++i) {
-				TemplatePartBase templatePartBase = templateParts.parts.get(i);
-				out.write(templatePartBase.getBytes());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return sb;
     }
 }
 
