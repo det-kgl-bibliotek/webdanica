@@ -33,14 +33,14 @@ public class AutochainingIterator<T> implements Iterator<T> {
     private int offset = 0;
 
     //The current iterator
-    private Iterator<T> current;
+    private SkippingIterator<T> current;
     
     /**
      * The function to generate iterators
      * Takes an integer as input, which is the offset
      * @see #offset
       */
-    private Function<Integer, Iterator<T>> iteratorGenerator;
+    private Function<Integer, SkippingIterator<T>> iteratorGenerator;
    
     /**
      * The next item to return
@@ -56,13 +56,13 @@ public class AutochainingIterator<T> implements Iterator<T> {
      *
      * @param iteratorGenerator the function to generate the next iterator. Takes the overall offset as input
      */
-    public AutochainingIterator(Function<Integer, Iterator<T>> iteratorGenerator) {
+    public AutochainingIterator(Function<Integer, SkippingIterator<T>> iteratorGenerator) {
         this.iteratorGenerator = iteratorGenerator;
         this.finalCloser = null;
         init();
     }
     
-    public AutochainingIterator(Function<Integer, Iterator<T>> iteratorGenerator, Consumer<Integer> finalCloser) {
+    public AutochainingIterator(Function<Integer, SkippingIterator<T>> iteratorGenerator, Consumer<Integer> finalCloser) {
         this.iteratorGenerator = iteratorGenerator;
         this.finalCloser = finalCloser;
         init();
@@ -115,10 +115,18 @@ public class AutochainingIterator<T> implements Iterator<T> {
         } finally {
             offset += 1;
         }
-        
     }
     
-    private Iterator<T> nextIterator(int offset) {
+    public long skip(long recordsToSkip){
+        long totalSkipped = 0;
+        while (hasNext() && totalSkipped < recordsToSkip){
+            totalSkipped += current.skip(recordsToSkip-totalSkipped);
+            next();
+        }
+        return totalSkipped;
+    }
+    
+    private SkippingIterator<T> nextIterator(int offset) {
         return iteratorGenerator.apply(offset);
     }
     

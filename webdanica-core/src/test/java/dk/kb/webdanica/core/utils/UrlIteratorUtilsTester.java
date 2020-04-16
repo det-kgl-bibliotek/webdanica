@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import dk.kb.webdanica.core.datamodel.URL_REJECT_REASON;
 
-public class UrlUtilsTester {
+public class UrlIteratorUtilsTester {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {

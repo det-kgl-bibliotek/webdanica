@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import dk.kb.webdanica.core.Constants;
 import dk.netarkivet.common.utils.IteratorUtils;
-import org.slf4j.Logger;
 
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.datamodel.BlackList;
@@ -15,7 +14,6 @@ import dk.kb.webdanica.core.datamodel.Cache;
 import dk.kb.webdanica.core.datamodel.Seed;
 import dk.kb.webdanica.core.datamodel.Status;
 import dk.kb.webdanica.core.datamodel.dao.BlackListDAO;
-import dk.kb.webdanica.core.datamodel.dao.CacheDAO;
 import dk.kb.webdanica.core.datamodel.dao.DomainsDAO;
 import dk.kb.webdanica.core.datamodel.dao.SeedsDAO;
 import dk.kb.webdanica.core.seeds.filtering.FilterUtils;
@@ -127,7 +125,7 @@ public class FilterWorkThread extends WorkThreadAbstract {
         try {
             logger.info( "Starting process_run of thread '" + threadName
                     + "' at '" + new Date() + "'");
-            Iterator<Seed> seedsNeedFiltering = seeddao.getSeeds(Status.NEW, maxRecordsProcessedInEachRun);
+            Iterator<Seed> seedsNeedFiltering = seeddao.getSeedsForStatus(Status.NEW, 0, maxRecordsProcessedInEachRun);
             long count = enqueue(seedsNeedFiltering);
             if (count > 0) {
                 logger.info( "Found '" + count

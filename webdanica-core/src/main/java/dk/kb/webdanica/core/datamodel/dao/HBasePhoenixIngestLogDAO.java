@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import dk.kb.webdanica.core.datamodel.IngestLog;
-import dk.kb.webdanica.core.datamodel.Seed;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
 import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
@@ -79,7 +78,7 @@ public class HBasePhoenixIngestLogDAO implements IngestLogDAO {
 			Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 			stm = conn.prepareStatement(GET_INGEST_DATES_SQL);
 			stm.clearParameters();
-			return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> {
+			return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> {
 				List<Long> ingestDates = new ArrayList<>();
 				while (rs.next()) {
 					ingestDates.add(rs.getLong("inserted_date"));

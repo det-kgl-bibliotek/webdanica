@@ -2,12 +2,15 @@ package dk.kb.webdanica.webapp.resources;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import dk.kb.webdanica.core.datamodel.dao.DaoException;
+import dk.kb.webdanica.core.tools.SkippingIterator;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;
@@ -51,6 +54,9 @@ import dk.kb.webdanica.webapp.workflow.HarvestWorkThread;
 import dk.netarkivet.common.utils.I18n;
 import dk.netarkivet.common.webinterface.HTMLUtils;
 import org.slf4j.LoggerFactory;
+
+import static dk.kb.webdanica.core.utils.CloseUtils.closeQuietly;
+
 
 public class SeedsResource implements ResourceAbstract {
     
@@ -154,9 +160,9 @@ public class SeedsResource implements ResourceAbstract {
                 items = count;
             }
             log.append("Statechange for " + items + " seeds\n");
-            Iterator<Seed> seeds = sdao.getSeeds(old, items.intValue());
+            Iterator<Seed> seeds = sdao.getSeedsForStatus(old, 0, items.intValue());
             boolean unnormalStateChange = seedsRequest.isRetryAnalysisRequest();
-    
+            
             while (seeds.hasNext()) {
                 Seed s = seeds.next();
                 try {
@@ -639,7 +645,7 @@ public class SeedsResource implements ResourceAbstract {
         Iterator<Seed> urlRecords = null;
         try {
             // This needs to be further limited (e.g. by domain, and tld)
-            urlRecords = dao.getSeeds(Status.fromOrdinal(online_status), 10000);
+            urlRecords = dao.getSeedsForStatus(Status.fromOrdinal(online_status), 0, 10000);
         } catch (Exception e) {
             String errMsg = "Unexpected exception thrown:" + e;
             logger.warn(errMsg, e);
@@ -654,7 +660,7 @@ public class SeedsResource implements ResourceAbstract {
         sb.append("## Liste over alle  seeds i status "
                   + status + "\r\n");
         sb.append("##\r\n");
-    
+        
         while (urlRecords.hasNext()) {
             Seed rec = urlRecords.next();
             sb.append(rec.getUrl());
@@ -674,49 +680,19 @@ public class SeedsResource implements ResourceAbstract {
     public void urls_list(User dab_user, HttpServletRequest req,
                           HttpServletResponse resp, List<Integer> numerics, SeedsRequest seedsRequest)
             throws IOException {
-        String errorStr = null;
-        String successStr = null;
-        SeedsDAO sdao = Servlet.environment.getConfig().getDAOFactory().getSeedsDAO();
-        CacheDAO cdao = Servlet.environment.getConfig().getDAOFactory().getCacheDAO();
         
-        boolean showSeedsFromDomain = seedsRequest.isShowSeedsFromDomainRequest();
-        boolean showSeedsFromDomainWithState = seedsRequest.isShowSeedsFromDomainWithStateRequest();
-        String domain = seedsRequest.getDomain();
-        int status = 0; //Default state shown: Status.NEW
-        if (numerics.size() == 1) {
-            status = numerics.get(0);
-        }
-        if (showSeedsFromDomainWithState) {
-            status = seedsRequest.getCurrentState();
-        }
         
-        String pageStr = req.getParameter("page");
-        long page = 1;
-        if (pageStr != null && pageStr.length() > 0) {
-            try {
-                page = Integer.parseInt(pageStr);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        }
-        String itemsperpageStr = req.getParameter("itemsperpage");
+        //Parse Parameters
+        
+        final int status = getStatus(numerics, seedsRequest);
+        
+       
+        
         boolean bShowAll = false;
-        int itemsPerPage = 25;
-        if (itemsperpageStr != null && itemsperpageStr.length() > 0) {
-            try {
-                itemsPerPage = Integer.parseInt(itemsperpageStr);
-            } catch (NumberFormatException e) {
-                logger.warn("The given value of 'itemsperpage': '" + itemsperpageStr
-                            + "' is not a valid integer!. Using the default: 25");
-                itemsPerPage = 25;
-                itemsperpageStr = "25";
-            }
-        }
         
-        ServletOutputStream out = resp.getOutputStream();
-        resp.setContentType("text/html; charset=utf-8");
         
-        Caching.caching_disable_headers(resp);
+        //Template crap
+        
         String templateName = "urls_list.html";
         Template template = environment.getTemplateMaster().getTemplate(templateName);
         
@@ -737,28 +713,26 @@ public class SeedsResource implements ResourceAbstract {
         
         TemplatePlaceHolder linksPlace = TemplatePlaceBase.getTemplatePlaceHolder("links");
         
-        List<TemplatePlaceBase> placeHolders = new ArrayList<TemplatePlaceBase>();
-        placeHolders.add(titlePlace);
-        placeHolders.add(appnamePlace);
-        placeHolders.add(navbarPlace);
-        placeHolders.add(userPlace);
-        placeHolders.add(menuPlace);
-        placeHolders.add(statemenuPlace);
-        placeHolders.add(headingPlace);
-        placeHolders.add(actionButtonsPlace);
-        placeHolders.add(paginationPlace);
-        placeHolders.add(pagination2Place);
-        // placeHolders.add( myformTag );
-        placeHolders.add(statusPlace);
-        placeHolders.add(dumpPlace);
-        placeHolders.add(alertPlace);
-        placeHolders.add(linksPlace);
+        List<TemplatePlaceBase> placeHolders = Arrays.asList((TemplatePlaceBase) titlePlace,
+                                                             appnamePlace,
+                                                             navbarPlace,
+                                                             userPlace,
+                                                             menuPlace,
+                                                             statemenuPlace,
+                                                             headingPlace,
+                                                             actionButtonsPlace,
+                                                             paginationPlace,
+                                                             pagination2Place,
+                                                             //myformTag,
+                                                             statusPlace,
+                                                             dumpPlace,
+                                                             alertPlace);
         
+        resp.setContentType("text/html; charset=utf-8");
         TemplateParts templateParts = template.filterTemplate(placeHolders, resp.getCharacterEncoding());
         
-        boolean bShowReason = false;
         
-        StringBuilder statemenuSb = new StringBuilder();
+        CacheDAO cdao = Servlet.environment.getConfig().getDAOFactory().getCacheDAO();
         Cache cache = null;
         try {
             cache = cdao.getCache();
@@ -769,94 +743,34 @@ public class SeedsResource implements ResourceAbstract {
             logger.warn("No cache available from cdao.getCache(). Using dummy values instead");
             cache = Cache.getDummyCache();
         }
-        String heading = null;
+    
+        
+        headingPlace.setText(getHeading(seedsRequest));
+    
+    
+        StringBuilder statemenuSb;
         try {
-            heading = buildStatemenu(statemenuSb, status, sdao, cache, seedsRequest);
+             statemenuSb = buildStatemenu(status, cache);
         } catch (Throwable e) {
             String errMsg = "Building statemenu failed: " + ExceptionUtils.getFullStackTrace(e);
             logger.warn(errMsg, e);
             CommonResource.show_error(errMsg, resp, environment);
             return;
         }
-        
+        statemenuPlace.setText(statemenuSb.toString());
+    
+    
         /*
          * Menu.
          */
+        menuPlace.setText("");
         
-        StringBuilder menuSb = new StringBuilder(); // Is this used?
         
         /*
          * Urls.
          */
         
         StringBuilder urlListSb = new StringBuilder();
-        
-        Iterator<Seed> urlRecords;
-        Status wantedStatus = Status.fromOrdinal(status);
-        int maxUrlsToFetch = environment.getConfig().getMaxUrlsToFetch();
-        int maxUrlLengthToShow = environment.getConfig().getMaxUrlLengthToShow();
-        long seedsCount;
-        if (showSeedsFromDomain) {
-            try {
-                urlRecords = sdao.getSeeds(domain, maxUrlsToFetch);
-                seedsCount = sdao.getSeedsCount(domain);
-            } catch (Exception e) {
-                String errMsg = "Exception on retrieving max " + maxUrlsToFetch + " seeds from domain '" + domain
-                                + "' : " + ExceptionUtils.getFullStackTrace(e);
-                logger.warn(errMsg, e);
-                CommonResource.show_error(errMsg, resp, environment);
-                return;
-            }
-        } else if (showSeedsFromDomainWithState) {
-            try {
-                urlRecords = sdao.getSeeds(domain, wantedStatus, maxUrlsToFetch);
-                seedsCount = sdao.getSeedsCount(domain, wantedStatus);
-            } catch (Exception e) {
-                String errMsg = "Exception on retrieving max " + maxUrlsToFetch + " seeds from domain '" + domain
-                                + "' with state '" + wantedStatus + "': " + ExceptionUtils.getFullStackTrace(e);
-                logger.warn(errMsg, e);
-                CommonResource.show_error(errMsg, resp, environment);
-                return;
-            }
-        } else {
-            try {
-                urlRecords = sdao.getSeeds(wantedStatus, maxUrlsToFetch);
-                seedsCount = sdao.getSeedsCount(wantedStatus);
-            } catch (Exception e) {
-                String errMsg = "Exception on retrieving max " + maxUrlsToFetch + " seeds with status " + wantedStatus
-                                + ": " + ExceptionUtils.getFullStackTrace(e);
-                logger.warn(errMsg, e);
-                CommonResource.show_error(errMsg, resp, environment);
-                return;
-            }
-        }
-        
-        Iterator<Seed> urlRecordsFiltered = urlRecords;
-        
-        
-        
-        // Implementing paging with cassandra
-        // https://datastax.github.io/java-driver/manual/paging/
-        if (page < 1) {
-            logger.warn("Got negative pagenr '" + page + "'. Changing it to page=1");
-            page = 1;
-            
-        }
-        if (itemsPerPage < 1) {
-            int defaultItemsPerPage = environment.getDefaultItemsPerPage();
-            logger.warn("Got negative itemsPerPage '" + itemsPerPage + "'. Changing it to itemsPerPage="
-                        + defaultItemsPerPage);
-            itemsPerPage = defaultItemsPerPage;
-            
-        }
-        long items = Math.min(maxUrlsToFetch, seedsCount);
-        long pages = Pagination.getPages(items, itemsPerPage);
-        if (page > pages) {
-            logger.warn("Asked for page " + page + ", but we only have " + pages + ". Set page to maxpage");
-            page = pages;
-        }
-        long fItem = (page - 1) * itemsPerPage;
-        int show = itemsPerPage;
         
         
         urlListSb.append("<table class=\"table table-striped\">\n");
@@ -866,147 +780,272 @@ public class SeedsResource implements ResourceAbstract {
         urlListSb.append("      <th>url</th>\n");
         if (status == Status.REJECTED.ordinal()) {
             urlListSb.append("      <th>grund</th>\n");
-            bShowReason = true;
         }
         
         urlListSb.append("    </tr>\n");
         urlListSb.append("  </thead>\n");
         urlListSb.append("  <tbody>\n");
-    
-        while (urlRecordsFiltered.hasNext() && show > 0) {
-            Seed urlRecord = urlRecordsFiltered.next();
-            
-            urlListSb.append("<tr>");
-            urlListSb.append("<td>");
-            urlListSb.append("<a href=\"");
-            urlListSb.append(urlRecord.getUrl()); // Point to original url
-            urlListSb.append("\">");
-            urlListSb.append(makeEllipsis(urlRecord.getUrl(), maxUrlLengthToShow));
-            urlListSb.append("</a>");
-            // Add encoded link to show details about seed  
-            String base64Encoded = Base64.encodeString(urlRecord.getUrl());
-            if (base64Encoded == null) {
-                logger.warn(
-                        "base64 encoding of url '" + urlRecord.getUrl() + "' gives null. Maybe it's already encoded?");
-                base64Encoded = urlRecord.getUrl();
-            }
-            String linkToShowPage = Servlet.environment.getSeedPath() + HTMLUtils.encode(base64Encoded) + "/\"";
-            urlListSb.append("(<a href=\"" + linkToShowPage + ">Show details</a>)");
-            urlListSb.append("</td>");
-            urlListSb.append("<td>");
-            
-            if (bShowReason) {
-                urlListSb.append("<b>" + urlRecord.getStatusReason() + "</b>");
-            }
-            urlListSb.append("</td>");
-            urlListSb.append("</tr>\n");
-            ++fItem;
-            --show;
-        }
         
+        
+        int maxUrlLengthToShow = environment.getConfig().getMaxUrlLengthToShow();
+        
+        SeedsDAO sdao = Servlet.environment.getConfig().getDAOFactory().getSeedsDAO();
+        long seedsCount;
+        try {
+            seedsCount = getSeedsCount(seedsRequest, status, sdao);
+        } catch (DaoException e) {
+            String errMsg = "Exception on retrieving seedcount from '" + seedsRequest
+                            + "' : " + ExceptionUtils.getFullStackTrace(e);
+            logger.warn(errMsg, e);
+            CommonResource.show_error(errMsg, resp, environment);
+            return;
+        }
+    
+        final int itemsPerPage = getItemsPerPage(req);
+    
+        final long pages = Pagination.getPages(seedsCount, itemsPerPage);
+    
+        logger.debug("Number of pages: {}",pages);
+        final long page = getPage(req, pages);
+    
+        logger.debug("Current page: {}",page);
+        
+        final long first_item_offset = (page - 1) * itemsPerPage;
+        logger.debug("Offset of first item: {}",first_item_offset);
+        
+        int show = itemsPerPage;
+        
+        
+        SkippingIterator<Seed> urlRecords;
+        try {
+            urlRecords = getUrlIterator(seedsRequest, status, itemsPerPage, sdao, first_item_offset);
+        } catch (DaoException e) {
+            String errMsg = "Exception on retrieving seeds from '" + seedsRequest
+                            + "' : " + ExceptionUtils.getFullStackTrace(e);
+            logger.warn(errMsg, e);
+            CommonResource.show_error(errMsg, resp, environment);
+            return;
+        }
+        try {
+            while (urlRecords.hasNext() && show > 0) {
+                Seed urlRecord = urlRecords.next();
+                
+                urlListSb.append("<tr>");
+                urlListSb.append("<td>");
+                urlListSb.append("<a href=\"");
+                urlListSb.append(urlRecord.getUrl()); // Point to original url
+                urlListSb.append("\">");
+                urlListSb.append(makeEllipsis(urlRecord.getUrl(), maxUrlLengthToShow));
+                urlListSb.append("</a>");
+                // Add encoded link to show details about seed
+                String base64Encoded = Base64.encodeString(urlRecord.getUrl());
+                if (base64Encoded == null) {
+                    logger.warn(
+                            "base64 encoding of url '" + urlRecord.getUrl()
+                            + "' gives null. Maybe it's already encoded?");
+                    base64Encoded = urlRecord.getUrl();
+                }
+                String linkToShowPage = Servlet.environment.getSeedPath() + HTMLUtils.encode(base64Encoded) + "/\"";
+                urlListSb.append("(<a href=\"" + linkToShowPage + ">Show details</a>)");
+                urlListSb.append("</td>");
+                urlListSb.append("<td>");
+                
+                if (status == Status.REJECTED.ordinal()) {
+                    urlListSb.append("<b>" + urlRecord.getStatusReason() + "</b>");
+                }
+                urlListSb.append("</td>");
+                urlListSb.append("</tr>\n");
+                --show;
+            }
+        } finally {
+            closeQuietly(urlRecords);
+        }
         urlListSb.append("  </tbody>\n");
         urlListSb.append("</table>\n");
         
-        /*
-         * Dump.
-         */
+        statusPlace.setText(urlListSb.toString());
         
-        StringBuilder dumpSb = new StringBuilder();
         
+        
+       
         /*
          * Places.
          */
+        titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
         
-        if (titlePlace != null) {
-            titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
-        }
         
-        if (appnamePlace != null) {
-            appnamePlace.setText(HtmlEntity.encodeHtmlEntities(
-                    Constants.WEBAPP_NAME + Constants.SPACE + environment.getVersion()).toString());
-        }
+        appnamePlace.setText(HtmlEntity.encodeHtmlEntities(
+                Constants.WEBAPP_NAME + Constants.SPACE + environment.getVersion()).toString());
         
-        if (navbarPlace != null) {
-            navbarPlace.setText(Navbar.getNavbar(Navbar.N_SEEDS));
-        }
         
-        if (userPlace != null) {
-            userPlace.setText(Navbar.getUserHref(dab_user));
-        }
+        navbarPlace.setText(Navbar.getNavbar(Navbar.N_SEEDS));
         
-        if (menuPlace != null) {
-            menuPlace.setText(menuSb.toString());
-        }
         
-        if (statemenuPlace != null) {
-            statemenuPlace.setText(statemenuSb.toString());
-        }
+        userPlace.setText(Navbar.getUserHref(dab_user));
         
-        if (headingPlace != null) {
-            headingPlace.setText(heading);
-        }
+        
+        
+        
 /*
-        if (actionButtonsPlace != null) {
             actionButtonsPlace.setText(actionButtonsSb.toString());
-        }
+        
 */
-        if (paginationPlace != null) {
-            paginationPlace.setText(Pagination.getPagination(page, itemsPerPage, pages, bShowAll));
-        }
-        
-        if (pagination2Place != null) {
-            pagination2Place.setText(Pagination.getPagination(page, itemsPerPage, pages, bShowAll));
-        }
-        
-        if (dumpPlace != null) {
-            dumpPlace.setText(dumpSb.toString());
-        }
+        paginationPlace.setText(Pagination.getPagination(page, itemsPerPage, pages, bShowAll));
         
         
-        if (myformTag != null && myformTag.htmlItem != null) {
-            myformTag.htmlItem.setAttribute("action", "?page=" + page + "&itemsperpage=" + itemsperpageStr);
+        pagination2Place.setText(Pagination.getPagination(page, itemsPerPage, pages, bShowAll));
+        
+        
+        dumpPlace.setText("");
+        
+        
+        if (myformTag.htmlItem != null) {
+            myformTag.htmlItem.setAttribute("action", "?page=" + page + "&itemsperpage=" + itemsPerPage);
         }
         
-        if (linksPlace != null) {
-            String linkprefix = environment.getSeedsPath() + wantedStatus.ordinal() + "/";
-            Set<String> linkSet = new HashSet<String>();
-            
-            String links = linkprefix + Status.READY_FOR_HARVESTING.ordinal() + "/";
-            String link = "[<A href=\"" + links + "\"> Retry harvesting</A>]";
-            linkSet.add(link);
-            
-            links = linkprefix + Status.NEW.ordinal() + "/";
-            link = "[<A href=\"" + links + "\"> Reset seeds to status NEW</A>]";
-            linkSet.add(link);
-            
-            links = linkprefix + SeedRequest.RETRY_ANALYSIS_CODE + "/";
-            link = "[<A href=\"" + links + "\"> Retry Analysis of last harvestdata</A>]";
-            linkSet.add(link);
-            
-            linksPlace.setText(StringUtils.join(linkSet, "&nbsp;&nbsp;"));
-        } else {
-            logger.warn("Linksplace not in the used template '" + templateName + "'");
-        }
+        
+        /*LinkPlace*/
+        String linkprefix = environment.getSeedsPath() + Status.fromOrdinal(status).ordinal() + "/";
+        Set<String> linkSet = new HashSet<String>();
+        
+        String links = linkprefix + Status.READY_FOR_HARVESTING.ordinal() + "/";
+        String link = "[<A href=\"" + links + "\"> Retry harvesting</A>]";
+        linkSet.add(link);
+        
+        links = linkprefix + Status.NEW.ordinal() + "/";
+        link = "[<A href=\"" + links + "\"> Reset seeds to status NEW</A>]";
+        linkSet.add(link);
+        
+        links = linkprefix + SeedRequest.RETRY_ANALYSIS_CODE + "/";
+        link = "[<A href=\"" + links + "\"> Retry Analysis of last harvestdata</A>]";
+        linkSet.add(link);
+        
+        linksPlace.setText(StringUtils.join(linkSet, "&nbsp;&nbsp;"));
+        
         
         /*
-         * if ( contentPlace != null ) { contentPlace.setText( sb.toString() );
-         * }
+         * contentPlace.setText( sb.toString() );
          */
-        if (statusPlace != null) {
-            statusPlace.setText(urlListSb.toString());
-        }
+        
+        String errorStr = null;
+        String successStr = null;
         CommonResource.insertInAlertPlace(alertPlace, errorStr, successStr, templateName, logger);
         
-        try {
+        
+        //Output the page
+        try (ServletOutputStream out = resp.getOutputStream()) {
+            Caching.caching_disable_headers(resp);
             for (int i = 0; i < templateParts.parts.size(); ++i) {
                 out.write(templateParts.parts.get(i).getBytes());
             }
             out.flush();
-            out.close();
+            
         } catch (IOException e) {
             logger.warn("Unexpected exception thrown", e);
         }
         
+    }
+    
+    private String getHeading(SeedsRequest seedsRequest) {
+        String heading = "";
+        if (seedsRequest.isShowSeedsFromDomainRequest()) {
+            heading = "Seeds from domain '" + seedsRequest.getDomain() + "'";
+        } else if (seedsRequest.isShowSeedsFromDomainWithStateRequest()) {
+            heading = "Seeds from domain '" + seedsRequest.getDomain() + "' with state '" + DanicaStatus.fromOrdinal(
+                    seedsRequest.getCurrentState());
+        }
+        return heading;
+        
+    }
+    
+    private SkippingIterator<Seed> getUrlIterator(SeedsRequest seedsRequest,
+                                                  int status,
+                                                  int itemsPerPage,
+                                                  SeedsDAO sdao,
+                                                  long first_item_offset) throws DaoException {
+        SkippingIterator<Seed> urlRecords = null;
+        
+        if (seedsRequest.isShowSeedsFromDomainRequest()) {
+            urlRecords = sdao.getSeedsForDomain(seedsRequest.getDomain(), first_item_offset, itemsPerPage);
+        } else if (seedsRequest.isShowSeedsFromDomainWithStateRequest()) {
+            urlRecords = sdao.getSeedsForDomain(seedsRequest.getDomain(),
+                                                Status.fromOrdinal(status),
+                                                first_item_offset,
+                                                itemsPerPage);
+        } else {
+            urlRecords = sdao.getSeedsForStatus(Status.fromOrdinal(status), first_item_offset, itemsPerPage);
+        }
+        return urlRecords;
+    }
+    
+    private int getStatus(List<Integer> numerics, SeedsRequest seedsRequest) {
+        int status = 0; //Default state shown: Status.NEW
+        if (numerics.size() == 1) {
+            status = numerics.get(0);
+        }
+        if (seedsRequest.isShowSeedsFromDomainWithStateRequest()) {
+            status = seedsRequest.getCurrentState();
+        }
+        return status;
+    }
+    
+    private int getItemsPerPage(HttpServletRequest req) {
+        String itemsperpageStr = req.getParameter("itemsperpage");
+        int itemsPerPage = 25;
+        if (itemsperpageStr != null && itemsperpageStr.length() > 0) {
+            try {
+                itemsPerPage = Integer.parseInt(itemsperpageStr);
+            } catch (NumberFormatException e) {
+                logger.warn("The given value of 'itemsperpage': '" + itemsperpageStr
+                            + "' is not a valid integer!. Using the default: 25");
+                itemsPerPage = 25;
+                itemsperpageStr = "25";
+            }
+        }
+        if (itemsPerPage < 1) {
+            int defaultItemsPerPage = environment.getDefaultItemsPerPage();
+            logger.warn("Got negative itemsPerPage '" + itemsPerPage + "'. Changing it to itemsPerPage="
+                        + defaultItemsPerPage);
+            itemsPerPage = defaultItemsPerPage;
+        }
+        return itemsPerPage;
+    }
+    
+    private long getPage(HttpServletRequest req, long pages) {
+        //Paging parsing
+        String pageStr = req.getParameter("page");
+        long page = 1;
+        if (pageStr != null && pageStr.length() > 0) {
+            try {
+                page = Integer.parseInt(pageStr);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        // Implementing paging with cassandra
+        // https://datastax.github.io/java-driver/manual/paging/
+        if (page < 1) {
+            logger.warn("Got negative pagenr '" + page + "'. Changing it to page=1");
+            page = 1;
+            
+        }
+        if (page > pages) {
+            logger.warn("Asked for page " + page + ", but we only have " + pages + ". Set page to maxpage");
+            page = pages;
+        }
+        return page;
+    }
+    
+    private long getSeedsCount(SeedsRequest seedsRequest, int status, SeedsDAO sdao) throws DaoException {
+        long seedsCount;
+        if (seedsRequest.isShowSeedsFromDomainRequest()) {
+            seedsCount = sdao.getSeedsCount(seedsRequest.getDomain());
+        } else if (seedsRequest.isShowSeedsFromDomainWithStateRequest()) {
+            seedsCount = sdao.getSeedsCount(seedsRequest.getDomain(), Status.fromOrdinal(status));
+        } else {
+            seedsCount = sdao.getSeedsCount(Status.fromOrdinal(status));
+        }
+        return seedsCount;
     }
     
     /**
@@ -1026,15 +1065,13 @@ public class SeedsResource implements ResourceAbstract {
         return resultString;
     }
     
-    public static String buildStatemenu(StringBuilder statemenuSb,
-                                        int status,
-                                        SeedsDAO dao,
-                                        Cache cache,
-                                        SeedsRequest seedsRequest) throws Exception {
+    public static StringBuilder buildStatemenu(int status,
+                                               Cache cache) throws Exception {
         /*
          * State menu.
          */
-        
+        StringBuilder statemenuSb = new StringBuilder();
+    
         List<MenuItem> menuStatesArr = makemenuArrayCache(cache);
         
         String heading = "N/A";
@@ -1057,16 +1094,8 @@ public class SeedsResource implements ResourceAbstract {
             statemenuSb.append(item.getCount());
             statemenuSb.append(")</a></li>");
         }
-        
-        if (seedsRequest.isShowSeedsFromDomainRequest()) {
-            heading = "Seeds from domain '" + seedsRequest.getDomain() + "'";
-        } else if (seedsRequest.isShowSeedsFromDomainWithStateRequest()) {
-            heading = "Seeds from domain '" + seedsRequest.getDomain() + "' with state '" + DanicaStatus.fromOrdinal(
-                    seedsRequest.getCurrentState());
-        }
-        
-        
-        return heading;
+       
+        return statemenuSb;
     }
     
     // make the statemenu using cached values

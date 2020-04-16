@@ -7,19 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import dk.kb.webdanica.core.datamodel.AnalysisStatus;
-import dk.kb.webdanica.core.datamodel.BlackList;
-import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
 import dk.kb.webdanica.core.interfaces.harvesting.NasReports;
 import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
-import dk.kb.webdanica.core.tools.AutochainingIterator;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
-import dk.kb.webdanica.core.utils.SimpleXml;
 import dk.netarkivet.harvester.datamodel.JobStatus;
 import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 import org.slf4j.Logger;
@@ -203,7 +196,7 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 	public Iterator<SingleSeedHarvest> getAll() throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 		PreparedStatement stm = conn.prepareStatement(READ_ALL_SQL);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getHarvestsFromResultSet(rs),1000);
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> getHarvestsFromResultSet(rs), 1000);
 	}
 	
 
@@ -216,10 +209,10 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 		PreparedStatement stm = conn.prepareStatement(GET_ALL_WITH_SEEDURL_SQL);
 		stm.clearParameters();
 		stm.setString(1, seedurl);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
-										  conn,
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+											   conn,
 										  rs -> getHarvestsFromResultSet(rs),
-										  1000);
+											   1000);
 	}
 
  	public static final String GET_ALL_WITH_SUCCESSFUL_SQL = "SELECT * FROM harvests WHERE successful=?";
@@ -231,10 +224,10 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 		PreparedStatement stm = conn.prepareStatement(GET_ALL_WITH_SUCCESSFUL_SQL);
 		stm.clearParameters();
 		stm.setBoolean(1, successful);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
-										  conn,
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+											   conn,
 										  rs -> getHarvestsFromResultSet(rs),
-										  1000);
+											   1000);
 		
 	}
 
@@ -266,10 +259,10 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 		
 		PreparedStatement stm = conn.prepareStatement(GET_ALL_NAMES_LIMIT_SQL);
 		stm.setLong(1, LIMIT);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
-										  conn,
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+											   conn,
 										  rs -> getHarvestNamesFromResultSet(rs),
-										  1000);
+											   1000);
 		
 		
     }

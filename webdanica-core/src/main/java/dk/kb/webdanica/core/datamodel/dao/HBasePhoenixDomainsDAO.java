@@ -9,16 +9,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
 
-import dk.kb.webdanica.core.datamodel.BlackList;
 import dk.kb.webdanica.core.datamodel.DanicaStatus;
 import dk.kb.webdanica.core.datamodel.Domain;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
-import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 
 /**
@@ -210,8 +205,8 @@ public class HBasePhoenixDomainsDAO implements DomainsDAO {
                 stm.setInt(1, limit);
             }
             
-            return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
-                                              conn,
+            return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+                                                   conn,
                                               rs -> {
                                                   List<Domain> seedList = new LinkedList<>();
                                                   while (rs.next()) {
@@ -220,7 +215,7 @@ public class HBasePhoenixDomainsDAO implements DomainsDAO {
                                                   }
                                                   return seedList;
                                               },
-                                              limit);
+                                                   limit);
             
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -311,8 +306,8 @@ public class HBasePhoenixDomainsDAO implements DomainsDAO {
         try {
             Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 			PreparedStatement stm = conn.prepareStatement(DISTINCT_TLD_SQL);
-            return Utils.getResultIteratorSQL((PhoenixPreparedStatement) stm,
-                                              conn,
+            return new CursorSkippingIterator<>((PhoenixPreparedStatement) stm,
+                                                   conn,
                                               rs -> {
                                                   List<String> tldList = new ArrayList<>();
                                                   while (rs.next()) {
@@ -321,7 +316,7 @@ public class HBasePhoenixDomainsDAO implements DomainsDAO {
                                                   return tldList;
                 
                                               },
-                                              1000);
+                                                   1000);
            
         } catch (SQLException e) {
             throw new DaoException(e);

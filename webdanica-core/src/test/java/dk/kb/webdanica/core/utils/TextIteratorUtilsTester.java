@@ -7,7 +7,7 @@ import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-public class TextUtilsTester {
+public class TextIteratorUtilsTester {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {

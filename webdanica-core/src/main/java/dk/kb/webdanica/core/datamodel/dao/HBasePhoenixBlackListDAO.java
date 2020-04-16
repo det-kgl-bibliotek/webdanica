@@ -118,7 +118,7 @@ public class HBasePhoenixBlackListDAO implements BlackListDAO {
 		}
 		PreparedStatement stm = conn.prepareStatement(SQL);
 		
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> {
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> {
 			List<BlackList> blacklistList = new ArrayList<>();
 			while (rs.next()) {
 				BlackList blacklist = new BlackList(
@@ -133,7 +133,7 @@ public class HBasePhoenixBlackListDAO implements BlackListDAO {
 			}
 			return blacklistList;
 		},
-										  1000);
+											   1000);
 	}
 	
 }

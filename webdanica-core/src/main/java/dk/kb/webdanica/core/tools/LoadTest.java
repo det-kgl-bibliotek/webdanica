@@ -27,7 +27,7 @@ import dk.kb.webdanica.core.utils.SettingsUtilities;
 import dk.kb.webdanica.core.utils.UrlUtils;
 import dk.netarkivet.harvester.datamodel.JobStatus;
 
-import static dk.kb.webdanica.core.datamodel.dao.Utils.count;
+import static dk.kb.webdanica.core.datamodel.dao.IteratorUtils.count;
 
 /**
  * Program to load test the webdanica database.

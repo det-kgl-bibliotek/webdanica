@@ -11,7 +11,7 @@ import dk.kb.webdanica.webapp.resources.DomainRequest;
 import dk.kb.webdanica.webapp.resources.SeedRequest;
 import dk.kb.webdanica.webapp.resources.SeedsResource;
 
-public class ResourceUtilsTester {
+public class ResourceIteratorUtilsTester {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {

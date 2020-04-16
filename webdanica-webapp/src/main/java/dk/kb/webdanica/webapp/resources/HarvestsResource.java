@@ -12,6 +12,7 @@ import dk.kb.webdanica.core.datamodel.dao.HarvestDAO;
 import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
 import dk.kb.webdanica.webapp.Environment;
 import dk.kb.webdanica.webapp.Navbar;
+import dk.kb.webdanica.webapp.Pagination;
 import dk.kb.webdanica.webapp.Servlet;
 import dk.kb.webdanica.webapp.User;
 import org.jetbrains.annotations.NotNull;
@@ -98,8 +99,73 @@ public class HarvestsResource implements ResourceAbstract {
         Template template = environment.getTemplateMaster().getTemplate("harvests_list.html");
         //This magic must happen before you start to fill content into the placeholders, as below
         TemplateParts templateParts = template.filterTemplate(placeHolders, resp.getCharacterEncoding());
+    
+    /*
+    
+        String pageStr = req.getParameter("page");
+        long page = 1;
+        if (pageStr != null && pageStr.length() > 0) {
+            try {
+                page = Integer.parseInt(pageStr);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        String itemsperpageStr = req.getParameter("itemsperpage");
+        boolean bShowAll = false;
+        int itemsPerPage = 25;
+        if (itemsperpageStr != null && itemsperpageStr.length() > 0) {
+            try {
+                itemsPerPage = Integer.parseInt(itemsperpageStr);
+            } catch (NumberFormatException e) {
+                logger.warn("The given value of 'itemsperpage': '" + itemsperpageStr
+                            + "' is not a valid integer!. Using the default: 25");
+                itemsPerPage = 25;
+                itemsperpageStr = "25";
+            }
+        }
+    
+        TemplatePlaceHolder paginationPlace = TemplatePlaceBase.getTemplatePlaceHolder("pagination");
+        TemplatePlaceHolder pagination2Place = TemplatePlaceBase.getTemplatePlaceHolder("pagination2");
+    
+    
+    
+        // Implementing paging with cassandra
+        // https://datastax.github.io/java-driver/manual/paging/
+        if (page < 1) {
+            logger.warn("Got negative pagenr '" + page + "'. Changing it to page=1");
+            page = 1;
         
-     
+        }
+        if (itemsPerPage < 1) {
+            int defaultItemsPerPage = environment.getDefaultItemsPerPage();
+            logger.warn("Got negative itemsPerPage '" + itemsPerPage + "'. Changing it to itemsPerPage="
+                        + defaultItemsPerPage);
+            itemsPerPage = defaultItemsPerPage;
+        
+        }
+    
+        long items = Math.min(maxUrlsToFetch, seedsCount);
+        long pages = Pagination.getPages(items, itemsPerPage);
+        if (page > pages) {
+            logger.warn("Asked for page " + page + ", but we only have " + pages + ". Set page to maxpage");
+            page = pages;
+        }
+        long fItem = (page - 1) * itemsPerPage;
+        int show = itemsPerPage;
+    
+    
+    
+    
+    
+        if (paginationPlace != null) {
+            paginationPlace.setText(Pagination.getPagination(page, itemsPerPage, pages, bShowAll));
+        }
+    
+        if (pagination2Place != null) {
+            pagination2Place.setText(Pagination.getPagination(page, itemsPerPage, pages, bShowAll));
+        }
+    */
         
         Iterator<SingleSeedHarvest> harvestList;
         try {

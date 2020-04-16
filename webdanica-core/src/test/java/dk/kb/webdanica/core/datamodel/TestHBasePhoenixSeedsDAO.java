@@ -3,15 +3,12 @@ package dk.kb.webdanica.core.datamodel;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import dk.kb.webdanica.core.datamodel.Seed;
-import dk.kb.webdanica.core.datamodel.Status;
 import dk.kb.webdanica.core.datamodel.dao.HBasePhoenixConnectionManager;
 import dk.kb.webdanica.core.datamodel.dao.HBasePhoenixSeedsDAO;
 
@@ -48,7 +45,7 @@ public class TestHBasePhoenixSeedsDAO {
 			// debug
 			System.out.println(cnt);
 
-			Iterator<Seed> seedList = dao.getSeeds(Status.NEW, 100000);
+			Iterator<Seed> seedList = dao.getSeedsForStatus(Status.NEW, 0, 100000);
 			while (seedList.hasNext()) {
 				seed = seedList.next();
 				System.out.println(seed.getUrl());

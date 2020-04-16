@@ -107,7 +107,7 @@ public class DomainResource implements ResourceAbstract {
 	            int maxfetched = environment.getConfig().getMaxUrlsToFetch();
 	            Iterator<Seed> seeds;
                 try {
-                    seeds = daofactory.getSeedsDAO().getSeeds(domain, dsr.getStatus(), dsr.getDanicaStatus(), maxfetched);
+                    seeds = daofactory.getSeedsDAO().getSeedsForDomain(domain, dsr.getStatus(), dsr.getDanicaStatus(), 0, maxfetched);
                     domainSeedsShow(pathInfo, dab_user, req, resp, seeds, dsr);
                 } catch (DaoException e) {
                     CommonResource.show_error("Error showing seeds for domain = " +  dsr.getDomain() + ", danicastate=" +  dsr.getDanicaStatus(), resp, environment);

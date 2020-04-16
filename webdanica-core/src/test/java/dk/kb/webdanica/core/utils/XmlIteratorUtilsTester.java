@@ -7,7 +7,7 @@ import org.junit.Test;
 import dk.kb.webdanica.core.interfaces.harvesting.CrawlertrapsUtils;
 
 
-public class XmlUtilsTester {
+public class XmlIteratorUtilsTester {
 
     @Test
     public void testWEBDAN288() { 

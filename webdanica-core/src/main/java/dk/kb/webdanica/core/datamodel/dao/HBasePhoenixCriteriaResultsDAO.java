@@ -2,6 +2,7 @@ package dk.kb.webdanica.core.datamodel.dao;
 
 import dk.kb.webdanica.core.datamodel.criteria.DataSource;
 import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
+import dk.kb.webdanica.core.tools.SkippingIterator;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
 import org.apache.commons.lang.StringUtils;
@@ -174,12 +175,12 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 	
 	
 	@Override
-	public Iterator<SingleCriteriaResult> getResultsByUrl(String url) throws Exception {
+	public SkippingIterator<SingleCriteriaResult> getResultsByUrl(String url) throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 		PreparedStatement stm = conn.prepareStatement(READ_ALL_WITH_URL_SQL);
 		stm.clearParameters();
 		stm.setString(1, url);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	public static final String READ_ALL_WITH_URL_SQL_COUNT = ""
@@ -224,7 +225,7 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 		PreparedStatement stm = conn.prepareStatement(READ_ALL_WITH_SEEDURL_SQL);
 		stm.clearParameters();
 		stm.setString(1, seedurl);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	public static final String READ_ALL_WITH_HARVESTNAME_SQL;
@@ -241,7 +242,7 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 		PreparedStatement stm = conn.prepareStatement(READ_ALL_WITH_HARVESTNAME_SQL);
 		stm.clearParameters();
 		stm.setString(1, harvestname);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	public static final String READ_URLS_BY_HARVESTNAME_SQL;
@@ -260,7 +261,7 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 		stm.clearParameters();
 		stm.setString(1, harvestname);
 
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> {
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> {
 			List<String> urlList = new ArrayList<String>();
 			while (rs.next()) {
 				String s = rs.getString("url");
@@ -342,7 +343,7 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 	public Iterator<SingleCriteriaResult> getResults() throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
 		PreparedStatement stm = conn.prepareStatement(READ_ALL_SQL);
-		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
+		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	

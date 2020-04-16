@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import dk.kb.webdanica.core.Constants;
-import org.slf4j.Logger;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -291,8 +290,8 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         Iterator<Seed> seedsReadyForHarvesting = null;
 
         try {
-            seedsReadyForHarvesting = seeddao.getSeeds(
-                    Status.READY_FOR_HARVESTING, maxHarvestsAtaTime);
+            seedsReadyForHarvesting = seeddao.getSeedsForStatus(
+                    Status.READY_FOR_HARVESTING, 0, maxHarvestsAtaTime);
         } catch (Throwable e) {
             String errMsg = "Exception thrown during method HarvestWorkThread.process_run:"
                     + e;

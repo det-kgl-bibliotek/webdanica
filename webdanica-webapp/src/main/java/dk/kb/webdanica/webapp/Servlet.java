@@ -41,8 +41,7 @@ public class Servlet extends HttpServlet implements ResourceManagerAbstract,
     private static final long serialVersionUID = -1590306102259729140L;
 
     /** Logging mechanism. */
-    private static final Logger logger = LoggerFactory.getLogger(Servlet.class
-            .getName());
+    private static final Logger logger = LoggerFactory.getLogger(Servlet.class);
 
     public static Environment environment;
 
@@ -269,7 +268,7 @@ public class Servlet extends HttpServlet implements ResourceManagerAbstract,
                 }
 
                 if (resource != null) {
-                    logger.info("Found resource for pathinfo '" + pathInfo
+                    logger.trace("Found resource for pathinfo '" + pathInfo
                             + "' in pathMap: " + resource);
                     if (resource.isSecured() && current_user == null) {
                         // Note 'this' == LoginTemplateCallback<User>
