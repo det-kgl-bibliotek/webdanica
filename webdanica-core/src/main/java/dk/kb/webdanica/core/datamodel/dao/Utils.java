@@ -38,7 +38,7 @@ public class Utils {
         for (int i = 0; i < params.size(); i++) {
             Object param = params.get(i);
             String replacement;
-            int type = paramMetadata.getParameterType(i);
+            int type = paramMetadata.getParameterType(i+1);
             switch (type){
                 case Types.VARCHAR:
                     replacement = "'"+param.toString()+"'";
