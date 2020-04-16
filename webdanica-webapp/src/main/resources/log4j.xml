@@ -53,12 +53,15 @@
         <appender-ref ref="STDERR-systemutils"/>
     </logger>
 
-    <logger name="org.apache.phoenix.query">
+    <logger name="com.mchange">
+        <level value="WARN"/>
+    </logger>
+    <logger name="org.apache.phoenix">
         <level value="WARN"/>
     </logger>
 
     <root>
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>
