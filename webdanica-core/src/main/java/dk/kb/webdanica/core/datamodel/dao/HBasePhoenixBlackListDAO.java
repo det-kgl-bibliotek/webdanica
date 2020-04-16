@@ -13,6 +13,7 @@ import java.util.UUID;
 import dk.kb.webdanica.core.datamodel.BlackList;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
+import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 
 /**
  * 
@@ -115,7 +116,9 @@ public class HBasePhoenixBlackListDAO implements BlackListDAO {
 		if (activeOnly) {
 			SQL = GET_ACTIVE_SQL;
 		}
-		return Utils.getResultIterator(SQL, conn, rs -> {
+		PreparedStatement stm = conn.prepareStatement(SQL);
+		
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> {
 			List<BlackList> blacklistList = new ArrayList<>();
 			while (rs.next()) {
 				BlackList blacklist = new BlackList(
@@ -129,7 +132,8 @@ public class HBasePhoenixBlackListDAO implements BlackListDAO {
 				blacklistList.add(blacklist);
 			}
 			return blacklistList;
-		});
+		},
+										  1000);
 	}
 	
 }

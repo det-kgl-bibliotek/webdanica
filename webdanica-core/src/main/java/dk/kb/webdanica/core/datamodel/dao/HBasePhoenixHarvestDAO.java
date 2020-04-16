@@ -202,7 +202,8 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 	@Override
 	public Iterator<SingleSeedHarvest> getAll() throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-		return Utils.getResultIterator(READ_ALL_SQL, conn, rs -> getHarvestsFromResultSet(rs));
+		PreparedStatement stm = conn.prepareStatement(READ_ALL_SQL);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getHarvestsFromResultSet(rs),1000);
 	}
 	
 

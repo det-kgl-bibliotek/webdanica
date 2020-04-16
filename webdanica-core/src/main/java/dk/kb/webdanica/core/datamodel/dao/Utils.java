@@ -46,8 +46,10 @@ public class Utils {
                 default:
                     replacement = param.toString();
             }
-            sql = sql.replaceFirst("\\?", replacement);
+            sql = sql.replaceFirst("([^a-zA-Z0-9])\\?([^a-zA-Z0-9])", "$1"+replacement+"$2");
+            //sql = sql.replace(":"+i, replacement);
         }
+        
         logger.info("Converted '{}' to '{}'",preparedStatement, sql);
         return sql;
         
@@ -123,15 +125,6 @@ public class Utils {
         return iterator;
     }
     
-
-    
-    public static <T> Iterator<T> getResultIterator(String select,
-                                                    Connection conn,
-                                                    SQLFunction<ResultSet, List<T>> resultsMaker) throws
-            SQLException {
-        PhoenixPreparedStatement stm = (PhoenixPreparedStatement) conn.prepareStatement(select);
-        return getResultIteratorSQL(stm, conn, resultsMaker, 1000);
-    }
 }
 
 /**

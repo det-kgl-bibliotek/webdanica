@@ -341,7 +341,8 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 	@Override
 	public Iterator<SingleCriteriaResult> getResults() throws Exception {
 		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-		return Utils.getResultIterator(READ_ALL_SQL, conn, rs -> getResultsFromResultSet(rs));
+		PreparedStatement stm = conn.prepareStatement(READ_ALL_SQL);
+		return Utils.getResultIteratorSQL((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	
