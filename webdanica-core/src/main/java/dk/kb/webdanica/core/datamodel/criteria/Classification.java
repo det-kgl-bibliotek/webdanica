@@ -42,7 +42,7 @@ public class Classification {
                 s.setDanicaStatus(DanicaStatus.NO);
                 s.setDanicaStatusReason("Rejected, as the danishcode '"
                         + danishcode
-                        + "'doesn't give us any safe indications of danicastatus");
+                        + "' doesn't give us any safe indications of danicastatus");
                 s.setStatus(Status.DONE);
                 s.setStatusReason(statusReasonPrefix
                         + "Processing finished as we now consider this seed not-Danica, because it is not explicitly found to be danica");
@@ -50,7 +50,7 @@ public class Classification {
                 s.setDanicaStatus(DanicaStatus.UNDECIDED);
                 s.setDanicaStatusReason("Still UNDECIDED, as the danishcode '"
                         + danishcode
-                        + "'doesn't give us any safe indications of danicastatus");
+                        + "' doesn't give us any safe indications of danicastatus");
                 s.setStatus(Status.AWAITS_CURATOR_DECISION);
                 s.setStatusReason(statusReasonPrefix
                         + "Now awaiting a curatorial decision");
