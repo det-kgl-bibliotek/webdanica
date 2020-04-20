@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#This tool is used to extract the source code of a specific webdanica branch from github.
+#
+#The only argument is branch (e.g. master)
+
 BRANCHNAME=$1
 if [[ -z $BRANCHNAME ]]; then
   echo "Forgot to name the wanted branch name"
