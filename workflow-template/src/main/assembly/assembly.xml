@@ -11,7 +11,8 @@
     <fileSets>
         <fileSet>
             <directory>target/classes</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>.</outputDirectory>
+            <fileMode>722</fileMode>
         </fileSet>
     </fileSets>
 
