@@ -1,0 +1,1 @@
+NAS_INSTALL=/opt/webdanica/WEBDANICA

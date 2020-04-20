@@ -1,1 +1,1 @@
-NAS_INSTALL=/opt/webdanica/WEBDANICA
+../../../../narcana-config/cron-setenv.sh

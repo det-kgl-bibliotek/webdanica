@@ -1,17 +1,1 @@
-REGISTER lib-pig/bacon.jar
-REGISTER lib-pig/json.jar
-REGISTER lib/*.jar
-
-DEFINE FROMJSON         org.archive.bacon.FromJSON();
-DEFINE HOST             org.archive.bacon.url.Host();
-DEFINE DOMAIN           org.archive.bacon.url.Domain();
-DEFINE LOADER 		org.archive.bacon.io.SequenceFileLoader();
-DEFINE FILENOTFOUND     dk.kb.webdanica.core.criteria.NotFound();
-DEFINE SHOWSIZE         dk.kb.webdanica.core.criteria.ShowSize();
---DEFINE ONLYTEXT       dk.kb.webdanica.core.criteria.OnlyTextType();
-DEFINE CONCATTEXT       dk.kb.webdanica.core.criteria.ConcatText();
-DEFINE ISNT_ROBOTSTXT   dk.kb.webdanica.core.criteria.IsNotRobotsTxt();
---DEFINE Combo            dk.kb.webdanica.core.criteria.Combo();
---DEFINE ComboNovV5	dk.kb.webdanica.core.criteria.ComboNovV5();
-DEFINE CombinedCombo    dk.kb.webdanica.core.criteria.CombinedCombo();
-
+../../../../../narcana-config/.pigbootup

@@ -1,0 +1,1 @@
+../../../narcana-config/setenv.sh
