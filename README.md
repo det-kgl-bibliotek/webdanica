@@ -1,5 +1,5 @@
 # webdanica
-System for finding Danish webpages outside the .dk domain
+System for finding Danish webpages outside the `.dk` domain
 
 The system consists of a ROOT tomcat application (the webapp) running on port 8080, with three embedded workflows
  * a filtering workflow - used to reject undesirable seeds

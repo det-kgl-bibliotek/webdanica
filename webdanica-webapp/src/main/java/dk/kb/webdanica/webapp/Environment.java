@@ -148,7 +148,7 @@ public class Environment {
          * Version.
          */
 
-        Package pkg = Package.getPackage("dk.kb.webdanica.webapp");
+        Package pkg = Package.getPackage("dk.kb.webdanica.core");
         if (pkg != null) {
             version = pkg.getSpecificationVersion();
         }
@@ -265,9 +265,12 @@ public class Environment {
         /*
          * Crontabs.
          */
-        String filteringCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_FILTERING, Constants.DEFAULT_FILTERING_CRONTAB);
-        String harvestingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_HARVESTING, Constants.DEFAULT_HARVESTING_CRONTAB);
-        String statecachingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_STATECACHING, Constants.DEFAULT_STATECACHING_CRONTAB);
+        String filteringCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_FILTERING,
+                                                                     Constants.DEFAULT_FILTERING_CRONTAB);
+        String harvestingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_HARVESTING,
+                                                                      Constants.DEFAULT_HARVESTING_CRONTAB);
+        String statecachingCrontab = SettingsUtilities.getStringSetting(WebdanicaSettings.WEBAPP_CRONTAB_STATECACHING,
+                                                                        Constants.DEFAULT_STATECACHING_CRONTAB);
 
         filterSchedule = CrontabSchedule.crontabFactory(filteringCrontab);
         harvestSchedule = CrontabSchedule.crontabFactory(harvestingCrontab);
