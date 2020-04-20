@@ -41,6 +41,7 @@ public class EnvironmentTester {
 	    
 	}
 	
+	@Test
 	public void testEnvironmentConstruction() throws Exception {
 		ServletContext servletContext = mock (ServletContext.class);
 		ServletConfig theServletConfig = mock (ServletConfig.class);
@@ -59,7 +60,7 @@ public class EnvironmentTester {
 		// As the below code doesn't seem to work
 		//  File loggingPropFile = UnitTestUtils.getTestResourceFile("WEB-INF/logging.properties");
 			
-		File loggingPropFile = new File("src/test/resources/WEB-INF/logging.properties");
+		File loggingPropFile = new File(Thread.currentThread().getContextClassLoader().getResource("WEB-INF/logging.properties").toURI());
 		
 		when(servletContext.getRealPath("/WEB-INF/logging.properties")).thenReturn(loggingPropFile.getAbsolutePath());
 		

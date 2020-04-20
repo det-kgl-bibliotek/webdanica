@@ -112,6 +112,13 @@
       <artifactId>mockito-core</artifactId>  
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -122,13 +129,11 @@
         <version>3.2.3</version>
         <configuration>
           <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+            </manifest>
             <manifestEntries>
-              <Specification-Title>${project.name}</Specification-Title>
-              <Specification-Version>${project.version}</Specification-Version>
-              <!--Specification-Vendor>${project.specification_vendor}</Specification-Vendor-->
-              <Implementation-Title>${project.groupId}.${project.artifactId}</Implementation-Title>
-              <Implementation-Version>${git.revision}</Implementation-Version>
-              <!--Implementation-Vendor>${project.implementation_vendor}</Implementation-Vendor-->
               <X-Git-Branch>${git.branch}</X-Git-Branch>
               <X-Git-Tag>${git.tag}</X-Git-Tag>
               <X-Git-Commits-Count>${git.commitsCount}</X-Git-Commits-Count>

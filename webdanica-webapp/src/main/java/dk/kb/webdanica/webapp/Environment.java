@@ -147,11 +147,7 @@ public class Environment {
         /*
          * Version.
          */
-
-        Package pkg = Package.getPackage("dk.kb.webdanica.core");
-        if (pkg != null) {
-            version = pkg.getSpecificationVersion();
-        }
+        version = getClass().getPackage().getImplementationVersion();
         if (version == null) {
             version = "N/A";
         }
