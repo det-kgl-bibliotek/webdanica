@@ -29,7 +29,6 @@ OPTS2=-Dwebdanica.settings.file=$WEBDANICA_SETTINGSFILE
 OPTS3=-Dlogback.configurationFile=$WORKFLOW_HOME/conf/silent_logback.xml 
 
 
-WEBDANICA_JAR="$SCRIPT_DIR/lib/webdanica-core-$VERSION.jar"
 if [ ! -f "$WEBDANICA_JAR" ]; then
  echo ERROR: The Webdanica-core.jar file \"$WEBDANICA_JAR\" does not exist. The version might be incorrect, or the lib folder is missing.
  exit

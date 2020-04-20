@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
 
 WORKFLOW_HOME=$1
 PROG=$(readlink -f $BASH_SOURCE[0])
+
 
 if [ -z $WORKFLOW_HOME ]; then
    echo "Missing WORKFLOW_HOME argument to script $PROG"
@@ -19,16 +21,14 @@ if [ ! -f $PIGBOOTUP_FILE ]; then
    exit 1
 fi
 
+LIBS=$(grep REGISTER $PIGBOOTUP_FILE | grep -v "\-\-" | cut -d ' ' -f2 | xargs -r -i bash -c "eval ls -1 '${SCRIPT_DIR}/{}'")
 
-LIBS=$(grep REGISTER $PIGBOOTUP_FILE | grep -v "\-\-" | cut -d ' ' -f2)
-for L in $LIBS
-do
-if [ ! -f $WORKFLOW_HOME/$L ]; then
-   echo  "MISSING library '$L' in $PIGBOOTUP_FILE"
-   exit 1	
-fi
-
-done 
+for L in $LIBS; do
+	if [ ! -f "$L" ]; then
+	   echo  "MISSING library '$L' in $PIGBOOTUP_FILE"
+	   exit 1
+	fi
+done
 
 METHODS=$(grep DEFINE $PIGBOOTUP_FILE  | grep -v "\-\-" | awk '$1=$1' | cut -d ' ' -f3 | tr -d '();')
 
@@ -37,9 +37,8 @@ for M in $METHODS
 do
 # check if  M is part of the libraries in the LIBS list
 let FOUND=0
-for L in $LIBS 
-do  
-  RES=$(grep $M $WORKFLOW_HOME/$L)
+for L in $LIBS; do
+  RES=$(grep $M "$L")
   if [ "$RES" != "" ];
   then 
      let FOUND=1

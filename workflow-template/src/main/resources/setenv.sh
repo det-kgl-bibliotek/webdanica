@@ -5,6 +5,8 @@ WORKFLOW_HOME=$WORKFLOW_USER_HOME/automatic-workflow
 WEBDATADIR=/opt/webdanica/ARKIV
 
 WEBDANICA_VERSION=${project.version}
+WEBDANICA_JAR="$SCRIPT_DIR/lib/webdanica-core-$WEBDANICA_VERSION.jar"
+
 
 NAS_VERSION=${netarchivesuite.version}
 
