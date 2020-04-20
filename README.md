@@ -6,24 +6,24 @@ The system consists of a ROOT tomcat application (the webapp) running on port 80
  * a harvesting workflow, that makes small single seed harvests using a local NetarchiveSuite system.
  * a cacheupdate-workflow, that caches regularly counts for each seeds, criteriaresults, and harvests.
 
-Note that the webapp file webdanica-webapp-war-$RELEASE.war on the releases page is the tomcat application file, and the file containing libraries (in WEB-INF/lib) used by the tools and automatic-workflow.
+Note that the webapp file `webdanica-webapp-war-$RELEASE.war` on the releases page is the tomcat application file, and the file containing libraries (in WEB-INF/lib) used by the tools and automatic-workflow.
 
 The result of the harvesting workflow is harvestlogs, read by an automatic analysis workflow, that from these harvestlogs 
  * makes parsedText out of the warc.gz files from heritrix3, and then 
  * does criteria-analysis on this text, and finally 
  * ingest the results into the database.
 
-The database backend is HBase (currently 1.1) through Apache Phoenix. Building the code has the following requirement in webdanica-core/pom.xml
+The database backend is HBase (currently 2.0.2) through Apache Phoenix. Building the code has the following requirement in webdanica-core/pom.xml
 ``` 
 <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-core</artifactId>
-      <version>4.7.0-HBase-1.1</version>
+      <version>5.0.0-HBase-2.0</version>
       <scope>provided</scope>
     </dependency>
 ```
 Being 'provided' means, that is not downloaded and among the libs included in the produced war-file.
-You should locate the phoenix-client-jar used with your cluster, and use this instead of the previously used phoenix-4.7.0-HBase-1.1-client.jar.
+You should locate the phoenix-client-jar used with your cluster, and use this instead of the previously used `phoenix-5.0.0-HBase-2.0-client.jar`.
 We are currently used HortonWorks, and their phoenix-client-jar is located here: `/usr/hdp/current/phoenix-client/phoenix-client.jar`
 
 Describing the installation of hbase is considered out of scope for this manual.
@@ -51,7 +51,7 @@ e.g. `psql.py kb-test-hadoop-01.kb.dk:2181:/hbase create_blacklists.sql`
 
 [Installation and configuration of the webdanica Netarchivesuite](webdanicaNAS_install.md)
 
-[Tools manual](tools.md)
+[Tools manual](tools/Readme.md)
 
 [Analysis manual](analysis.md)
 
