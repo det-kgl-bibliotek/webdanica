@@ -186,6 +186,21 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 		}
 	}
 	
+	@Override
+	public Long getCount() throws Exception {
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		
+		try (PreparedStatement stm = conn.prepareStatement("SELECT COUNT(*) FROM harvests");) {
+			try (ResultSet rs = stm.executeQuery();) {
+				Long first = 0L;
+				while (rs != null && rs.next()) {
+					first= rs.getLong(1);
+					logger.debug("Got Count {}",first);
+				}
+				return first;
+			}
+		}
+	}
 	
 	@Override
 	public Iterator<SingleSeedHarvest> getAllWithSeedurl(String seedurl) throws Exception {
@@ -197,6 +212,23 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 												rs -> getHarvestsFromResultSet(rs),
 												1000);
 		}
+	}
+	
+	
+	@Override
+	public Long getCountWithSeedurl(String url) throws Exception {
+		
+		long res = 0;
+		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
+		try (PreparedStatement stm = conn.prepareStatement("SELECT count(*) FROM harvests WHERE seedurl=?");) {
+			stm.setString(1, url);
+			try (ResultSet rs = stm.executeQuery();) {
+				if (rs != null && rs.next()) {
+					res = rs.getLong(1);
+				}
+			}
+		}
+		return res;
 	}
 	
 	@Override
@@ -213,19 +245,7 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 		
 	}
 	
-	@Override
-	public Long getCount() throws Exception {
-		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-		
-		try (PreparedStatement stm = conn.prepareStatement("SELECT COUNT(*) FROM harvests");) {
-			try (ResultSet rs = stm.executeQuery();) {
-				if (rs != null && rs.next()) {
-					return rs.getLong(1);
-				}
-			}
-		}
-		return 0l;
-	}
+	
 	
 	@Override
     public Iterator<String> getAllNames() throws Exception { // Limit currently hardwired to 100K
@@ -269,20 +289,5 @@ public class HBasePhoenixHarvestDAO implements HarvestDAO {
 		return res != 0;
     }
 	
-	@Override
-	public Long getCountWithSeedurl(String url) throws Exception {
-		
-		long res = 0;
-		Connection conn = HBasePhoenixConnectionManager.getThreadLocalConnection();
-		try (PreparedStatement stm = conn.prepareStatement("SELECT count(*) FROM harvests WHERE seedurl=?");) {
-			stm.setString(1, url);
-			try (ResultSet rs = stm.executeQuery();) {
-				if (rs != null && rs.next()) {
-					res = rs.getLong(1);
-				}
-			}
-		}
-		return res;
-	}
 
 }
