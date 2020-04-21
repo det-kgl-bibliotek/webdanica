@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
+SCRIPT_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 
 #Read version from pom.xml
 VERSION=$(sed -E 's/xmlns="[^"]+"//g' pom.xml | xmllint --xpath '/project/version/text()' -)
@@ -89,7 +89,7 @@ function install_workflow(){
 	local WORKFLOW_USER_HOME=/opt/workflows
 	local AUTO_WORKFLOW_DIR="$WORKFLOW_USER_HOME/automatic-workflow/"
 
-	rsync -av "$SCRIPT_DIR/workflow-template/target/workflow-template-$VERSION/" "$HOST:$AUTO_WORKFLOW_DIR"
+	rsync -av "$SCRIPT_DIR/webdanica-workflow/target/webdanica-workflow-$VERSION/" "$HOST:$AUTO_WORKFLOW_DIR"
 	rsync -av "$SCRIPT_DIR/cronjobs" "$HOST:$WORKFLOW_USER_HOME"
 
 	rsync -avL "$SCRIPT_DIR/narcana/$WORKFLOW_USER_HOME/" "$HOST:$WORKFLOW_USER_HOME/"
@@ -105,7 +105,7 @@ function install_tools(){
 	set -x
 	local TOOLS_USER_HOME=/opt/tools
 
-	rsync -av "$SCRIPT_DIR/tools/target/tools-$VERSION/" "$HOST:$TOOLS_USER_HOME"
+	rsync -av "$SCRIPT_DIR/webdanica-tools/target/webdanica-tools-$VERSION/" "$HOST:$TOOLS_USER_HOME"
 
 	rsync -avL "$SCRIPT_DIR/narcana/$TOOLS_USER_HOME/" "$HOST:$TOOLS_USER_HOME/"
 
@@ -148,4 +148,4 @@ install_webapp
 install_workflow
 install_tools
 
-install_netarchivesuite
+#install_netarchivesuite
