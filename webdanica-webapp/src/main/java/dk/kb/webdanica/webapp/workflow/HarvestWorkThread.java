@@ -1,19 +1,6 @@
 package dk.kb.webdanica.webapp.workflow;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import dk.kb.webdanica.core.Constants;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import dk.kb.webdanica.core.WebdanicaSettings;
 import dk.kb.webdanica.core.datamodel.Cache;
 import dk.kb.webdanica.core.datamodel.Seed;
@@ -24,12 +11,25 @@ import dk.kb.webdanica.core.interfaces.harvesting.HarvestLog;
 import dk.kb.webdanica.core.interfaces.harvesting.SingleSeedHarvest;
 import dk.kb.webdanica.core.utils.Settings;
 import dk.kb.webdanica.core.utils.SettingsUtilities;
+import dk.kb.webdanica.core.utils.SkippingIterator;
 import dk.kb.webdanica.webapp.Configuration;
 import dk.kb.webdanica.webapp.Environment;
 import dk.netarkivet.common.distribute.arcrepository.ArcRepositoryClientFactory;
 import dk.netarkivet.common.utils.StringUtils;
 import dk.netarkivet.harvester.datamodel.DBSpecifics;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The workthread responsible for initiating harvests in NetarchiveSuite, waiting for them to finish, and
@@ -287,7 +287,7 @@ public class HarvestWorkThread extends WorkThreadAbstract {
         } else {
             harvestingInProgress.set(Boolean.TRUE);
         }
-        Iterator<Seed> seedsReadyForHarvesting = null;
+        SkippingIterator<Seed > seedsReadyForHarvesting = null;
 
         try {
             seedsReadyForHarvesting = seeddao.getSeedsForStatus(

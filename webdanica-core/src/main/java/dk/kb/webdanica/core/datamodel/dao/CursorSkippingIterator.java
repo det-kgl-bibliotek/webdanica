@@ -1,6 +1,6 @@
 package dk.kb.webdanica.core.datamodel.dao;
 
-import dk.kb.webdanica.core.tools.SkippingIterator;
+import dk.kb.webdanica.core.utils.SkippingIterator;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR=$(dirname $(readlink -f $BASH_SOURCE[0]))
+SCRIPT_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 
 [ -e $SCRIPT_DIR/setenv.sh ] && source $SCRIPT_DIR/setenv.sh
 

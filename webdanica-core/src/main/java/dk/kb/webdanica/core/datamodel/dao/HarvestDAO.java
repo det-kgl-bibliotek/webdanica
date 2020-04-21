@@ -16,9 +16,12 @@ public interface HarvestDAO {
 	Long getCount() throws Exception;
 	
 	Iterator<SingleSeedHarvest> getAllWithSeedurl(String seed) throws Exception;
+	
 	Long getCountWithSeedurl(String url) throws Exception;
 	
 	Iterator<SingleSeedHarvest> getAllWithSuccessfulstate(boolean b) throws Exception;
 	
 	boolean exists(String harvestName) throws Exception;
+	
+	
 }

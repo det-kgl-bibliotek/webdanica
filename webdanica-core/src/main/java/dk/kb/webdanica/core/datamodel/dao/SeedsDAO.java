@@ -6,7 +6,7 @@ import java.util.List;
 import dk.kb.webdanica.core.datamodel.DanicaStatus;
 import dk.kb.webdanica.core.datamodel.Seed;
 import dk.kb.webdanica.core.datamodel.Status;
-import dk.kb.webdanica.core.tools.SkippingIterator;
+import dk.kb.webdanica.core.utils.SkippingIterator;
 
 public interface SeedsDAO {
 	

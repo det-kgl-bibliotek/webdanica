@@ -1,0 +1,55 @@
+# Beskrivelse af det automatiske workflow
+
+## `webdanica-analysis-cron.sh`
+Som implementeret i `webdanica-analysis-cron.sh`:
+
+For alle harvestlog-filer fundet i `/home/harvestlogs/` folderen:
+* Flyt harvestlog til workflow-folderen
+* Kør `automatic.sh "$HARVESTLOG_FILE"` på harvestlog
+
+## `automatic.sh`
+Som implementeret i `automatic.sh`:
+
+* Generer et unikt SEQ_DIR; `SEQ_DIR="$SEQ_BASEDIR/$TIMESTAMP"`
+* Kør `parsed-workflow.sh "$HARVESTLOG_FILE" "$SEQ_DIR"`
+
+lav kriterie-analyse med pig
+* Generer et unikt CRITERIA_RESULTS_DIR; `CRITERIARESULTS_DIR="$CRITERIA_RESULTS_BASEDIR/$TIMESTAMP"`
+* Kør `criteria-workflow-alt.sh  "$SEQ_DIR" "$CRITERIARESULTS_DIR"`
+
+Efterprocessering af kriteria-analysen og ingest i databasen
+* `bash ingestTool.sh "$HARVESTLOG_FILE" "$CRITERIARESULTS_DIR"`
+
+## `parsed-workflow.sh`
+
+Bliver kaldt med `"$HARVESTLOG_FILE"` og `"$SEQ_DIR"`
+
+* `findwarcs.sh $HARVESTLOG_FILE` producerer liste af warc filer
+
+For hver warc fil i listen
+* `parse-text-extraction.sh "$WARC" $SEQDIR/$(basename $WARC)`
+
+
+## `criteria-workflow-alt.sh`
+Bliver kaldt med `SEQ_BASEDIR` og `CRITERIARESULTSDIR`
+For hver mappe (J) under SEQ_BASEDIR:
+
+```bash
+pig16-call-script.sh \
+    input = "$SEQ_BASEDIR/$J/$J" \
+    output = "$CRITERIARESULTSDIR/$J" \
+    script = "$WORKFLOW_HOME/pigscripts/criteriaRun-combinedCombo-alt-seq.pig"
+```
+
+## `pig16-call-script.sh`
+Bliver kaldt med `INPUT`, `OUTPUT` og `SCRIPT`
+
+```bash
+$PIG_HOME/bin/pig -x local -4 "$LOG4J_CONFIG" -f "$SCRIPT" -param "input=$INPUT" -param "output=$OUTPUT"
+```
+
+## `ingestTool.sh`
+
+Bliver kaldt med `HARVESTLOG_FILE` og `CRITERIARESULTS_DIR`
+
+Kalder direkte videre til Java

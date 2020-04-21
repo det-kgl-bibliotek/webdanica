@@ -2,9 +2,9 @@ package dk.kb.webdanica.core.datamodel.dao;
 
 import dk.kb.webdanica.core.datamodel.criteria.DataSource;
 import dk.kb.webdanica.core.datamodel.criteria.SingleCriteriaResult;
-import dk.kb.webdanica.core.tools.SkippingIterator;
 import dk.kb.webdanica.core.utils.CloseUtils;
 import dk.kb.webdanica.core.utils.DatabaseUtils;
+import dk.kb.webdanica.core.utils.SkippingIterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 import org.slf4j.Logger;
@@ -225,7 +225,7 @@ public class HBasePhoenixCriteriaResultsDAO implements CriteriaResultsDAO {
 		PreparedStatement stm = conn.prepareStatement(READ_ALL_WITH_SEEDURL_SQL);
 		stm.clearParameters();
 		stm.setString(1, seedurl);
-		return new CursorSkippingIterator<>((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
+		return new CursorSkippingIterator<SingleCriteriaResult>((PhoenixPreparedStatement)stm, conn, rs -> getResultsFromResultSet(rs), 1000);
 	}
 	
 	public static final String READ_ALL_WITH_HARVESTNAME_SQL;

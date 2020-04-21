@@ -166,14 +166,17 @@ public class HarvestsResource implements ResourceAbstract {
             pagination2Place.setText(Pagination.getPagination(page, itemsPerPage, pages, bShowAll));
         }
     */
-        
+    
+        HarvestDAO harvestDAO = environment.getConfig().getDAOFactory().getHarvestDAO();
         Iterator<SingleSeedHarvest> harvestList;
+        Long harvestCount;
         try {
-            HarvestDAO harvestDAO = environment.getConfig().getDAOFactory().getHarvestDAO();
             if (hr.viewAll()) {
                 harvestList = harvestDAO.getAll();
+                harvestCount = harvestDAO.getCount();
             } else {
                 harvestList = harvestDAO.getAllWithSeedurl(hr.getSeedUrl());
+                harvestCount = harvestDAO.getCountWithSeedurl(hr.getSeedUrl());
             }
         } catch (Exception e) {
             // Create error-page
@@ -182,7 +185,8 @@ public class HarvestsResource implements ResourceAbstract {
             CommonResource.show_error(errMsg, resp, environment);
             return;
         }
-    
+        
+        
         titlePlace.setText(HtmlEntity.encodeHtmlEntities(Constants.WEBAPP_NAME).toString());
     
     
@@ -203,38 +207,35 @@ public class HarvestsResource implements ResourceAbstract {
         StringBuilder menuSb = showMenu();
         menuPlace.setText(menuSb.toString());
     
-        String heading = showHeading(hr);
+        String heading = showHeading(hr, harvestCount);
         headingPlace.setText(heading);
     
         
         resp.setContentType("text/html; charset=utf-8");
         Caching.caching_disable_headers(resp);
         // Write out the page requested by the client browser
-        ServletOutputStream out = resp.getOutputStream();
-        try {
+        try (ServletOutputStream out = resp.getOutputStream()) {
             for (int i = 0; i < templateParts.parts.size(); ++i) {
-				TemplatePartBase templatePartBase = templateParts.parts.get(i);
+                TemplatePartBase templatePartBase = templateParts.parts.get(i);
                 //logger.trace("Writing out '{}",templatePartBase.getText());
-				out.write(templatePartBase.getBytes());
+                out.write(templatePartBase.getBytes());
             }
             out.flush();
         } catch (IOException e) {
             logger.error("Caught Exception", e);
             throw new RuntimeException(e);
-        } finally {
-            out.close();
         }
     }
     
     @NotNull
-    private String showHeading(HarvestRequest hr) {
+    private String showHeading(HarvestRequest hr, Long harvestCount) {
         /*
          * Heading.
          */
         
-        String heading = "Liste over høstninger i systemet";
+        String heading = "Liste over alle ("+harvestCount+") høstninger i systemet";
         if (!hr.viewAll()) {
-            heading = "Liste over høstninger i systemet af seedurl '" + hr.getSeedUrl() + "'";
+            heading = "Liste over høstninger i systemet af seedurl '" + hr.getSeedUrl() + "' ("+harvestCount+")";
         }
         return heading;
     }
@@ -277,9 +278,6 @@ public class HarvestsResource implements ResourceAbstract {
             SingleSeedHarvest harvest = harvestList.next();
             count++;
             
-            if (count > 1_000){ //TODO just for debugging remove this after
-                break;
-            }
             sb.append("<tr>");
             sb.append("<td>");
             sb.append("<a href=\"");

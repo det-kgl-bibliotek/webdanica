@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import dk.kb.webdanica.core.datamodel.dao.DaoException;
-import dk.kb.webdanica.core.tools.SkippingIterator;
+import dk.kb.webdanica.core.utils.SkippingIterator;
 import org.slf4j.Logger;
 
 import javax.servlet.ServletContext;

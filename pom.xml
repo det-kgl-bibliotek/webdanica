@@ -22,8 +22,8 @@
     <modules>
         <module>webdanica-core</module>
         <module>webdanica-webapp</module>
-        <module>workflow-template</module>
-        <module>tools</module>
+        <module>webdanica-tools</module>
+        <module>webdanica-workflow</module>
     </modules>
 
     <inceptionYear>2015</inceptionYear>

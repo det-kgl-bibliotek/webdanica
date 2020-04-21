@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.kb.webdanica.core.tools.SimpleSkippingIterator;
-import dk.kb.webdanica.core.tools.SkippingIterator;
+import dk.kb.webdanica.core.utils.SimpleSkippingIterator;
+import dk.kb.webdanica.core.utils.SkippingIterator;
 import org.apache.phoenix.jdbc.PhoenixPreparedStatement;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
